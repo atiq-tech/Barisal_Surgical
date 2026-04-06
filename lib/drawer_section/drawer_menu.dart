@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:barishal_surgical/auth/global_logout.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_report_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/category_list_screen.dart';

@@ -3,7 +3,6 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barishal_surgical/auth/login_screen.dart';
-import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/my_profile_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/sales_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/stock_list_screen.dart';
