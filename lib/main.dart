@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
 import 'package:barishal_surgical/splash_seccen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -77,7 +78,8 @@ class MyApp extends StatelessWidget {
          ChangeNotifierProvider<BranchesProvider>(create: (_) => BranchesProvider()),
          ChangeNotifierProvider<AreasProvider>(create: (_) => AreasProvider()),
          ChangeNotifierProvider<SalesProvider>(create: (_) => SalesProvider()),
-         
+
+         ChangeNotifierProvider<UsersProvider>(create: (_) => UsersProvider()),
          ChangeNotifierProvider<CategoriesProvider>(create: (_) => CategoriesProvider()),
          ChangeNotifierProvider<SalesRecordProvider>(create: (_) => SalesRecordProvider()),
          ChangeNotifierProvider<ExpireStockProvider>(create: (_) => ExpireStockProvider()),

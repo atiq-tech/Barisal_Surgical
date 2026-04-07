@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:barishal_surgical/auth/global_function.dart';
@@ -208,41 +209,68 @@ class ApiService{
     return null;
   }
 
-  ///==================fetchEmployeesApi List=======================new
-  static fetchEmployeesApi(BuildContext context) async {
-    SharedPreferences? sharedPreferences;
-    sharedPreferences = await SharedPreferences.getInstance();
-    String link = "${baseUrl}get_employees";
-    try {
-      Response response = await Dio().post(link,
-          options: Options(headers: {
-            "Content-Type": "application/json",
-            'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-            "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-          }));
-      var item = response.data;
-      if(item is! List){
-        if(item['status'] == 401 && item['success'] == false) {
-          ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
-          LogoutService.fetchLogout(context);
+    ///==================fetchEmployeesApi List=======================new
+    static fetchEmployeesApi(BuildContext context) async {
+      SharedPreferences? sharedPreferences;
+      sharedPreferences = await SharedPreferences.getInstance();
+      String link = "${baseUrl}get_employees";
+      try {
+        Response response = await Dio().post(link,
+            options: Options(headers: {
+              "Content-Type": "application/json",
+              'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+              "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+            }));
+        var item = response.data;
+        if(item is! List){
+          if(item['status'] == 401 && item['success'] == false) {
+            ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+            LogoutService.fetchLogout(context);
+          }
         }
+        return List.from(item).map((e) => EmployeesModel.fromMap(e)).toList();
+      } catch (e) {
+        print(e);
       }
-      return List.from(item).map((e) => EmployeesModel.fromMap(e)).toList();
-    } catch (e) {
-      print(e);
+      return null;
     }
-    return null;
-  }
+  
+    ///==================get_users List=======================new
+    static fetchUsersApi(BuildContext context) async {
+      SharedPreferences? sharedPreferences;
+      sharedPreferences = await SharedPreferences.getInstance();
+      String link = "${baseUrl}get_users";
+      try {
+        Response response = await Dio().post(link,
+            options: Options(headers: {
+              "Content-Type": "application/json",
+              'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+              "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+            }));
+        var item = response.data;
+        if(item is! List){
+          if(item['status'] == 401 && item['success'] == false) {
+            ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+            LogoutService.fetchLogout(context);
+          }
+        }
+        return List.from(item).map((e) => UsersModel.fromMap(e)).toList();
+      } catch (e) {
+        print(e);
+      }
+      return null;
+    }
 
   ///==================get_customers List======================
-  static fetchCustomerListApi(BuildContext context,String? customerType) async {
+  static fetchCustomerListApi(BuildContext context,String? customerType,String? employeeId) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
     String link = "${baseUrl}get_customers";
     try {
       Response response = await Dio().post(link,
           data: {
-            "customerType": "$customerType"
+            "customerType": "$customerType",
+            "employeeId": "$employeeId"
           },
           options: Options(headers: {
             "Content-Type": "application/json",

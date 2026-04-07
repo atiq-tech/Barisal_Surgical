@@ -1,5 +1,10 @@
+import 'package:barishal_surgical/common_widget/custom_btmnbar/custom_navbar.dart';
+import 'package:barishal_surgical/models/administration_module_models/employees_model.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/employees_provider.dart';
+import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -50,7 +55,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     'All',
     'Retail',
     'Wholesale',
-    'Dealer',
+    'By Employee',
   ];
 
   void _customerListDropdown(BuildContext context) async {
@@ -108,6 +113,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       });
     }
   }
+  var employeeController = TextEditingController();
+  String? _selectEmployeeId;
 
   @override
   void initState() {
@@ -115,17 +122,26 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     // TODO: implement initState
     super.initState();
     Provider.of<CustomerListProvider>(context, listen: false).customerList = [];
+    Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final allCustomersData= Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo!=0).toList();
+    final allCustomersData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo!=0).toList();
     // final allEmployeeWiseCustomerData = Provider.of<EmployeeWiseCustomerListProvider>(context).employeeWiseCustomerList.where((element) => element.customerName!=null).toList();
     // print("allCustomerTypeData====${allCustomerTypeData.length}");
-    // final allEmployeeData= Provider.of<AllEmployeeProvider>(context).employeeList;
-    // final allAreaData = Provider.of<DistrictProvider>(context, listen: false).allDistrictList;
+    final allEmployeeData = Provider.of<EmployeesProvider>(context).employeesList;
     return Scaffold(
-        appBar: CustomAppBar(title: "Customer List"),
+        appBar: AppBar(centerTitle: true,
+      scrolledUnderElevation: 0,
+      leading: InkWell(
+          onTap: () {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNavigationBarView()));
+          },
+          child: Icon(Icons.arrow_back, size: 22.0.sp,color: Colors.white)),
+      elevation: 0.0,
+      backgroundColor: AppColors.appColor,
+      title: const Text("Customer List",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500))),
         body: Column(
           children: [
             Container(
@@ -158,7 +174,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                             onTap: () => _customerListDropdown(context),
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: 6.w),
-                              margin: EdgeInsets.only(top:4.h,bottom: 3.h),
+                              margin: EdgeInsets.only(top:4.h,bottom: 4.h),
                               height: 25.0.h,
                               decoration: ContDecoration.contDecoration,
                               child: Row(
@@ -173,6 +189,72 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                         ),
                       ],
                     ),
+                   _searchType == 'By Employee' ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(flex: 4, child: Text("Employee", style: AllTextStyle.textFieldHeadStyle)),
+                        Expanded(flex: 1, child: Text(":",style:AllTextStyle.textFieldHeadStyle)),
+                        Expanded(
+                          flex: 11,
+                          child: Container(
+                            height: 25.0.h,
+                            margin: EdgeInsets.only(bottom: 4.h),
+                            child: TypeAheadField<EmployeesModel>(
+                              controller: employeeController,
+                              builder: (context, controller, focusNode) {
+                                return TextField(
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                  decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+                                    isDense: true,
+                                    hintText: 'Select Employee',
+                                    hintStyle: TextStyle(fontSize: 13.sp),
+                                    suffixIcon: _selectEmployeeId == '' || _selectEmployeeId == 'null' || _selectEmployeeId == null || controller.text == '' ? null
+                                        : GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          employeeController.clear();
+                                          controller.clear();
+                                          _selectEmployeeId = null;
+                                        });
+                                      },
+                                      child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+                                    ),
+                                    suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: InputBorder.none,
+                                    focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                    enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                  ),
+                                );
+                              },
+                              suggestionsCallback: (pattern) async {
+                                return Future.delayed(const Duration(seconds: 1), () {
+                                  return allEmployeeData.where((element) =>
+                                      element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                                });
+                              },
+                              itemBuilder: (context, EmployeesModel suggestion) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                                  child: Text(suggestion.displayName!,
+                                    style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              },
+                              onSelected: (EmployeesModel suggestion) {
+                                setState(() {
+                                  employeeController.text = suggestion.displayName!;
+                                  _selectEmployeeId = suggestion.employeeSlNo.toString();
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ):SizedBox(),
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Container(
@@ -183,29 +265,29 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                 _searchType == "All" ? data = 'all':
                                 _searchType == "Retail" ? data = 'retail':
                                 _searchType == "Wholesale" ? data = 'wholesale' :
-                                _searchType == "Dealer" ? data = 'dealer' : data = '';
+                                _searchType == "By Employee" ? data = 'employee' : data = '';
                               });
                               if(data == 'all') {
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
                               }else if(data == 'retail'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"retail");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"retail","");
                               }else if(data == 'wholesale'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"wholesale");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"wholesale","");
                               }
-                              else if(data == 'dealer'){
+                              else if(data == 'employee'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"dealer");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","$_selectEmployeeId");
                               }
                             },
                             child: Container(
@@ -247,6 +329,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                           DataColumn(label:Expanded(child:Center(child:Text('SI.',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Customer Id',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+                          DataColumn(label:Expanded(child:Center(child:Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Address',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Contact No',style:AllTextStyle.tableHeadTextStyle)))),
                         ],
@@ -258,6 +341,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                               DataCell(Center(child:Text("${index + 1}"))),
                               DataCell(Center(child:Text("${allCustomersData[index].customerCode}"))),
                               DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].customerName}")))),
+                              DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].employeeName??""}")))),
                               DataCell(SizedBox(width:MediaQuery.of(context).size.width/1,child:Center(child:Text("${allCustomersData[index].customerAddress}")))),
                               DataCell(Center(child:Text("${allCustomersData[index].customerMobile}"))),
                             ],
@@ -286,6 +370,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                           DataColumn(label:Expanded(child:Center(child:Text('SI.',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Customer Id',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+                          DataColumn(label:Expanded(child:Center(child:Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Address',style:AllTextStyle.tableHeadTextStyle)))),
                           DataColumn(label:Expanded(child:Center(child:Text('Contact No',style:AllTextStyle.tableHeadTextStyle)))),
                         ],
@@ -297,6 +382,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                               DataCell(Center(child:Text("${index + 1}"))),
                               DataCell(Center(child:Text("${allCustomersData[index].customerCode}"))),
                               DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].customerName}")))),
+                              DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].employeeName??""}")))),
                               DataCell(SizedBox(width:MediaQuery.of(context).size.width/1,child:Center(child:Text("${allCustomersData[index].customerAddress}")))),
                               DataCell(Center(child:Text("${allCustomersData[index].customerMobile}"))),
                             ],
@@ -325,6 +411,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                             DataColumn(label:Expanded(child:Center(child:Text('SI.',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label:Expanded(child:Center(child:Text('Customer Id',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label:Expanded(child:Center(child:Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+                            DataColumn(label:Expanded(child:Center(child:Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label:Expanded(child:Center(child:Text('Address',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label:Expanded(child:Center(child:Text('Contact No',style:AllTextStyle.tableHeadTextStyle)))),
                           ],
@@ -336,6 +423,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                 DataCell(Center(child:Text("${index + 1}"))),
                                 DataCell(Center(child:Text("${allCustomersData[index].customerCode}"))),
                                 DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].customerName}")))),
+                                DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].employeeName??""}")))),
                                 DataCell(SizedBox(width:MediaQuery.of(context).size.width/1,child:Center(child:Text("${allCustomersData[index].customerAddress}")))),
                                 DataCell(Center(child:Text("${allCustomersData[index].customerMobile}"))),
                               ],
@@ -346,7 +434,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     ),
                   ),
                 ):Center(child: Padding(padding: const EdgeInsets.all(10),child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle)))
-              else if(data == 'dealer')
+              else if(data == 'employee')
                   CustomerListProvider.isCustomerListloading == true ?
                  Expanded(child: _buildShimmerEffect(allCustomersData.length,)) : allCustomersData.isNotEmpty ? Expanded(
                     child: SingleChildScrollView(
@@ -364,6 +452,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                               DataColumn(label:Expanded(child:Center(child:Text('SI.',style:AllTextStyle.tableHeadTextStyle)))),
                               DataColumn(label:Expanded(child:Center(child:Text('Customer Id',style:AllTextStyle.tableHeadTextStyle)))),
                               DataColumn(label:Expanded(child:Center(child:Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+                              DataColumn(label:Expanded(child:Center(child:Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
                               DataColumn(label:Expanded(child:Center(child:Text('Address',style:AllTextStyle.tableHeadTextStyle)))),
                               DataColumn(label:Expanded(child:Center(child:Text('Contact No',style:AllTextStyle.tableHeadTextStyle)))),
                             ],
@@ -375,6 +464,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                   DataCell(Center(child:Text("${index + 1}"))),
                                   DataCell(Center(child:Text("${allCustomersData[index].customerCode}"))),
                                   DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].customerName}")))),
+                                  DataCell(SizedBox(width:MediaQuery.of(context).size.width/1.5,child:Center(child:Text("${allCustomersData[index].employeeName??""}")))),
                                   DataCell(SizedBox(width:MediaQuery.of(context).size.width/1,child:Center(child:Text("${allCustomersData[index].customerAddress}")))),
                                   DataCell(Center(child:Text("${allCustomersData[index].customerMobile}"))),
                                 ],
@@ -384,7 +474,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                         ),
                       ),
                     ),
-                  ):Center(child: Padding(padding: const EdgeInsets.all(10),child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle)))
+                  ):Center(child: Padding(padding: const EdgeInsets.all(10),child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
+           SizedBox(height: 20.0.h),
           ],
         ));
   }

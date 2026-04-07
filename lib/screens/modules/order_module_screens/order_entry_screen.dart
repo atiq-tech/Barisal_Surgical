@@ -74,7 +74,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   String? _selectedBankId;
   String? employeeName;
   double? previousDue;
-  String level = "retail";
+  String level = "wholesale";
   var availableStock = 0;
   int quantity = 0;
   String? productUnit;
@@ -214,13 +214,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     ProductListProvider.isProductsListLoading = true;
     Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
     CustomerListProvider.isCustomerListloading = true;
-    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     _loadCustomerData();
   }
 
   Future<void> _loadCustomerData() async {
-    await Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+    await Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final customerList = Provider.of<CustomerListProvider>(context, listen: false).customerList;
 
@@ -543,7 +543,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                                     level = value.toString();
                                                     CustomerListProvider().on();
                                                     customerController.text = '';
-                                                    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+                                                    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
                                                   });
                                                 }),
                                           ),
@@ -566,7 +566,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                                     level = value.toString();
                                                     CustomerListProvider().on();
                                                     customerController.text = '';
-                                                    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+                                                    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
                                                   });
                                                 }),
                                           ),
@@ -2379,7 +2379,8 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                       ],
                     ),
                   ),
-                  Visibility(visible: isVisibleBankName, child: const SizedBox(height: 200))
+                  Visibility(visible: isVisibleBankName, child: const SizedBox(height: 200)),
+                  SizedBox(height: 120.0.h),
                 ],
               ),
             ),

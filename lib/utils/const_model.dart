@@ -1,7 +1,7 @@
 //String baseUrl = "http://192.168.0.127:82/api/v1/"; //local
-String baseUrl = "https://demo.magiccorperp.com/api/v1/"; //sub
+//String baseUrl = "https://demo.magiccorperp.com/api/v1/"; //sub
 String imageBaseUrl = "https://demo.magiccorperp.com/uploads/users/";//imgUrlbase
-//String baseUrl = "https://test-soft.swiftsurgical.net/api/v1/";  ///main
+String baseUrl = "https://api.swiftsurgical.net/api/v1/";//sub
 
 List dashboardItems = [
     {"name": "Order Entry", "image": "images/orderEntry.png"},

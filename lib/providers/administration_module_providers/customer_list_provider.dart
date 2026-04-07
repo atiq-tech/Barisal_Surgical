@@ -6,8 +6,8 @@ class CustomerListProvider extends ChangeNotifier {
   List<CustomerListModel> customerList = [];
   static bool isCustomerListloading = false;
 
-  getCustomerList(BuildContext context,String? customerType) async {
-    customerList = await ApiService.fetchCustomerListApi(context, customerType);
+  getCustomerList(BuildContext context,String? customerType,String? employeeId) async {
+    customerList = await ApiService.fetchCustomerListApi(context, customerType, employeeId);
     customerList.insert(0, CustomerListModel(customerSlNo: 0,customerCode:"",displayName:"Cash Customer",customerName: "Cash Customer", customerType: "G", customerMobile: ""));
     customerList.insert(1, CustomerListModel(customerSlNo: 0,customerCode:"",displayName:"New Customer",customerName: "New Customer", customerType: "N", customerMobile: ""));
     off();

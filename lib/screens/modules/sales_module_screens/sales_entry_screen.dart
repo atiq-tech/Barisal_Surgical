@@ -88,7 +88,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   String? _selectedProduct;
   String? employeeSlNo;
   String? previousDue;
-  String level = "retail";
+  String level = "wholesale";
   var availableStock = 0;
   int quantity = 0;
   String? productUnit;
@@ -138,6 +138,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   bool isEnabled = false;
   bool isVisibleBankName = false;
   bool isAdded = false;
+  bool isChangeDate = false;
   bool isInvoiceDue = false;
 
   late final Box box;
@@ -290,7 +291,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     ProductListProvider.isProductsListLoading = true;
     Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
     CustomerListProvider.isCustomerListloading = true;
-    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
      //_quantityController.text = "1";
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
@@ -300,7 +301,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   }
 
   Future<void> _loadCustomerData() async {
-    await Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+    await Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final customerList = Provider.of<CustomerListProvider>(context, listen: false).customerList;
 
@@ -416,46 +417,69 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                     ),
                     child: Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text("Date to      :", style: AllTextStyle.textFieldHeadStyle),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        _selectedDate();
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.only(top: 5.h),
-                                        height: 25.0.h,
-                                        width: double.infinity,
-                                        padding: EdgeInsets.only(top: 3.h, bottom: 5.h, left: 5.w, right: 5.w),
-                                        decoration:ContDecoration.contDecoration,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(firstPickedDate == null ? Utils.formatFrontEndDate(DateTime.now()) : firstPickedDate!,
-                                                style:AllTextStyle.dateFormatStyle
-                                            ),
-                                            Icon(Icons.calendar_month, size: 18.r)
-                                          ],
-                                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text("Date to      :", style: AllTextStyle.textFieldHeadStyle),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _selectedDate();
+                                    },
+                                    child: Container(
+                                      margin: EdgeInsets.only(top: 5.h),
+                                      height: 25.0.h,
+                                      width: double.infinity,
+                                      padding: EdgeInsets.only(top: 3.h, bottom: 5.h, left: 5.w, right: 5.w),
+                                      decoration:ContDecoration.contDecoration,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(firstPickedDate == null ? Utils.formatFrontEndDate(DateTime.now()) : firstPickedDate!,
+                                              style:AllTextStyle.dateFormatStyle
+                                          ),
+                                          Icon(Icons.calendar_month, size: 18.r)
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isChangeDate = !isChangeDate; 
+                                });
+                              },
+                              child: Text("Don't Change Date :",style: AllTextStyle.textFieldHeadStyle),
+                            ),
+                            Transform.scale(
+                              scale: 1.1, 
+                              child: Checkbox(
+                                value: isChangeDate, 
+                                activeColor: Colors.teal.shade900, 
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    isChangeDate = value ?? false;
+                                  });
+                                },
                               ),
                             ),
                           ],
                         ),
-
                         Row(
                           children: [
                             Expanded(
@@ -466,7 +490,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                               flex: 3,
                               child: Container(
                                 height: 25.0.h,
-                                margin: EdgeInsets.only(bottom: 4.h,top: 4.h),
+                                margin: EdgeInsets.only(bottom: 4.h),
                                 child: TypeAheadField<EmployeesModel>(
                                   controller: empluyeeNameController,
                                   builder: (context, controller, focusNode) {
@@ -588,7 +612,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                               level = value.toString();
                                               CustomerListProvider().on();
                                               customerController.text = '';
-                                              Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+                                              Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
                                             });
                                           }),
                                     ),
@@ -610,7 +634,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                               level = value.toString();
                                               CustomerListProvider().on();
                                               customerController.text = '';
-                                              Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level);
+                                              Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
                                             });
                                           }),
                                     ),
@@ -888,9 +912,69 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                   },
                                 ),
                               ),
-                              
                             ],
-                          )
+                          ),
+                          if (isInvoiceDue) ...[
+                            Card(
+                              color: Colors.teal.shade900,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1.0.r)),
+                              child: Container(
+                              height: 20.h,
+                              width: double.infinity, child: Center(child: Text("Due Bills ", style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.bold))))),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 3.w),
+                              child: Table(
+                                border: TableBorder.all(color: const Color.fromARGB(255, 73, 156, 115)),
+                                columnWidths: const {
+                                  0: FlexColumnWidth(1),
+                                  1: FlexColumnWidth(1),
+                                },
+                                children: [
+                                  // Table Header
+                                   TableRow(
+                                    decoration: BoxDecoration(color: Colors.white),
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.all(1.r),
+                                        child: Center(child: Text("Invoice", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(1.r),
+                                        child: Center(child: Text("Due Amount", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                                      ),
+                                    ],
+                                  ),
+                                  // Table Data (Sample)
+                                  TableRow(
+                                    decoration: BoxDecoration(color: Colors.white),
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.all(1.r),
+                                        child: Center(child: Text("INV-250102274",style: AllTextStyle.dateFormatStyle)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(1.r),
+                                        child: Center(child: Text("1500", style: AllTextStyle.dateFormatStyle)),
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    decoration: BoxDecoration(color: Colors.white),
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.all(1.r),
+                                        child: Center(child: Text("INV-150102271",style: AllTextStyle.dateFormatStyle)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(1.r),
+                                        child: Center(child: Text("500", style: AllTextStyle.dateFormatStyle)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           ]),
                         ),
                       ],
@@ -963,9 +1047,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                   _selectedProduct = null;
                                                   _salesRateController.text = '';
                                                   _quantityController.text = '';
-                                                  // pDiscountController.text = '';
-                                                  // pDiscountPercentageController.text = '';
-                                                  // afterdisP = 0;
                                                 });
                                               },
                                               child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
@@ -1004,12 +1085,13 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                               productUnit = suggestion.unitName;
                                               isService = suggestion.isService;
                                               cpurchaseRate = suggestion.productPurchaseRate;
-                                              //
                                               _VatController.text = suggestion.vat;
-                                              //
                                               _salesRateController.text = suggestion.productSellingPrice;
                                               Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
                                               totalStack(cproductId);
+                                              _lotNoController.text = suggestion.productLotNo ?? '';
+                                              mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
+                                              expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
                                             });
                                       },
                                     ),
@@ -1087,7 +1169,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                   child: Text(":", style: AllTextStyle.textFieldHeadStyle),
                                 ),
                                 Expanded(
-                                  flex: 5,
+                                  flex: 4,
                                   child: Container(
                                     height: 25.h,
                                     padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 5.h),
@@ -1096,7 +1178,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                   ),
                                 ),
                                 Expanded(
-                                  flex: 4,
+                                  flex: 5,
                                   child: Card(
                                     elevation: 0,
                                     color: Colors.white,
@@ -1134,7 +1216,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                   height: 25.h,
                                   margin: EdgeInsets.only(bottom: 4.h),
                                   child: TextField(
-                                    style: AllTextStyle.textFieldHeadStyle,
+                                    style: AllTextStyle.dateFormatStyle,
                                     controller: _lotNoController,
                                     keyboardType: TextInputType.text,
                                     decoration: InputDecoration(
@@ -1167,7 +1249,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                 flex: 9,
                                 child: GestureDetector(
                                   onTap: () {
-                                    _selectedDate();
+                                    _mfgDate();
                                   },
                                   child: Container(
                                     height: 25.0.h,
@@ -1177,9 +1259,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(firstPickedDate == null ? Utils.formatFrontEndDate(DateTime.now()) : firstPickedDate!,
-                                            style:AllTextStyle.dateFormatStyle
-                                        ),
+                                        Text(mfgPickedDate ?? "mm/dd/yyyy",style: AllTextStyle.dateFormatStyle),
                                         Icon(Icons.calendar_month, size: 18.r)
                                       ],
                                     ),
@@ -1204,7 +1284,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                 flex: 9,
                                 child: GestureDetector(
                                   onTap: () {
-                                    _selectedDate();
+                                    _expDate();
                                   },
                                   child: Container(
                                     height: 25.0.h,
@@ -1214,9 +1294,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(firstPickedDate == null ? Utils.formatFrontEndDate(DateTime.now()) : firstPickedDate!,
-                                            style:AllTextStyle.dateFormatStyle
-                                        ),
+                                        Text(expPickedDate ?? "mm/dd/yyyy",style:AllTextStyle.dateFormatStyle),
                                         Icon(Icons.calendar_month, size: 18.r)
                                       ],
                                     ),
@@ -1225,6 +1303,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                               ),
                             ],
                           ),
+                          
                           ]),
                         ),
                         
@@ -2062,6 +2141,45 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
       });
     }
   }
+
+String? mfgPickedDate; // শুরুতে null থাকবে
+var backEndMfgDate;
+
+void _mfgDate() async {
+  final mfgDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime(2050));
+      
+  if (mfgDate != null) {
+    setState(() {
+      // ডেট সিলেক্ট করলে ভ্যালু সেট হবে
+      mfgPickedDate = Utils.formatFrontEndDate(mfgDate);
+      backEndMfgDate = Utils.formatBackEndDate(mfgDate);
+    });
+  }
+}
+
+String? expPickedDate; // শুরুতে null থাকবে
+var backEndExpDate;
+
+void _expDate() async {
+  final expDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime(2050));
+      
+  if (expDate != null) {
+    setState(() {
+      expPickedDate = Utils.formatFrontEndDate(expDate);
+      backEndExpDate = Utils.formatBackEndDate(expDate);
+    });
+  }
+}
+
+
   emtyMethodAll() {
     setState(() {
       _nameController.text = "";

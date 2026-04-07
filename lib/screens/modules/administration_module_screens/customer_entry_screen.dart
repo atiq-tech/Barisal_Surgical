@@ -178,7 +178,7 @@ String? tradeLicenseName, tradeLicensePath;
     Provider.of<EmployeesProvider>(context,listen: false).getEmployees(context);
     Provider.of<AreasProvider>(context,listen: false).getAreas(context);
     CustomerListProvider.isCustomerListloading = true;
-    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"");
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
   }
 
   ScrollController mainScrollController = ScrollController();
@@ -1048,7 +1048,7 @@ String? tradeLicenseName, tradeLicensePath;
                                 customerEntryBtnClk = true;
                               });
                               customerEntry(context).then((value){
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
                                 setState(() {
                                 });
                               });

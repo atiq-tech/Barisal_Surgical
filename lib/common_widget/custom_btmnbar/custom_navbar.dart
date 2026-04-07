@@ -1,4 +1,5 @@
 import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_list_screen.dart';
+import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -233,7 +234,8 @@ class _BottomNavigationBarViewState extends State<BottomNavigationBarView> {
       SalesEntryScreen(),
       CustomerListScreen(),
       HomePage(),
-      StockListScreen(),
+      //StockListScreen(),
+      OrderEntryScreen(),
       MyProfileScreen(),
     ];
 
@@ -278,8 +280,8 @@ class _BottomNavigationBarViewState extends State<BottomNavigationBarView> {
                 text: "Home",
                 isSelected: _currentIndex == 2),
             _buildNavItem(
-                icon: Icons.category,
-                text: "Stock",
+                icon: Icons.shop,
+                text: "Order",
                 isSelected: _currentIndex == 3),
             _buildNavItem(
                 icon: Icons.person,

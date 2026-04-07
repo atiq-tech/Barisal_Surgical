@@ -120,7 +120,7 @@ class _VisitEntryScreenState extends State<VisitEntryScreen> {
     getCurrentLocation();
     // Provider.of<EmployeeProvider>(context,listen: false).getEmployee();
     // Provider.of<VisitsProvider>(context, listen: false).visitslist=[];
-    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context, "");
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context, "","");
     // CustomerListProvider.isCustomerTypeChange = true;
     // Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("","","");
     userName = _employeeCustomerController.text;

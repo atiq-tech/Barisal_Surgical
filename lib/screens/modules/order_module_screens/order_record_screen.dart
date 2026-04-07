@@ -1,3 +1,5 @@
+import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -251,11 +253,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
       });
     }
   }
-  // by user
-  String? byUserId;
-  String? byUserFullname;
-  String userFullName = "";
-  final provideSalesdetailsRecordList = [];
   ///Sub total
   double? subTotal;
   double? vatTotal;
@@ -277,13 +274,14 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     secondPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndSecondtDate = Utils.formatBackEndDate(DateTime.now());
-    ///Provider.of<ProductListProvider>(context, listen: false).getProductList();
-    ///Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList();
-    ///Provider.of<EmployeesProvider>(context, listen: false).getEmployees();
-    ///Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("");
-    ///Provider.of<SalesProvider>(context,listen: false).getSales("", "", "", "", "", "");
-    ///Provider.of<SalesRecordProvider>(context,listen: false).getSalesRecord("", "", "", "", "");
-    // Provider.of<SaleBySummeryProvider>(context, listen: false).getSaleBySummery(context, "", backEndFirstDate, backEndSecondtDate);
+    Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
+    Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);
+    Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
+    Provider.of<SalesProvider>(context,listen: false).getSales(context,"", "", "", "", "", "");
+    Provider.of<SalesRecordProvider>(context,listen: false).getSalesRecord(context,"", "", "", "", "");
+    Provider.of<UsersProvider>(context, listen: false).getUsers(context);
+    
     super.initState();
   }
 
@@ -337,7 +335,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     /// all products list
     final allProductsData = Provider.of<ProductListProvider>(context).productsList;
     /// get user
-    // final allGetUserlistData = Provider.of<AllGetUserlistProvider>(context).getAllUserList;
+    final allUsersData = Provider.of<UsersProvider>(context).usersList;
     return Scaffold(
       appBar: CustomAppBar(title: "Order Record"),
       body: Container(
@@ -668,7 +666,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                         child: Container(
                           height: 25.0.h,
                           margin: EdgeInsets.only(top: 4.h),
-                          child: TypeAheadField<ProductListModel>(
+                          child: TypeAheadField<UsersModel>(
                             controller: userController,
                             builder: (context, controller, focusNode) {
                               return TextField(
@@ -701,22 +699,22 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             },
                             suggestionsCallback: (pattern) async {
                               return Future.delayed(const Duration(seconds: 1), () {
-                                return allProductsData.where((element) =>
-                                    element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                                return allUsersData.where((element) =>
+                                    element.fullName!.toLowerCase().contains(pattern.toLowerCase())).toList();
                               });
                             },
-                            itemBuilder: (context, ProductListModel suggestion) {
+                            itemBuilder: (context, UsersModel suggestion) {
                               return Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                child: Text(suggestion.displayText!,
+                                child: Text(suggestion.fullName!,
                                   style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
                                 ),
                               );
                             },
-                            onSelected: (ProductListModel suggestion) {
+                            onSelected: (UsersModel suggestion) {
                               setState(() {
-                                userController.text = suggestion.displayText!;
-                                _selectUserId = suggestion.productSlNo.toString();
+                                userController.text = suggestion.fullName!;
+                                _selectUserId = suggestion.userSlNo.toString();
                               });
                             },
                           ),

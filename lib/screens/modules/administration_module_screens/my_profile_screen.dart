@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +72,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           },
           child: Icon(Icons.arrow_back, size: 22.0.sp,color: Colors.white)),
       elevation: 0.0,
-      backgroundColor: Colors.teal.shade900,
+      backgroundColor: AppColors.appColor,
       title: const Text("My Profile",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500))),
       body: Container(
         height: double.infinity,
