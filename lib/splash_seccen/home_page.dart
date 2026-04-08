@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                    CircleAvatar(
-                    radius: 15.0.r,
+                    radius: 13.0.r,
                     backgroundImage: NetworkImage(
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNq-fhMeQRIAFfcfgPFaQDO8yTQ_SOW1-6raA_0HgiiKDJTV0TkDiojPT98h40g8T4FAk&usqp=CAU'),
                   ),
@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                     child: Text(
                       "${sharedPreferences?.getString('userName')}",
                       style: TextStyle(
-                          fontSize: 12.0.sp,
+                          fontSize: 11.0.sp,
                           overflow: TextOverflow.ellipsis,
                           fontWeight: FontWeight.w600,
                           color: Colors.white),

@@ -1,4 +1,5 @@
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/sales_details_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:barishal_surgical/auth/global_function.dart';
@@ -294,19 +295,20 @@ class ApiService{
 
   ///==================get_Sales List=====================
   static fetchSales(BuildContext context,String? userId, String? customerId, String? employeeId,
-  String? branchId, String? dateFrom, String? dateTo) async {
+  String? dateFrom, String? dateTo) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
     String link = "${baseUrl}get_sales";
     try {
     Response response = await Dio().post(link,
         data: {
-          "userId": userId,
-          "customerId": customerId,
-          "employeeId": employeeId,
-          "branchId": branchId,
-          "dateFrom": dateFrom,
-          "dateTo": dateTo
+            "userId": userId,
+            "customerId": customerId,
+            "employeeId": employeeId,
+            "dateFrom": dateFrom,
+            "dateTo": dateTo,
+            "status": "a",
+            "invoiceNo": ""
         },
         options: Options(headers: {
           "Content-Type": "application/json",
@@ -336,11 +338,13 @@ class ApiService{
     try {
     Response response = await Dio().post(link,
         data: {
-          "userId": userId,
-          "customerId": customerId,
-          "employeeId": employeeId,
-          "dateFrom": dateFrom,
-          "dateTo": dateTo
+            "userId": userId,
+            "customerId": customerId,
+            "employeeId": employeeId,
+            "dateFrom": dateFrom,
+            "dateTo": dateTo,
+            "status": "a",
+            "invoiceNo": ""
         },
         options: Options(headers: {
           "Content-Type": "application/json",
@@ -348,7 +352,7 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
     var item = response.data;
-    print("Customer=====$item");
+    print("get_sales_record=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -363,37 +367,39 @@ class ApiService{
   }
 
   ///==================SalesDetails List======================
-  static fetchSalesDetails(BuildContext context,String? categoryId,String? productId,String? userId,
-    String? branchId, String? dateFrom, String? dateTo) async {
+  static fetchSalesDetails(BuildContext context,String? categoryId,String? productId,String? employeeId,
+    String? dateFrom, String? dateTo) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
-    String link = "${baseUrl}get_customers";
-    //try {
+    String link = "${baseUrl}get_sale_details";
+    try {
     Response response = await Dio().post(link,
-        data: {
-            "categoryId": categoryId,
-            "productId": productId,
-            "branchId": branchId,
-            "dateFrom": dateFrom,
-            "dateTo": dateTo
-        },
-        options: Options(headers: {
-          "Content-Type": "application/json",
-          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-        }));
+      data: {
+          "categoryId": categoryId,
+          "productId": productId,
+          "employeeId": employeeId,
+          "isCourier": "0",
+          "dateFrom": "2026-04-01",
+          "dateTo": "2026-04-07",
+          "status": "a"
+      },
+      options: Options(headers: {
+        "Content-Type": "application/json",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+        "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+      }));
     var item = response.data;
-    print("Customer=====$item");
+    print("get_sale_details=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
         LogoutService.fetchLogout(context);
       }
     }
-   // return List.from(item).map((e) => SalesRecordModel.fromMap(e)).toList();
-    // } catch (e) {
-    //   print(e);
-    // }
+   return List.from(item).map((e) => SalesDetailsModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
     return null;
   }
 

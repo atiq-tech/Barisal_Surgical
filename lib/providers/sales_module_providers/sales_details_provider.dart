@@ -5,8 +5,8 @@ import '../../models/sales_module_models/sales_details_model.dart';
 class SalesDetailsProvider extends ChangeNotifier {
   static bool isSalesDetailsLoading = false;
   List<SalesDetailsModel> salesDetailslist = [];
-  getSalesDetails(BuildContext context,String? categoryId,String? productId,String? userId, String? branchId, String? dateFrom, String? dateTo) async {
-    salesDetailslist = await ApiService.fetchSalesDetails(context,categoryId,productId,userId,branchId,dateFrom,dateTo);
+  getSalesDetails(BuildContext context,String? categoryId,String? productId,String? employeeId, String? dateFrom, String? dateTo) async {
+    salesDetailslist = await ApiService.fetchSalesDetails(context,categoryId,productId,employeeId,dateFrom,dateTo);
     off();
     notifyListeners();
   }

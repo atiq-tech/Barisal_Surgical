@@ -57,7 +57,7 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
   @override
   void initState() {
     getCompanyProfile();
-    Provider.of<SalesProvider>(context, listen: false).getSales(context,"", "", "", "", "", "");
+    Provider.of<SalesProvider>(context, listen: false).getSales(context,"", "", "", "", "");
     super.initState();
   }
 

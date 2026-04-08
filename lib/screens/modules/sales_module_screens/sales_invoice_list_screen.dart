@@ -73,7 +73,7 @@ class _SalesInvoiceListScreenState extends State<SalesInvoiceListScreen> {
   void initState() {
     getCompanyProfile();
     _initializeData();
-    Provider.of<SalesProvider>(context, listen: false).getSales(context,"", "", "", "", "", "");
+    Provider.of<SalesProvider>(context, listen: false).getSales(context,"", "", "", "", "");
     Provider.of<SalesInvoiceProvider>(context, listen: false).getSalesInvoice(context, "");
     // TODO: implement initState
     super.initState();

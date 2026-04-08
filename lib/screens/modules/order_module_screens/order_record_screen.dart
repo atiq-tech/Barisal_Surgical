@@ -278,7 +278,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
-    Provider.of<SalesProvider>(context,listen: false).getSales(context,"", "", "", "", "", "");
+    Provider.of<SalesProvider>(context,listen: false).getSales(context,"", "", "", "", "");
     Provider.of<SalesRecordProvider>(context,listen: false).getSalesRecord(context,"", "", "", "", "");
     Provider.of<UsersProvider>(context, listen: false).getUsers(context);
     
@@ -847,7 +847,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   "",
                                   "",
                                   "",
-                                  "",
                                   backEndFirstDate,
                                   backEndSecondtDate
                               );
@@ -870,7 +869,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                               Provider.of<SalesProvider>(context, listen: false).getSales(context,
                                   "",
                                   _selectCustomerId,
-                                  "",
                                   "",
                                   backEndFirstDate,
                                   backEndSecondtDate
@@ -895,7 +893,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 "",
                                 "",
                                 _selectEmployeeId,
-                                "",
                                 backEndFirstDate,
                                 backEndSecondtDate,
                               );
