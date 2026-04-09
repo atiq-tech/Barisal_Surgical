@@ -1,4 +1,7 @@
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
+import 'package:barishal_surgical/models/order_module_models/orders_invoice_model.dart';
+import 'package:barishal_surgical/models/order_module_models/orders_model.dart';
+import 'package:barishal_surgical/models/order_module_models/orders_record_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/sales_details_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -293,6 +296,79 @@ class ApiService{
     return null;
   }
 
+///==================get_Orders List=====================
+  static fetchOrders(BuildContext context,String? userId, String? customerId, String? employeeId,
+  String? dateFrom, String? dateTo) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_orders";
+    try {
+    Response response = await Dio().post(link,
+      data: {
+          "userId": userId,
+          "customerId": customerId,
+          "employeeId": employeeId,
+          "dateFrom": dateFrom,
+          "dateTo": dateTo,
+          "isOrder": "true",
+          "invoiceNo": ""
+      },
+      options: Options(headers: {
+        "Content-Type": "application/json",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+        "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+      }));
+    var item = response.data;
+    print("get_orders=====$item");
+    if(item is! List){
+      if(item['status'] == 401 && item['success'] == false) {
+        ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+        LogoutService.fetchLogout(context);
+      }
+    }
+    return List.from(item["sales"]).map((e) => OrdersModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+  
+  ///==================OrdersRecord List======================
+  static fetchOrdersRecord(BuildContext context,String? userId, String? customerId, String? employeeId, String? dateFrom, String? dateTo) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_orders_record";
+    try {
+    Response response = await Dio().post(link,
+      data: {
+          "userId": userId,
+          "customerId": customerId,
+          "employeeId": employeeId,
+          "dateFrom": dateFrom,
+          "dateTo": dateTo,
+          "isOrder": "true",
+          "invoiceNo": ""
+      },
+      options: Options(headers: {
+        "Content-Type": "application/json",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+        "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+      }));
+    var item = response.data;
+    print("get_orders_record=====$item");
+    if(item is! List){
+      if(item['status'] == 401 && item['success'] == false) {
+        ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+        LogoutService.fetchLogout(context);
+      }
+    }
+    return List.from(item).map((e) => OrdersRecordModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
   ///==================get_Sales List=====================
   static fetchSales(BuildContext context,String? userId, String? customerId, String? employeeId,
   String? dateFrom, String? dateTo) async {
@@ -427,6 +503,31 @@ class ApiService{
     }
     return salesInvoiceModel;
   }
+  
+  ///==================get_orders=======================
+  static fetchOrdersInvoice(String? salesId) async {
+    String Link = "${baseUrl}get_orders";
+    OrdersInvoiceModel? ordersInvoiceModel;
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      var body = {
+        "salesId": "$salesId",
+      };
+      Response response = await Dio().post(Link,
+          data: body,
+          options: Options(headers: {
+            "Content-Type": "application/json",
+            'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+            "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+          }));
+      return OrdersInvoiceModel.fromMap(response.data);
+    } catch (e) {
+      print("Something is wrong getSaleslist=======:$e");
+    }
+    return ordersInvoiceModel;
+  }
+
   // //==================All Employee List=======================
   // static fetchAllEmployee() async {
   //   SharedPreferences? sharedPreferences;

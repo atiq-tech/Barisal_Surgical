@@ -311,7 +311,10 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
     subTotal = allSalesData.map((e) => e.saleMasterSubTotalAmount).fold(0.0, (p, element) => p!+double.parse(element));
     vatTotal = allSalesData.map((e) => e.saleMasterTaxAmount).fold(0.0, (p, element) => p!+double.parse(element));
     discountTotal = allSalesData.map((e) => e.saleMasterTotalDiscountAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    transferCost = allSalesData.map((e) => e.saleMasterFreight).fold(0.0, (p, element) => p!+double.parse(element));
+    transferCost = allSalesData.fold(0.0, (p, e) {
+      double value = double.tryParse(e.saleMasterFreight?.toString() ?? '0') ?? 0.0;
+      return p! + value;
+    });
     totalAmount = allSalesData.map((e) => e.saleMasterTotalSaleAmount).fold(0.0, (p, element) => p!+double.parse(element));
     paidTotal = allSalesData.map((e) => e.saleMasterPaidAmount).fold(0.0, (p, element) => p!+double.parse(element));
     dueTotal = allSalesData.map((e) => e.saleMasterDueAmount).fold(0.0, (p, element) => p!+double.parse(element));
@@ -995,41 +998,29 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   "$backEndSecondtDate",
                                 );
                               }
-                              // /// By Summary
-                              // else if (isSummaryWiseClicked) {
-                              //   data = 'showBySummaryDetails';
-                              //   ///get sale by Summary
-                              //   Provider.of<SaleBySummeryProvider>(context, listen: false).getSaleBySummery(context,
-                              //     "$_selectedCategoryTypes",
-                              //     "$backEndFirstDate",
-                              //     "$backEndSecondtDate",
-                              //   );
-                              // }
-                              // // By User
-                              // else if (isUserWiseClicked && isWithoutDetailsClicked) {
-                              //   data = 'showByUserWithoutDetails';
-                              //   ///get sales api UserType
-                              //   Provider.of<GetSaleProvider>(context, listen: false).getGetSale(context,
-                              //     "",
-                              //     backEndFirstDate,
-                              //     backEndSecondtDate,
-                              //     _selectedRecordTypes,
-                              //     "",
-                              //     _selectedUserTypes,
-                              //   );
-                              // }
-                              // else if (isUserWiseClicked && isWithDetailsClicked) {
-                              //   data = 'showByUserWithDetails';
-                              //   ///get sales Record api UserType
-                              //   Provider.of<GetSaleProvider>(context, listen: false).getGetSale(context,
-                              //     "",
-                              //     backEndFirstDate,
-                              //     backEndSecondtDate,
-                              //     _selectedRecordTypes,
-                              //     "",
-                              //     _selectedUserTypes,
-                              //   );
-                              // }
+                              // By User
+                              else if (isUserWiseClicked && isWithoutDetailsClicked) {
+                                data = 'showByUserWithoutDetails';
+                                ///get sales api UserType
+                                Provider.of<SalesProvider>(context, listen: false).getSales(context,
+                                  _selectUserId,
+                                  "",
+                                  "",
+                                  backEndFirstDate,
+                                  backEndSecondtDate,
+                                );
+                              }
+                              else if (isUserWiseClicked && isWithDetailsClicked) {
+                                data = 'showByUserWithDetails';
+                                ///get sales Record api UserType
+                                Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(context,
+                                  _selectUserId,
+                                  "",
+                                  "",
+                                  backEndFirstDate,
+                                  backEndSecondtDate,
+                                );
+                              }
                             });
                           //}
                           // else{
@@ -1716,7 +1707,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                           Map<String, Map<String, dynamic>> groupedMap = {};
 
                           for (var item in allSaleDetailsData) {
-                            String id = item.productIdNo;
+                            String id = item.productCode;
 
                             if (groupedMap.containsKey(id)) {
                               // Jodi product-ti agei map-e thake, tar quantity ar amount jog korun
@@ -1731,7 +1722,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                             } else {
                               // Jodi product-ti prothom-bar ashe, notun entry create korun
                               groupedMap[id] = {
-                                'productIdNo': item.productIdNo,
+                                'productCode': item.productCode,
                                 'productName': item.productName,
                                 'productCategoryName': item.productCategoryName,
                                 'quantity': double.parse(item.saleDetailsTotalQuantity),
@@ -1780,7 +1771,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                                 : MaterialStateProperty.resolveWith(getColors),
                                             cells: <DataCell>[
                                               DataCell(Center(child: Text("${index + 1}"))),
-                                              DataCell(Center(child: Text(item['productIdNo']))),
+                                              DataCell(Center(child: Text(item['productCode']))),
                                               DataCell(Center(child: Text(item['productName']))),
                                               DataCell(Center(child: Text(item['productCategoryName']))),
                                               // Quantity formatting
@@ -1838,7 +1829,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allSaleDetailsData[index].productIdNo))),
+                                  DataCell(Center(child: Text(allSaleDetailsData[index].productCode))),
                                   DataCell(Center(child: Text(allSaleDetailsData[index].productName))),
                                   DataCell(Center(child: Text(allSaleDetailsData[index].productCategoryName))),
                                   DataCell(Center(child: Text(double.parse(allSaleDetailsData[index].saleDetailsTotalQuantity).toStringAsFixed(decimal!)))),

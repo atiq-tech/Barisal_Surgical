@@ -1,4 +1,7 @@
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
+import 'package:barishal_surgical/providers/order_module_providers/orders_invoice_provider.dart';
+import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
+import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
 import 'package:barishal_surgical/splash_seccen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -71,6 +74,7 @@ class MyApp extends StatelessWidget {
       designSize: const Size(360, 690),
       builder: (context, child) => MultiProvider(
         providers: [
+         ChangeNotifierProvider<OrdersRecordProvider>(create: (_) => OrdersRecordProvider()),
          ChangeNotifierProvider<CustomerListProvider>(create: (_) => CustomerListProvider()),
          ChangeNotifierProvider<ProductListProvider>(create: (_) => ProductListProvider()),
          ChangeNotifierProvider<TotalStockProvider>(create: (_) => TotalStockProvider()),
@@ -80,12 +84,14 @@ class MyApp extends StatelessWidget {
          ChangeNotifierProvider<SalesProvider>(create: (_) => SalesProvider()),
 
          ChangeNotifierProvider<UsersProvider>(create: (_) => UsersProvider()),
+         ChangeNotifierProvider<OrdersProvider>(create: (_) => OrdersProvider()),
          ChangeNotifierProvider<CategoriesProvider>(create: (_) => CategoriesProvider()),
          ChangeNotifierProvider<SalesRecordProvider>(create: (_) => SalesRecordProvider()),
          ChangeNotifierProvider<ExpireStockProvider>(create: (_) => ExpireStockProvider()),
          ChangeNotifierProvider<BankAccountProvider>(create: (_) => BankAccountProvider()),
          ChangeNotifierProvider<SalesDetailsProvider>(create: (_) => SalesDetailsProvider()),
          ChangeNotifierProvider<SalesInvoiceProvider>(create: (_) => SalesInvoiceProvider()),
+         ChangeNotifierProvider<OrdersInvoiceProvider>(create: (_) => OrdersInvoiceProvider()),
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,

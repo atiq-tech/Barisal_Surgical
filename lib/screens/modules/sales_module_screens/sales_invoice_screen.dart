@@ -1,7 +1,11 @@
+
+import 'package:barishal_surgical/models/sales_module_models/sales_invoice_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:barishal_surgical/utils/const_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -25,6 +29,11 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
   double totalDue = 0.0;
   String companyName = "";
   String repotHeading = "";
+  String dueStatus = "";
+  String invoiceNote = "";
+  String headerImg = "";
+  String footerImg = "";
+
    void getCompanyProfile() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     try {
@@ -43,6 +52,8 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
         setState(() {
           companyName = data['Company_Name'] ?? "";
           repotHeading = data['Repot_Heading'] ?? "";
+          dueStatus = data['dueStatus'] ?? "";
+          invoiceNote = data['InvoiceNote'] ?? "";
         });
 
         /// START AUTO TIME CHECK EVERY 1 SECOND
@@ -53,268 +64,405 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
     }
     print("get_company_profile-------Company_Name======$companyName");
     print("get_company_profile-------Company_Name======$repotHeading");
+    print("get_company_profile-------dueStatus======$dueStatus");
+    print("get_company_profile-------invoiceNote======$invoiceNote");
   }
+
+  void getCurrentBranch() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_current_branch",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          headerImg = data['Branch_header'] ?? "";
+          footerImg = data['Branch_footer'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_current_branch-------Branch_header======$headerImg");
+    print("get_current_branch-------Branch_footer======$footerImg");
+  }
+
+  
+
   @override
   void initState() {
     getCompanyProfile();
+    getCurrentBranch();
     Provider.of<SalesProvider>(context, listen: false).getSales(context,"", "", "", "", "");
     super.initState();
   }
 
-  Future<void> printInvoice(data) async {
-    final pdf = pw.Document();
-    final  logoImg = await rootBundle.load('images/mglogo.webp');
-    final  logoImage = logoImg.buffer.asUint8List();
+ // ইমেজ ফেচ করার জন্য উন্নত ফাংশন
+Future<Uint8List?> _fetchImage(String url) async {
+  try {
+    final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      print('Image Load Failed: Status ${response.statusCode}');
+      return null; // এরর না ছুড়ে নাল রিটার্ন করছি যাতে অ্যাপ ক্রাশ না করে
+    }
+  } catch (e) {
+    print('Error fetching image: $e');
+    return null;
+  }
+}
 
-    pdf.addPage(
-      pw.MultiPage(
-        margin: pw.EdgeInsets.only(left:0.0.w,right: 0.0.w,top:20.0.h,bottom:15.0.h),
-        pageFormat: PdfPageFormat.a4,
-        build: (context) => [
-          pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.center,
-            children: [
-              pw.Image(pw.MemoryImage(logoImage), width: 180.w, height: 180.h),
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 35.sp, fontWeight: pw.FontWeight.bold)),
-              pw.Text(
-                repotHeading, 
-                textAlign: pw.TextAlign.center, 
-                style: pw.TextStyle(
-                  fontSize: 25.sp, 
-                  fontWeight: pw.FontWeight.bold
-                ),
-              ),
-              pw.SizedBox(height: 25.h),
-              pw.Divider(color: PdfColors.black, thickness: 5),
-              pw.SizedBox(height: 5.h),
-              pw.Text("Sales Invoice", style: pw.TextStyle(fontSize: 35.sp, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 5.h),
-              pw.Divider(color: PdfColors.black, thickness: 5),
-              pw.SizedBox(height: 35.h),
-              pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Row(
-                          children: [
-                            pw.Text(
-                                "Customer: ",
-                                style: pw.TextStyle(fontSize: 23.sp, fontWeight: pw.FontWeight.bold)),
-                            pw.Text(data!.sales[0].customerName,
-                                style: pw.TextStyle(fontSize: 23.sp, fontWeight: pw.FontWeight.bold)),
-                          ]),
-                          pw.SizedBox(height: 15.h),
-                          pw.Row(
-                          children: [
-                            pw.Text(
-                                "Contact: ",
-                                style: pw.TextStyle(fontSize: 23.sp, fontWeight: pw.FontWeight.bold,)),
-                            pw.Text(data.sales[0].customerMobile,
-                                style: pw.TextStyle(fontSize: 23.sp, fontWeight: pw.FontWeight.bold,)),
-                          ]),
-                        ]
-                    ),
-                    ///====
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.end,
-                      children: [
-                        pw.Row(
-                        children: [
-                          pw.Text("Date: ",style: pw.TextStyle(fontSize: 23.sp, fontWeight: pw.FontWeight.bold)),
-                          pw.Text(data.sales[0].saleMasterSaleDate,style: pw.TextStyle(fontSize: 23.sp,fontWeight: pw.FontWeight.bold)),
-                        ]),
-                        pw.SizedBox(height: 15.h),
-                        pw.Row(
-                        children: [
-                          pw.Text("Saved by:", style: pw.TextStyle(fontSize: 23.sp, fontWeight: pw.FontWeight.bold)),
-                          pw.Text(data.sales[0].addedBy,style: pw.TextStyle(fontSize: 23.sp,fontWeight: pw.FontWeight.bold)),
-                        ]),
-                      ]
-                    ),
-                  ]
-                ),
-              ]),
-              pw.SizedBox(height: 35.h),
-              pw.Divider(color: PdfColors.black, thickness: 5),
-              pw.SizedBox(height: 5.h),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text('Sl.',style: pw.TextStyle(fontSize: 26.sp,fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center),
-                  pw.Text('Description',style: pw.TextStyle(fontSize: 26.sp,fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center),
-                  pw.Text('Qty',style: pw.TextStyle(fontSize: 26.sp,fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center),
-                  pw.Text('Price',style: pw.TextStyle(fontSize: 26.sp,fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center),
-                  pw.Text('Total',style: pw.TextStyle(fontSize: 26.sp,fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center),
-                ],
-              ),
-              pw.SizedBox(height: 5.h),
-              pw.Divider(color: PdfColors.black, thickness: 5),
-              pw.SizedBox(height: 5.h),
-              for (int i = 0; i < data.saleDetails.length; i++) ...[
-                pw.Padding(
-                  padding: pw.EdgeInsets.symmetric(vertical: 10.0.h),
-                  child: pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text(" ${(i + 1).toString()}.",
-                        style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center,
-                      ),
-                      pw.Text(data.saleDetails[i].productName,
-                        style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center,
-                      ),
-                      pw.SizedBox(width: 100.w),
-                      pw.SizedBox(width: 100.w),
-                      pw.SizedBox(width: 100.w),
-                    ],
-                  ),
-                ),
-                pw.Padding(
-                  padding: pw.EdgeInsets.symmetric(vertical: 5.0.h),
-                  child: pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.SizedBox(width: 50.w),
-                      pw.SizedBox(width: 150.w),
-                      pw.Text(
-                        data.saleDetails[i].saleDetailsTotalQuantity,
-                        style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center,
-                      ),
-                      pw.Text(
-                        data.saleDetails[i].saleDetailsRate,
-                        style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center,
-                      ),
-                      pw.Text(data.saleDetails[i].saleDetailsTotalAmount,
-                        style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold),textAlign: pw.TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                // Divider between items
-                pw.SizedBox(height: 5.h),
-                pw.Divider(color: PdfColors.black, thickness: 5),
-                pw.SizedBox(height: 5.h),
-              ],
+  Future<void> printInvoice(SalesInvoiceModel? data) async {
+  if (data == null || data.sales.isEmpty) return;
 
-              ///====subtotal part
-              pw.Padding(
-                padding: pw.EdgeInsets.only(top: 20.0.h),
-                child:  pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.SizedBox(height: 20.0.h),
-                  pw.Row(
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
-                        pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            pw.Row(children: []),
-                            pw.Row(children: []),
-                          ]
-                        ),
-                        ///====
-                        pw.Column(
-                        children: [
-                          pw.Row(children: [
-                            pw.Column(
-                            crossAxisAlignment: pw.CrossAxisAlignment.end,
-                            children: [
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text(""),
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text("Sub Total:", style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text("(-)Discount:", style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text("(+)Vat:", style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.h),
-                              pw.Container(color: PdfColors.black,height: 5.h, width: 230.0.w),
-                              pw.SizedBox(height: 15.h),
-                              pw.Text("Net Total:", style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text("Cash Received:", style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.h),
-                              pw.Container(color: PdfColors.black,height: 5.h, width: 230.0.h),
-                              pw.SizedBox(height: 15.h),
-                              pw.Text("Cash Returned:", style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                            ]),
-                            pw.Column(
-                            crossAxisAlignment: pw.CrossAxisAlignment.end,
-                            children: [
-                              pw.SizedBox(height: 18.0.h),
-                              pw.Text(data.sales[0].saleMasterSubTotalAmount, style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text(data.sales[0].saleMasterTotalDiscountAmount, style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text(data.sales[0].saleMasterTaxAmount, style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.h),
-                              pw.Container(color: PdfColors.black,height: 5.h, width: 230.0.w),
-                              pw.SizedBox(height: 15.h),
-                              pw.Text(data.sales[0].saleMasterTotalSaleAmount, style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.0.h),
-                              pw.Text(data.sales[0].saleMasterPaidAmount, style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 10.h),
-                              pw.Container(color: PdfColors.black,height: 5.h, width: 230.0.w),
-                              pw.SizedBox(height: 15.h),
-                              pw.Text(data.sales[0].saleMasterDueAmount, style: pw.TextStyle(fontSize: 26.sp, fontWeight: pw.FontWeight.bold)),
-                            ]),
-                          ]),
-                        ]
-                        ),
-                      ]
-                  ),
-                 ]
-                ),
-              ),
-              pw.SizedBox(height: 45.h),
-              pw.Text("Contact no: 01946-700300",textAlign: pw.TextAlign.center,style: pw.TextStyle(fontSize: 28.sp, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 5.h),
-              pw.Divider(color: PdfColors.black, thickness: 5),
-              pw.SizedBox(height: 5.h),
-              pw.Text("Software by: Big Technology, Contact no: 01946-700300",textAlign: pw.TextAlign.center,style: pw.TextStyle(fontSize: 28.sp, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 25.h),
-              // pw.SizedBox(height: 15 * PdfPageFormat.mm),
-              // pw.Row(
-              //     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              //     children: [
-              //         pw.Text('Received by:',
-              //             style: pw.TextStyle(
-              //                 fontWeight: pw.FontWeight.bold,
-              //                 fontSize: 28,decoration: pw.TextDecoration.underline)),
-              //         pw.Text('Check by:',
-              //             style: pw.TextStyle(
-              //                 fontWeight: pw.FontWeight.bold,
-              //                 fontSize: 28,decoration: pw.TextDecoration.underline)),
-              //         pw.Text('Authorized by:',
-              //             style: pw.TextStyle(
-              //                 fontWeight: pw.FontWeight.bold,
-              //                 fontSize: 28,
-              //               decoration: pw.TextDecoration.underline
-              //             )),
-              //     ]),
-              // pw.SizedBox(height: 10 * PdfPageFormat.mm),
-              // pw.SizedBox(height: 25.h),
-              // pw.Text('** THANK YOU FOR YOUR BUSINESS **',
-              //     style: pw.TextStyle(
-              //         fontWeight: pw.FontWeight.bold,
-              //         fontSize: 28)),
-              // pw.SizedBox(height: 2 * PdfPageFormat.mm),
-              // pw.Divider(),
-            ],
-          ),
-        ],
-      ),
-    );
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdf.save(),
-    );
+  String currentDateTime = DateFormat('M/d/yyyy, h:mm a').format(DateTime.now());
+  
+  // ইমেজগুলো ফেচ করা
+  final Uint8List? netHeader = await _fetchImage("$imageBaseUrl$headerImg");
+  final Uint8List? netFooter = await _fetchImage("$imageBaseUrl$footerImg");
+  
+  final pdf = pw.Document();
+  
+  // লোকাল লোগো লোড করা
+  Uint8List? logoImage;
+  try {
+    final logoImg = await rootBundle.load('images/brsgcl.png');
+    logoImage = logoImg.buffer.asUint8List();
+  } catch (e) {
+    print("Local logo not found: $e");
   }
 
+
+  pdf.addPage(
+    pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(3), // মার্জিন একটু বাড়িয়ে দেওয়া হয়েছে সুন্দর দেখানোর জন্য
+      build: (context) => [
+        pw.Text(currentDateTime, style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
+        if (netHeader != null) 
+                pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80, width: 500)),
+                pw.SizedBox(height: 10),
+        // --- Header Section ---
+        // pw.Row(
+        //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        //   crossAxisAlignment: pw.CrossAxisAlignment.start,
+        //   children: [
+        //     pw.Column(
+        //       crossAxisAlignment: pw.CrossAxisAlignment.start,
+        //       children: [
+        //         if (netHeader != null) 
+        //         pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80, width: 500)),
+        //         pw.SizedBox(height: 10),
+        //         pw.Text(currentDateTime, 
+        //             style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
+        //         // --- Header Section (Logo & Company Name in One Row) ---
+        //         pw.Row(
+        //           mainAxisAlignment: pw.MainAxisAlignment.start, // লোগো এবং নামকে বাম দিক থেকে সাজাবে
+        //           crossAxisAlignment: pw.CrossAxisAlignment.center, // লম্বালম্বি মাঝ বরাবর থাকবে
+        //           children: [
+        //           // বাম পাশে লোগো
+        //          if (logoImage != null) pw.Image(pw.MemoryImage(logoImage), width: 50, height: 40),
+        //             pw.SizedBox(width: 10),// লোগো এবং নামের মাঝে ফাঁকা জায়গা
+        //           pw.Text(
+        //           "BARISAL\nSURGICAL", 
+        //               style: pw.TextStyle(
+        //                 fontSize: 25, 
+        //                 fontWeight: pw.FontWeight.bold, 
+        //                 fontStyle: pw.FontStyle.italic,
+        //                 color: PdfColors.green900
+        //               )
+        //             ),
+        //           ],
+        //         ),
+        //         pw.SizedBox(height: 5),
+        //         pw.Text("(Importer, Indenter, Wholesaler & General Supplier)", 
+        //             style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
+        //       ],
+        //     ),
+        //     pw.Container(
+        //       height: 90,
+        //       width: 1,
+        //       decoration: pw.BoxDecoration(
+        //         border: pw.Border.all(width: 1.5, color: PdfColors.green900)
+        //       ),
+        //     ),
+        //     pw.Column(
+        //       crossAxisAlignment: pw.CrossAxisAlignment.end,
+        //       children: [
+        //         pw.Text("Rizia Mansion, 34/1, Mitford Road, Dhaka-1100", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
+        //         pw.Text("Phone: 9577294, 9512133", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
+        //         pw.Text("E-mail: barishalsurgical@gmail.com", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
+        //         pw.Text("Web: www.barishalsurgical.com", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
+        //       ],
+        //     ),
+        //   ],
+        // ),
+        
+        pw.Divider(thickness: 1.5, color: PdfColors.green900),
+        
+        // --- Invoice Title ---
+        pw.Center(
+          child: pw.Container(
+            padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(width: 1),
+              borderRadius: pw.BorderRadius.circular(2),
+            ),
+            child: pw.Text("Sales Invoice", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+          ),
+        ),
+        pw.Divider(thickness: 1.5, color: PdfColors.green900),
+
+        // --- Customer & Invoice Info ---
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow("Customer ID:", data!.sales[0].customerCode),
+                _buildInfoRow("Name:", data.sales[0].customerName),
+                _buildInfoRow("Mobile:", data.sales[0].customerMobile),
+                _buildInfoRow("Attention:", data.sales[0].customerComment), 
+                
+              ],
+            ),
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
+              children: [
+                _buildInfoRow("Prepared By:", data.sales[0].addedBy),
+                _buildInfoRow("Invoice No.:", data.sales[0].saleMasterInvoiceNo),
+                _buildInfoRow("Sales Date:", data.sales[0].saleMasterSaleDate),
+                _buildInfoRow("Employee:", data.sales[0].employeeName??""),
+              ],
+            ),
+          ],
+        ),
+        _buildInfoRow("Address:", data.sales[0].customerAddress),
+        pw.SizedBox(height: 20),
+
+        // --- Product Table ---
+        pw.Table(
+          border: pw.TableBorder.all(width: 0.5, color: PdfColors.grey),
+          columnWidths: {
+            0: const pw.FixedColumnWidth(25), 
+            1: const pw.FixedColumnWidth(60), // Sl
+            2: const pw.FlexColumnWidth(3),  // Description
+            3: const pw.FixedColumnWidth(40), // Qty
+            4: const pw.FixedColumnWidth(40), // Ret Qty
+            5: const pw.FixedColumnWidth(40), // Unit
+            6: const pw.FixedColumnWidth(50), // Rate
+            7: const pw.FixedColumnWidth(60), // Total
+          },
+          children: [
+            // Table Header
+            pw.TableRow(
+              decoration: const pw.BoxDecoration(color: PdfColors.grey100),
+              children: [
+                _buildTableCell("Sl.", isHeader: true),
+                _buildTableCell("Product Code", isHeader: true),
+                _buildTableCell("Description", isHeader: true),
+                _buildTableCell("Qty", isHeader: true),
+                //_buildTableCell("Ret. Qty", isHeader: true),
+                _buildTableCell("Unit", isHeader: true),
+                _buildTableCell("Rate", isHeader: true),
+                _buildTableCell("Total", isHeader: true),
+              ],
+            ),
+            // Table Body
+            ...data.saleDetails.asMap().entries.map((entry) {
+              int i = entry.key;
+              var item = entry.value;
+              return pw.TableRow(
+                children: [
+                  _buildTableCell("${i + 1}"),
+                  _buildTableCell(item.productCode,),
+                  _buildTableCell(item.productName, align: pw.TextAlign.left),
+                  _buildTableCell(item.saleDetailsTotalQuantity.toString()),
+                  //_buildTableCell("0"), // Return Qty static 0
+                  _buildTableCell(item.unitName),
+                  _buildTableCell(item.saleDetailsRate),
+                  _buildTableCell(item.saleDetailsTotalAmount.toString()),
+                ],
+              );
+            }).toList(),
+            // --- Total Row ---
+            pw.TableRow(
+              decoration: const pw.BoxDecoration(color: PdfColors.grey50),
+              children: [
+                _buildTableCell(""), 
+                _buildTableCell(""),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(5),
+                  child: pw.Text("Total", textAlign: pw.TextAlign.right, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+                ),
+                _buildTableCell(_calculateTotalQty(data.saleDetails), isHeader: true),
+                //_buildTableCell("0", isHeader: true),
+                _buildTableCell(""),
+                _buildTableCell(""),
+                _buildTableCell(data.sales[0].saleMasterTotalSaleAmount, isHeader: true),
+              ],
+            ),
+          ],
+        ),
+
+        // --- Calculation Summary ---
+        pw.SizedBox(height: 10),
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Expanded(
+              flex: 1,
+              child: dueStatus== "true" ? pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  _buildSummaryRow("Previous Due:", data.sales[0].saleMasterPreviousDue),
+                  _buildSummaryRow("Current Due:", data.sales[0].saleMasterDueAmount),
+                  pw.Divider(thickness: 0.5, color: PdfColors.black),
+                  _buildSummaryRow(
+                    "Total Due:", 
+                    (double.parse("${data.sales[0].saleMasterPreviousDue}") + 
+                    double.parse("${data.sales[0].saleMasterDueAmount}"))
+                    .toStringAsFixed(2), 
+                    isBold: true
+                  ),
+                ],
+              ) : pw.SizedBox(),
+            ),
+             pw.Expanded(
+              flex: 1,
+              child: pw.SizedBox(),
+            ),
+            pw.Expanded(
+              flex: 1,
+              child: pw.Column(
+                children: [
+                  _buildSummaryRow("Sub Total:", data.sales[0].saleMasterSubTotalAmount),
+                  _buildSummaryRow("Discount:", data.sales[0].saleMasterTotalDiscountAmount),
+                  _buildSummaryRow("VAT:", data.sales[0].saleMasterTaxAmount),
+                  _buildSummaryRow("Transport:", "0.00"),
+                  pw.Divider(thickness: 0.5),
+                  _buildSummaryRow("Total:", data.sales[0].saleMasterTotalSaleAmount, isBold: true),
+                  _buildSummaryRow("Paid:", data.sales[0].saleMasterPaidAmount),
+                   pw.Divider(thickness: 0.5),
+                  _buildSummaryRow("Due:", data.sales[0].saleMasterDueAmount, isBold: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+        
+        pw.SizedBox(height: 30),
+        pw.Text(
+          "In Word: ${numberToWords(double.parse(data.sales[0].saleMasterTotalSaleAmount.toString()).toInt())} BDT only",
+          style: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold, 
+            fontSize: 10,
+          ),
+        ),
+        pw.SizedBox(height: 10),
+        pw.Text(
+          "Note: $invoiceNote", 
+          style: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold, 
+            fontSize: 10,
+          ),
+        ),
+         pw.SizedBox(height: 60),
+        // --- Signature Section ---
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Column(
+              children: [
+                pw.Container(width: 80, decoration: const pw.BoxDecoration(border: pw.Border(top: pw.BorderSide(width: 1)))),
+                pw.SizedBox(height: 2),
+                pw.Text("Received by", style: const pw.TextStyle(fontSize: 10)),
+              ],
+            ),
+            pw.Column(
+              children: [
+                pw.Container(width: 80, decoration: const pw.BoxDecoration(border: pw.Border(top: pw.BorderSide(width: 1)))),
+                pw.SizedBox(height: 2),
+                pw.Text("Authorized by", style: const pw.TextStyle(fontSize: 10)),
+              ],
+            ),
+          ],
+        ),
+        if (netFooter != null) 
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(top: 20),
+            child: pw.Image(pw.MemoryImage(netFooter), height: 50, width: 500),
+          ),
+      ],
+    ),
+  );
+
+  await Printing.layoutPdf(onLayout: (format) async => pdf.save());
+}
+
+// --- Helper Functions ---
+
+String _calculateTotalQty(List<dynamic> details) {
+  double total = 0;
+  for (var item in details) {
+    total += double.tryParse(item.saleDetailsTotalQuantity.toString()) ?? 0;
+  }
+  return total.toStringAsFixed(0); 
+}
+
+pw.Widget _buildInfoRow(String label, String value) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.symmetric(vertical: 1),
+    child: pw.Row(
+      mainAxisSize: pw.MainAxisSize.min,
+      children: [
+        pw.Text("$label ", style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold)),
+        pw.Text(value, style: const pw.TextStyle(fontSize: 9)),
+      ],
+    ),
+  );
+}
+
+// String text এর বদলে dynamic text ব্যবহার করুন
+pw.Widget _buildTableCell(dynamic text, {bool isHeader = false, pw.TextAlign align = pw.TextAlign.center}) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.all(5),
+    child: pw.Text(
+      text?.toString() ?? "", // এখানে null চেক এবং toString() করে দেওয়া হয়েছে
+      textAlign: align,
+      style: pw.TextStyle(
+        fontSize: 9, 
+        fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal
+      ),
+    ),
+  );
+}
+
+pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.symmetric(vertical: 2),
+    child: pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      children: [
+        pw.Text(label, style: pw.TextStyle(fontSize: 10, fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal)),
+        pw.Text(value, style: pw.TextStyle(fontSize: 10, fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal)),
+      ],
+    ),
+  );
+}
 
 
   String numberToWords(int number) {
@@ -348,7 +496,6 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
     if (number > 0) {
       words += convertLessThanThousand(number);
     }
-
     return words.trim();
   }
 
@@ -446,6 +593,22 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                                     ],
                                   ),
                                 ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: 'Attention : ',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10.sp,
+                                        fontWeight: FontWeight.w700
+                                    ),
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                          text: snapshot.data!.sales[0].customerComment,
+                                          style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -456,7 +619,7 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                               children: [
                                 RichText(
                                   text: TextSpan(
-                                    text: 'Sales By:',
+                                    text: 'Prepared By: ',
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 10.sp,
@@ -472,7 +635,7 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                                 ),
                                 RichText(
                                   text: TextSpan(
-                                    text: 'Invoice No:',
+                                    text: 'Invoice No: ',
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 10.sp,
@@ -488,7 +651,7 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                                 ),
                                 RichText(
                                   text: TextSpan(
-                                    text: 'Sales Date:',
+                                    text: 'Sales Date: ',
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 10.sp,
@@ -498,6 +661,22 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                                       TextSpan(
                                         //text: Utils.formatFrontEndDate("${22-02-2025}"),
                                           text: snapshot.data!.sales[0].saleMasterSaleDate,
+                                          style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: 'Employee: ',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10.sp,
+                                        fontWeight: FontWeight.w700
+                                    ),
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                          text: snapshot.data!.sales[0].employeeName??"",
                                           style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
                                       ),
                                     ],
@@ -574,7 +753,7 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                         children: [
                           Expanded(
                             flex: 5,
-                            child: Column(
+                            child: dueStatus== "true" ? Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Row(
@@ -600,7 +779,7 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                                   ],
                                 ),
                               ],
-                            ),
+                            ):SizedBox(),
                           ),
                           SizedBox(width: 100.0.w),
                           Expanded(
@@ -671,7 +850,7 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.sp),
                       ),
                       SizedBox(height: 10.h),
-                      Text("Note:${snapshot.data!.sales[0].saleMasterDescription}", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 10.sp)),
+                      Text("Note: $invoiceNote", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 10.sp)),
                       SizedBox(height: 10.h),
                     ],
                   ),
