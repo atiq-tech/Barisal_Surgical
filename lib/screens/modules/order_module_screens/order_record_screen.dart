@@ -1,5 +1,6 @@
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
+import 'package:barishal_surgical/providers/order_module_providers/orders_details_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/sales_details_provider.dart';
@@ -283,7 +284,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     Provider.of<UsersProvider>(context,listen: false).getUsers(context);
     Provider.of<OrdersProvider>(context, listen: false).getOrders(context,"","","",backEndFirstDate,backEndSecondtDate);
     Provider.of<OrdersRecordProvider>(context,listen: false).getOrdersRecord(context,"", "", "", "", "");
-    Provider.of<SalesDetailsProvider>(context,listen: false).getSalesDetails(context,"", "", "", "", "");
+    Provider.of<OrdersDetailsProvider>(context,listen: false).getOrdersDetails(context,"", "", "", "");
     super.initState();
   }
 
@@ -329,7 +330,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     /// Get Employees
      final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
     ///get Sale_details
-    final allSaleDetailsData = Provider.of<SalesDetailsProvider>(context).salesDetailslist;
+    final allOrdersDetailsData = Provider.of<OrdersDetailsProvider>(context).ordersDetailslist;
     /// all products list
     final allProductsData = Provider.of<ProductListProvider>(context).productsList;
     /// get user
@@ -586,74 +587,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                     ],
                   ) : Container(),
                   isQuantityWiseClicked == true ?
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(flex: 1, child: Text("Employee", style: AllTextStyle.textFieldHeadStyle)),
-                          Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                          Expanded(
-                            flex: 3,
-                            child: Container(
-                              height: 25.0.h,
-                              margin: EdgeInsets.only(top: 4.h),
-                              child: TypeAheadField<EmployeesModel>(
-                                controller: employeeController,
-                                builder: (context, controller, focusNode) {
-                                  return TextField(
-                                    controller: controller,
-                                    focusNode: focusNode,
-                                    style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                    decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
-                                      isDense: true,
-                                      hintText: 'Select Employee',
-                                      hintStyle: TextStyle(fontSize: 13.sp),
-                                      suffixIcon: _selectEmployeeId == '' || _selectEmployeeId == 'null' || _selectEmployeeId == null || controller.text == '' ? null
-                                          : GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            employeeController.clear();
-                                            controller.clear();
-                                            _selectEmployeeId = null;
-                                          });
-                                        },
-                                        child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                      ),
-                                      suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: InputBorder.none,
-                                      focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                      enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                                    ),
-                                  );
-                                },
-                                suggestionsCallback: (pattern) async {
-                                  return Future.delayed(const Duration(seconds: 1), () {
-                                    return allGetEmployeesData.where((element) =>
-                                        element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                  });
-                                },
-                                itemBuilder: (context, EmployeesModel suggestion) {
-                                  return Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                    child: Text(suggestion.displayName!,
-                                      style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
-                                    ),
-                                  );
-                                },
-                                onSelected: (EmployeesModel suggestion) {
-                                  setState(() {
-                                    employeeController.text = suggestion.displayName!;
-                                    _selectEmployeeId = suggestion.employeeSlNo.toString();
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -719,10 +652,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ],
-                  )
-                      : Container(),
+                      ): Container(),
                   isUserWiseClicked == true
                       ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -905,7 +835,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                           // if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
                             OrdersProvider().on();
                             OrdersRecordProvider().on();
-                            SalesDetailsProvider().on();
+                            OrdersDetailsProvider().on();
                             setState(() {
                               if (isAllTypeClicked && isWithoutDetailsClicked) {
                                 data = 'showAllWithoutDetails';
@@ -979,9 +909,8 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                               else if (isCategoryWiseClicked) {
                                 data = 'showByCategoryDetails';
                                 ///get sale_details categoryType
-                                Provider.of<SalesDetailsProvider>(context, listen: false).getSalesDetails(context,
+                                Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(context,
                                   "$_selectCategoryId",
-                                  "",
                                   "",
                                   "$backEndFirstDate",
                                   "$backEndSecondtDate",
@@ -992,10 +921,9 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                               else if (isQuantityWiseClicked) {
                                 data = 'showByQuantityDetails';
                                 ///get sale_details QuantityType
-                                Provider.of<SalesDetailsProvider>(context, listen: false).getSalesDetails(context,
+                                Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(context,
                                   "",
                                   _selectQtyProductId,
-                                  _selectEmployeeId,
                                   "$backEndFirstDate",
                                   "$backEndSecondtDate",
                                 );
@@ -1203,7 +1131,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
@@ -1233,7 +1161,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   Center(
                                     child: Column(
                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].saleDetailsTotalQuantity}"),
+                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
                                           );
                                         })),
                                   ),
@@ -1419,7 +1347,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
@@ -1449,7 +1377,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   Center(
                                     child: Column(
                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].saleDetailsTotalQuantity}"),
+                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
                                           );
                                         })),
                                   ),
@@ -1634,7 +1562,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
@@ -1664,7 +1592,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   Center(
                                     child: Column(
                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].saleDetailsTotalQuantity}"),
+                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
                                           );})),
                                   ),
                                 ),
@@ -1700,7 +1628,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
             )
                 : data == 'showByCategoryDetails'
                 ? Expanded(
-                child: SalesDetailsProvider.isSalesDetailsLoading
+                child: OrdersDetailsProvider.isOrdersDetailsLoading
                     ? const Center(child: CircularProgressIndicator())
                     : LayoutBuilder(
                         builder: (context, constraints) {
@@ -1708,7 +1636,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                           // Prottek product-er ID ke key hishebe dhore quantity ebong amount jog kora hochche
                           Map<String, Map<String, dynamic>> groupedMap = {};
 
-                          for (var item in allSaleDetailsData) {
+                          for (var item in allOrdersDetailsData) {
                             String id = item.productCode;
 
                             if (groupedMap.containsKey(id)) {
@@ -1797,7 +1725,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
               )
                 : data == 'showByQuantityDetails'
                 ? Expanded(
-              child: SalesDetailsProvider.isSalesDetailsLoading
+              child: OrdersDetailsProvider.isOrdersDetailsLoading
                   ? const Center(
                   child: CircularProgressIndicator())
                   : SizedBox(
@@ -1826,16 +1754,16 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                           ],
                           rows: [
                             ...List.generate(
-                              allSaleDetailsData.length,
+                              allOrdersDetailsData.length,
                                   (int index) => DataRow(
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allSaleDetailsData[index].productCode))),
-                                  DataCell(Center(child: Text(allSaleDetailsData[index].productName))),
-                                  DataCell(Center(child: Text(allSaleDetailsData[index].productCategoryName))),
-                                  DataCell(Center(child: Text(double.parse(allSaleDetailsData[index].saleDetailsTotalQuantity).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text('${allSaleDetailsData[index].saleDetailsTotalAmount}'))),
+                                  DataCell(Center(child: Text(allOrdersDetailsData[index].productCode))),
+                                  DataCell(Center(child: Text(allOrdersDetailsData[index].productName))),
+                                  DataCell(Center(child: Text(allOrdersDetailsData[index].productCategoryName))),
+                                  DataCell(Center(child: Text(double.parse(allOrdersDetailsData[index].saleDetailsTotalQuantity).toStringAsFixed(decimal!)))),
+                                  DataCell(Center(child: Text('${allOrdersDetailsData[index].saleDetailsTotalAmount}'))),
                                 ],
                               ),
                             ),
@@ -1998,7 +1926,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
@@ -2028,7 +1956,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   Center(
                                     child: Column(
                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].saleDetailsTotalQuantity}"),
+                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
                                           );})),
                                   ),
                                 ),

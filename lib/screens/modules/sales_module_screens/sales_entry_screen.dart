@@ -351,25 +351,25 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
 
   }
 
-
   Response? result;
   void previousDueAmount(String? customerId) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
-    result = await Dio().post("$baseUrl/get-customerdue",
+    result = await Dio().post("${baseUrl}get_customer_due",
         data: {"customerId": "$customerId"},
         options: Options(headers: {
           "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
     var data = result?.data;
     if (data != null) {
       setState(() {
         previousDue = "${data[0]['dueAmount']}";
-        _nameController.text = "${data[0]['name']}";
       });
     }
   }
+
   bool isDefaultCustomerSet = false;
   @override
   Widget build(BuildContext context) {
@@ -381,8 +381,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     final allProductList = Provider.of<ProductListProvider>(context).productsList;
     ///bank account
     final allBankAccountList = Provider.of<BankAccountProvider>(context).bankAccountList;
-    /// Expire Stock
-    final allExpireStockData = Provider.of<ExpireStockProvider>(context).expireStockList;
     
     return Scaffold(
         appBar: CustomAppBar(title: 'Sales Entry'),
@@ -728,6 +726,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                 _nameController.text = allCustomerList.first.customerName ?? '';
                                               }
                                             });
+                                            previousDueAmount(_selectedCustomer);
                                             print("customerType========$customerType");
                                       },
                                     ),

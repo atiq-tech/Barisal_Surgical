@@ -1,4 +1,5 @@
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
+import 'package:barishal_surgical/providers/order_module_providers/orders_details_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_invoice_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
       designSize: const Size(360, 690),
       builder: (context, child) => MultiProvider(
         providers: [
+         ChangeNotifierProvider<OrdersDetailsProvider>(create: (_) => OrdersDetailsProvider()),
          ChangeNotifierProvider<OrdersRecordProvider>(create: (_) => OrdersRecordProvider()),
          ChangeNotifierProvider<CustomerListProvider>(create: (_) => CustomerListProvider()),
          ChangeNotifierProvider<ProductListProvider>(create: (_) => ProductListProvider()),

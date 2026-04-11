@@ -1201,7 +1201,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allSalesRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allSalesRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),
@@ -1417,7 +1417,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allSalesRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allSalesRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),
@@ -1632,7 +1632,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allSalesRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allSalesRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),
@@ -1844,8 +1844,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                   ),
                 ),
               ),
-            )
-                
+            ) 
                 : data == 'showByUserWithoutDetails'
                 ? Expanded(
               child: SalesProvider.isSalesLoading
@@ -1996,7 +1995,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allSalesRecordData[index].customerName??"",overflow: TextOverflow.ellipsis)),
+                                    child: Center(child: Text(allSalesRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),

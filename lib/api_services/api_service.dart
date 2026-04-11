@@ -1,4 +1,5 @@
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
+import 'package:barishal_surgical/models/order_module_models/orders_details_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_invoice_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_record_model.dart';
@@ -455,8 +456,8 @@ class ApiService{
           "productId": productId,
           "employeeId": employeeId,
           "isCourier": "0",
-          "dateFrom": "2026-04-01",
-          "dateTo": "2026-04-07",
+          "dateFrom": dateFrom,
+          "dateTo": dateTo,
           "status": "a"
       },
       options: Options(headers: {
@@ -473,6 +474,41 @@ class ApiService{
       }
     }
    return List.from(item).map((e) => SalesDetailsModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+  
+  ///==================get_order_details List======================
+  static fetchOrdersDetails(BuildContext context,String? categoryId,String? productId,
+    String? dateFrom, String? dateTo) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_order_details";
+    try {
+    Response response = await Dio().post(link,
+      data: {
+          "categoryId": categoryId,
+          "productId": productId,
+          "dateFrom": dateFrom,
+          "dateTo": dateTo,
+          "isOrder": "true"
+      },
+      options: Options(headers: {
+        "Content-Type": "application/json",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+        "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+      }));
+    var item = response.data;
+    print("get_order_details=====$item");
+    if(item is! List){
+      if(item['status'] == 401 && item['success'] == false) {
+        ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+        LogoutService.fetchLogout(context);
+      }
+    }
+   return List.from(item).map((e) => OrdersDetailsModel.fromMap(e)).toList();
     } catch (e) {
       print(e);
     }

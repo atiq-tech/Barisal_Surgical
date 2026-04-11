@@ -73,7 +73,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   String? employeeSlNo;
   String? _selectedBankId;
   String? employeeName;
-  double? previousDue;
+  String? previousDue;
   String level = "wholesale";
   var availableStock = 0;
   int quantity = 0;
@@ -155,15 +155,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
       _vatPercentageController.text = "";
     });
   }
-  // void calculateTotal() {
-  //   final allGetSalesData = salesCartList;
-  //   double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
-  //   vatTotall = allGetSalesData.map((e) => e.vat).fold(0.0, (p, element) => p + double.parse(element!));
-  //   subtotal = double.parse("$cartTotall");
-  //   double afterDisTotal = subtotal - discountAmount;
-  //   total = afterDisTotal + (vatAmount == 0 ? vatTotall : vatAmount) + transportCost;
-  //   due = total - Paid;
-  // }
 
   void calculateTotal() {
   final allGetSalesData = salesCartList;
@@ -205,9 +196,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   void initState() {
     super.initState();
     getSalesInvoice();
-    // EmployeeWiseCustomerListProvider.isEmployeeWiseCustomerTypeChange = true;
-    // Provider.of<EmployeeWiseCustomerListProvider>(context, listen: false).getEmployeeWiseCustomerList(context, customerType: level,employeeId: "",areaId: "");
-    _quantityController.text = "1";
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
      Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
@@ -249,7 +237,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     print("customertttype=====$customerType");
   }
 
-  Response? response;
+   Response? response;
   void totalStack(String? cproductId) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
@@ -269,22 +257,22 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
 
   }
 
+
   Response? result;
-  void dueReport(String? customerId) async {
-    print("customerId========> $customerId");
+  void previousDueAmount(String? customerId) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
-    result = await Dio().post("${baseUrl}api/v1/getCustomerDue",
+    result = await Dio().post("${baseUrl}get_customer_due",
         data: {"customerId": "$customerId"},
         options: Options(headers: {
           "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
-    var data = jsonDecode(result?.data);
+    var data = result?.data;
     if (data != null) {
-      print("responses result========> ${data[0]['dueAmount']}");
       setState(() {
-        previousDue = double.parse("${data[0]['dueAmount']}");
+        previousDue = "${data[0]['dueAmount']}";
       });
     }
   }
@@ -315,13 +303,9 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   double totalAmount = 0;
   @override
   Widget build(BuildContext context) {
-    /// Get Employees
-     final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
-    ///all customer
+    final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
     final allCustomerList = Provider.of<CustomerListProvider>(context).customerList;
-     ///bank account
     final allBankAccountList = Provider.of<BankAccountProvider>(context).bankAccountList;
-    ///category wise product
     final allProductList = Provider.of<ProductListProvider>(context).productsList;
     totalAmount = salesCartList.map((e) => e.total).fold(0.0, (p, element) => p+double.parse(element!));
     return Scaffold(
@@ -373,14 +357,8 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              flex: 3,
-                              child: Text("Date to", style: AllTextStyle.textFieldHeadStyle),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Text(":", style: AllTextStyle.textFieldHeadStyle),
-                            ),
+                            Expanded(flex: 3,child: Text("Date to", style: AllTextStyle.textFieldHeadStyle)),
+                            Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                             Expanded(
                               flex: 9,
                               child: GestureDetector(
@@ -406,17 +384,10 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                             ),
                           ],
                         ),
-
                         Row(
                           children: [
-                            Expanded(
-                              flex: 3,
-                              child: Text("Sales By", style: AllTextStyle.textFieldHeadStyle),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Text(":", style: AllTextStyle.textFieldHeadStyle),
-                            ),
+                            Expanded(flex: 3,child: Text("Sales By", style: AllTextStyle.textFieldHeadStyle)),
+                            Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                             Expanded(
                               flex: 9,
                               child: Container(
@@ -662,6 +633,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                             _nameController.text = allCustomerList.first.customerName ?? '';
                                           }
                                         });
+                                        previousDueAmount(_selectedCustomer);
                                         print("customerType========$customerType");
                                       },
                                     ),
@@ -770,11 +742,11 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       },
                                       enabled: isEnabled,
                                       decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.w),
-                                          hintText: "Address",
-                                          hintStyle: AllTextStyle.dropDownlistStyle,
-                                          border: InputBorder.none,
-                                          focusedBorder:TextFieldInputBorder.focusEnabledBorder,
-                                          enabledBorder:TextFieldInputBorder.focusEnabledBorder
+                                        hintText: "Address",
+                                        hintStyle: AllTextStyle.dropDownlistStyle,
+                                        border: InputBorder.none,
+                                        focusedBorder:TextFieldInputBorder.focusEnabledBorder,
+                                        enabledBorder:TextFieldInputBorder.focusEnabledBorder
                                       ),
                                     ),
                                   ),
@@ -889,9 +861,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                                   _selectedProduct = null;
                                                   _salesRateController.text = '';
                                                   _quantityController.text = '';
-                                                  // pDiscountController.text = '';
-                                                  // pDiscountPercentageController.text = '';
-                                                  // afterdisP = 0;
                                                 });
                                               },
                                               child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
@@ -930,9 +899,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                               productUnit = suggestion.unitName;
                                               isService = suggestion.isService;
                                               cpurchaseRate = suggestion.productPurchaseRate;
-                                              //
                                               _VatController.text = suggestion.vat;
-                                              //
                                               _salesRateController.text = suggestion.productSellingPrice;
                                               Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
                                               totalStack(cproductId);
@@ -1001,54 +968,55 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                 ),
                               ],
                             ), // quantity
-                            SizedBox(height: 4.w),
+                            SizedBox(height: 2.w),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                Expanded(flex: 3,child: Text("Amount", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                  flex: 3,
-                                  child: Text("Amount", style: AllTextStyle.textFieldHeadStyle),
-                                ),
-                                Expanded(
-                                flex: 1,
-                                  child: Text(":", style: AllTextStyle.textFieldHeadStyle),
-                                ),
-                                Expanded(
-                                  flex: 9,
+                                  flex: 4,
                                   child: Container(
                                     height: 25.h,
-                                    padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 5.h),
+                                    padding: EdgeInsets.only(left: 8.w, right: 5.w, top: 5.h),
                                     decoration:ContDecoration.contDecoration,
                                     child: Text("$Total", style: AllTextStyle.textValueStyle),
                                   ),
                                 ),
-                                // const SizedBox(width: 2,),
-                                // availableStock != 0 ? Text("Available Stock,", style: TextStyle(color: Colors.green.shade700,fontSize: 13.0)):const Text("Unavailable Stock,", style: TextStyle(color: Colors.red,fontSize: 13.0)),
-                                // const SizedBox(width: 2),
-                                // Expanded(
-                                //   flex: 5,
-                                //   child: SizedBox(
-                                //     child: Text("$availableStock ${productUnit ?? ""}",
-                                //       maxLines: 1,
-                                //       overflow: TextOverflow.ellipsis,
-                                //       style: TextStyle(fontSize: 13.0,color:availableStock != 0 ? Colors.green.shade700 : Colors.red),
-                                //     ),
-                                //   ),
-                                // ),
+                                Expanded(
+                                  flex: 5,
+                                  child: Card(
+                                    elevation: 0,
+                                    color: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0.r),
+                                    ),
+                                    child: SizedBox(
+                                      height: 25.h,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                           availableStock != 0 ? Text("Stock,", style: TextStyle(color: Colors.green.shade700,fontSize: 11.sp,fontWeight: FontWeight.bold)): Text("Stock,", style: TextStyle(color: Colors.red,fontSize: 11.sp,fontWeight: FontWeight.bold)),
+                                          Text("$availableStock ${productUnit ?? ""}",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 11.sp,color:availableStock != 0 ? Colors.green.shade700 : Colors.red,fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                             Row(
                             children: [
                               Expanded(flex: 3,child: Text("Lot No.",style: AllTextStyle.textFieldHeadStyle)),
-                              Expanded(
-                                flex: 1,
-                                child: Text(":", style: AllTextStyle.textFieldHeadStyle),
-                              ),
+                              Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                               Expanded(
                                 flex: 9,
                                 child: Container(
                                   height: 25.h,
-                                  margin: EdgeInsets.only(bottom: 4.h,top: 4.h),
+                                  margin: EdgeInsets.only(bottom: 4.h,top: 2.h),
                                   child: TextField(
                                     style: AllTextStyle.textFieldHeadStyle,
                                     controller: _lotNoController,
@@ -1071,19 +1039,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                flex: 3,
-                                child: Text("Mfg.Date", style: AllTextStyle.textFieldHeadStyle),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Text(":", style: AllTextStyle.textFieldHeadStyle),
-                              ),
+                              Expanded(flex: 3,child: Text("Mfg.Date", style: AllTextStyle.textFieldHeadStyle)),
+                              Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                               Expanded(
                                 flex: 9,
                                 child: GestureDetector(
                                   onTap: () {
-                                    _selectedDate();
+                                    _mfgDate();
                                   },
                                   child: Container(
                                     height: 25.0.h,
@@ -1093,9 +1055,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(firstPickedDate == null ? Utils.formatFrontEndDate(DateTime.now()) : firstPickedDate!,
-                                            style:AllTextStyle.dateFormatStyle
-                                        ),
+                                        Text(mfgPickedDate ?? "mm/dd/yyyy",style: AllTextStyle.dateFormatStyle),
                                         Icon(Icons.calendar_month, size: 18.r)
                                       ],
                                     ),
@@ -1108,19 +1068,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                flex: 3,
-                                child: Text("Exp.Date", style: AllTextStyle.textFieldHeadStyle),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Text(":", style: AllTextStyle.textFieldHeadStyle),
-                              ),
+                              Expanded(flex: 3,child: Text("Exp.Date", style: AllTextStyle.textFieldHeadStyle)),
+                              Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                               Expanded(
                                 flex: 9,
                                 child: GestureDetector(
                                   onTap: () {
-                                    _selectedDate();
+                                    _expDate();
                                   },
                                   child: Container(
                                     height: 25.0.h,
@@ -1130,9 +1084,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(firstPickedDate == null ? Utils.formatFrontEndDate(DateTime.now()) : firstPickedDate!,
-                                            style:AllTextStyle.dateFormatStyle
-                                        ),
+                                        Text(expPickedDate ?? "mm/dd/yyyy",style:AllTextStyle.dateFormatStyle),
                                         Icon(Icons.calendar_month, size: 18.r)
                                       ],
                                     ),
@@ -1140,7 +1092,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                 ),
                               ),
                             ],
-                          ),
+                           ),
                           ]),
                         ),
                         
@@ -1149,13 +1101,10 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                           child: GestureDetector(
                             onTap: () {
                               quantity = int.parse(_quantityController.text);
-                              if (productController.text != '' ||
-                                  productController.text.isNotEmpty) {
-
+                              if (productController.text != '' || productController.text.isNotEmpty) {
                                 // if (availableStock >= quantity) {
                                 if (_quantityController.text == "") {
-                                  Utils.errorSnackBar(
-                                      context, "Please Select Quantity");
+                                  Utils.errorSnackBar(context, "Please Select Quantity");
                                 }
                                 else {
                                   setState(() {
@@ -1187,7 +1136,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     _VatController.text = "0";
                                     afterVatTotal = CartTotal;
                                     discountVatTotal = afterVatTotal;
-
                                     Paid = discountVatTotal;
                                     categoryController.text = '';
                                     productController.text = '';
@@ -1198,18 +1146,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       Total = 0;
                                     });
                                      calculateTotal();
-
-                                    // productController.text = '';
-                                    // _salesRateController.text = '';
-                                    // _quantityController.text = '';
-                                    // setState(() {
-                                    //   isAdded = true;
-                                    //   calculateTotal();
-                                    //   Total = 0;
-                                    //   newQty = 0;
-                                    //   newTotal = 0;
-                                    //   availableStock = 0;
-                                    // });
                                   });
                                 }
                                 // } else {
@@ -1298,506 +1234,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                       ),
                     ),
                   ),
-                  // Column(
-                  //   children: [
-                  //     Container(
-                  //       height: 1,
-                  //       width: double.infinity,
-                  //       color: Colors.indigo,
-                  //     ),
-                  //     Container(
-                  //       height: 25.0,
-                  //       color: Colors.blue.shade100,
-                  //       child: Row(
-                  //         mainAxisAlignment: MainAxisAlignment.center,
-                  //         children: [
-                  //           Expanded(
-                  //               flex: 2,
-                  //               child: Center(
-                  //                 child: Text("SL.",
-                  //                     textAlign: TextAlign.start,
-                  //                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: h2TextSize)),
-                  //               )),
-                  //           const SizedBox(width: 10,),
-                  //           Expanded(
-                  //               flex: 5,
-                  //               child: Text(
-                  //                 "Product Name",
-                  //                 textAlign: TextAlign.start,
-                  //                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: h2TextSize),
-                  //               )), Expanded(
-                  //               flex: 3,
-                  //               child: Text(
-                  //                 "Category",
-                  //                 textAlign: TextAlign.start,
-                  //                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: h2TextSize),
-                  //               )),
-                  //           Expanded(
-                  //               flex: 2,
-                  //               child: Text(
-                  //                 "Qty",
-                  //                 textAlign: TextAlign.center,
-                  //                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: h2TextSize),
-                  //               )),
-                  //           Expanded(
-                  //               flex: 3,
-                  //               child: Text(
-                  //                 "Rate",
-                  //                 textAlign: TextAlign.center,
-                  //                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: h2TextSize),
-                  //               )),
-                  //           Expanded(
-                  //               flex: 3,
-                  //               child: Text(
-                  //                 "Details",
-                  //                 textAlign: TextAlign.center,
-                  //                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: h2TextSize),
-                  //               )),
-                  //           Expanded(
-                  //             flex: 3,
-                  //             child: Text(
-                  //               "Total",
-                  //               textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold,fontSize: h2TextSize),
-                  //             ),
-                  //           ),
-                  //           Expanded(
-                  //             flex: 2,
-                  //             child: Text(
-                  //               "Action",
-                  //               textAlign: TextAlign.center,
-                  //               style: TextStyle(fontWeight: FontWeight.bold, fontSize: h2TextSize),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //     Container(
-                  //       height: 1,
-                  //       width: double.infinity,
-                  //       color: Colors.indigo,
-                  //     ),
-                  //     ...List.generate(salesCartList.length, (index) {
-                  //       return Column(
-                  //         children: [
-                  //           Container(
-                  //             color: index % 2 == 0
-                  //                 ? Colors.green.shade50
-                  //                 : Colors.white,
-                  //             height: 25,
-                  //             child: Row(
-                  //               mainAxisAlignment:
-                  //               MainAxisAlignment.spaceBetween,
-                  //               children: [
-                  //                 Expanded(
-                  //                   flex: 10,
-                  //                   child: Row(
-                  //                     crossAxisAlignment: CrossAxisAlignment.start,
-                  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //                     children: [
-                  //                       Expanded(
-                  //                         flex: 2,
-                  //                         child: Center(
-                  //                           child: Text(
-                  //                               "${index + 1}.", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: h2TextSize)),
-                  //                         ),
-                  //                       ),
-                  //                       Expanded(
-                  //                         flex: 6,
-                  //                         child: Center(
-                  //                           child: Text(
-                  //                               "${salesCartList[index].name},",
-                  //                               style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: h2TextSize, overflow: TextOverflow.ellipsis)
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       Expanded(
-                  //                         flex: 3,
-                  //                         child: Center(
-                  //                           child: Text(
-                  //                               "${salesCartList[index].categoryName},",
-                  //                               style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: h2TextSize, overflow: TextOverflow.ellipsis)
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       Expanded(
-                  //                         flex: 2,
-                  //                         child: Center(
-                  //                           child: Text(
-                  //                             "${salesCartList[index].quantity}",
-                  //                             style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: h2TextSize),
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       Expanded(
-                  //                         flex: 3,
-                  //                         child: Center(
-                  //                           child: Text(
-                  //                             "${salesCartList[index].salesRate}",
-                  //                             style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: h2TextSize),
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       Expanded(
-                  //                         flex: 3,
-                  //                         child: Center(
-                  //                           child: Text(
-                  //                             "${salesCartList[index].details}",
-                  //                             style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: h2TextSize),
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       Expanded(
-                  //                         flex: 3,
-                  //                         child: Center(
-                  //                           child: Text(
-                  //                             "${salesCartList[index].total}",
-                  //                             style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: h2TextSize),
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       Expanded(
-                  //                         flex: 2,
-                  //                         child: Center(
-                  //                           child: GestureDetector(
-                  //                               onTap: () {
-                  //                                 removeFromCart(index);
-                  //                                 setState(() {
-                  //                                 });
-                  //                               },
-                  //                               child: const Icon(Icons.delete, size: 16, color: Colors.red,)),
-                  //                         ),
-                  //                       ),
-                  //                     ],
-                  //                   ),
-                  //                 ),
-                  //               ],
-                  //             ),
-                  //           ),
-                  //           Container(height: 1, width: double.infinity, color: Colors.indigo.shade200),
-                  //         ],
-                  //       );
-                  //     }),
-                  //     SizedBox(height: salesCartList.isNotEmpty ? 10 : 30),
-                  //   ],
-                  // ),
-                  SizedBox(height: 10.h),
-                  // Container(
-                  //   width: double.infinity,
-                  //   margin: EdgeInsets.only(top: 8.h, left: 4.0.w, right: 4.0.w, bottom: 10.h),
-                  //   decoration: BoxDecoration(
-                  //     color: AppColors.appCard,
-                  //     borderRadius: BorderRadius.circular(6.0.r),
-                  //     border: Border.all(color: Color.fromARGB(255, 7, 125, 180),width: 1.0.w),
-                  //     boxShadow: [
-                  //       BoxShadow(
-                  //         color: Colors.grey.withOpacity(0.6),
-                  //         spreadRadius: 2, blurRadius: 5,
-                  //         offset: const Offset(0, 3),
-                  //       ),
-                  //     ],
-                  //   ),
-                  //   child: Column(
-                  //     children: [
-                  //       SizedBox(
-                  //         height: 25.h,
-                  //         width: double.infinity,
-                  //         child: Card(
-                  //           margin: EdgeInsets.only(bottom: 2.h),
-                  //           child: Container(
-                  //             decoration: BoxDecoration(
-                  //                 borderRadius:  BorderRadius.only(topLeft: Radius.circular(6.0.r),topRight: Radius.circular(6.0.r)),
-                  //                 color: AppColors.appColor),
-                  //             child: Center(child: Text('Amount Details', style: AllTextStyle.tableHeadTextStyle)),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       Container(
-                  //         padding: EdgeInsets.only(left: 4.0.w, right: 4.0.w, bottom: 2.0,top: 4.h),
-                  //         child: Column(children: [
-                  //           Row(
-                  //             children: [
-                  //               Expanded(flex: 4,child: Text("Sub Total",style: AllTextStyle.textFieldHeadStyle)),
-                  //               Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                  //               Expanded(
-                  //                   flex: 12,
-                  //                   child: Container(
-                  //                     margin: EdgeInsets.only(bottom: 5.h),
-                  //                     height: 25.h,
-                  //                     padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 5.h, bottom: 5.h),
-                  //                     decoration: ContDecoration.contDecoration,
-                  //                     child: Text("$CartTotal", style:AllTextStyle.textValueStyle
-                  //                     ),
-                  //                   )),
-                  //             ],
-                  //           ),
-                  //           Row(
-                  //             children: [
-                  //               Expanded(flex: 4,child: Text("Vat",style: AllTextStyle.textFieldHeadStyle)),
-                  //               Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                  //               Expanded(
-                  //                 flex: 12,
-                  //                 child: Container(
-                  //                   height: 25.h,
-                  //                   margin: EdgeInsets.only(bottom: 5.h),
-                  //                   child: TextField(
-                  //                     style:AllTextStyle.textValueStyle,
-                  //                     onChanged: (value) {
-                  //                       setState(() {
-                  //                         // discountTotal = afterVatTotal -
-                  //                         //     double.parse(_discountController.text);
-                  //                         // Transport = discountTotal;
-                  //                         // Paid = Transport;
-                  //                         // TotalAmount = Paid;
-                  //                       });
-                  //                       // setState(() {
-                  //                       //   discountTotal = afterVatTotal -
-                  //                       //       double.parse(_discountController.text);
-                  //                       //   Transport = discountTotal;
-                  //                       //   Paid = Transport;
-                  //                       //   TotalAmount = Paid;
-                  //                       // });
-                  //                     },
-                  //                     controller:_VatController,
-                  //                     keyboardType: TextInputType.phone,
-                  //                     decoration: InputDecoration(
-                  //                       contentPadding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w),
-                  //                       hintText: "0",
-                  //                       filled: true,
-                  //                       enabled: false,
-                  //                       fillColor: Colors.white,
-                  //                       border: InputBorder.none,
-                  //                       focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //                       enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //           Row(
-                  //             children: [
-                  //               Expanded(flex: 4, child: Text("Discount",style: AllTextStyle.textFieldHeadStyle)),
-                  //               Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                  //               Expanded(
-                  //                 flex: 6,
-                  //                 child: Container(
-                  //                   height: 25.h,
-                  //                   margin: EdgeInsets.only(bottom: 5.h),
-                  //                   child: TextField(
-                  //                     style:AllTextStyle.textValueStyle,
-                  //                     onChanged: (value) {
-                  //                       setState(() {
-                  //                         TotalDiscountAmount = CartTotal * (double.parse(_discountController.text) / 100);
-                  //                         afterVatTotal = CartTotal - TotalDiscountAmount;
-                  //                         discountVatTotal = afterVatTotal;
-                  //                         Transport = discountVatTotal;
-                  //                         Paid = Transport;
-                  //                         TotalAmount = Paid;
-                  //                       });
-                  //                     },
-                  //                     controller: _discountController,
-                  //                     keyboardType: TextInputType.phone,
-                  //                     decoration: InputDecoration(
-                  //                       contentPadding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.w),
-                  //                       hintText: "0",
-                  //                       filled: true,
-                  //                       fillColor: Colors.white,
-                  //                       border: InputBorder.none,
-                  //                       focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //                       enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //               SizedBox(width: 3.w),
-                  //               Text("%",style: AllTextStyle.textFieldHeadStyle),
-                  //               SizedBox(width: 3.w),
-                  //               Expanded(
-                  //                   flex: 5,
-                  //                   child: Container(
-                  //                     margin: EdgeInsets.only(bottom: 5.h),
-                  //                     height: 25.h,
-                  //                     padding: EdgeInsets.all(5.r),
-                  //                     decoration: ContDecoration.contDecoration,
-                  //                     child: Text(double.parse("$TotalDiscountAmount").toStringAsFixed(1),style:AllTextStyle.textValueStyle
-                  //                     ),
-                  //                )),
-                  //             ],
-                  //           ),
-
-                  //           Row(
-                  //             children: [
-                  //               Expanded(flex: 4,child: Text("Trans.Cost",style: AllTextStyle.textFieldHeadStyle)),
-                  //               Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                  //               Expanded(
-                  //                 flex: 12,
-                  //                 child: Container(
-                  //                   height: 25.h,
-                  //                   margin: EdgeInsets.only(bottom: 5.h),
-                  //                   child: TextField(
-                  //                     style:AllTextStyle.textValueStyle,
-                  //                     onChanged: (value) {
-                  //                       setState(() {
-                  //                         Transport = discountVatTotal + double.parse(_transportController.text);
-                  //                         Paid = Transport;TotalAmount = Paid;
-                  //                       });
-                  //                     },
-                  //                     controller: _transportController,
-                  //                     keyboardType: TextInputType.number,
-                  //                     decoration: InputDecoration(
-                  //                       contentPadding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.w),
-                  //                       hintText: "0",
-                  //                       filled: true,
-                  //                       fillColor: Colors.white,
-                  //                       border: InputBorder.none,
-                  //                       focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //                       enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //           Row(
-                  //             children: [
-                  //               Expanded(flex: 4,child: Text("Total",style: AllTextStyle.textFieldHeadStyle)),
-                  //               Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                  //               Expanded(
-                  //                   flex: 12,
-                  //                   child: Container(
-                  //                     height: 25.h,
-                  //                     padding: EdgeInsets.all(5.r),
-                  //                     decoration: ContDecoration.contDecoration,
-                  //                     child: Text(
-                  //                       "$Paid",style:AllTextStyle.textValueStyle,
-                  //                     ),
-                  //                   )),
-                  //             ],
-                  //           ),
-                  //           // Row(
-                  //           //   mainAxisAlignment: MainAxisAlignment.start,
-                  //           //   children: [
-                  //           //     Expanded(flex: 4,child: Text("Paid",style:AllTextStyle.textFieldHeadStyle)),
-                  //           //     Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                  //           //     Expanded(
-                  //           //       flex: 12,
-                  //           //       child: Container(
-                  //           //         height: 30.0,
-                  //           //         margin: const EdgeInsets.only(bottom: 5),
-                  //           //         child: TextField(
-                  //           //           style:AllTextStyle.textValueStyle,
-                  //           //           onChanged: (value) {
-                  //           //             setState(() {
-                  //           //               TotalAmount = Paid - double.parse(_paidController.text);
-                  //           //             });
-                  //           //           },
-                  //           //           controller: _paidController,
-                  //           //           keyboardType: TextInputType.number,
-                  //           //           decoration: InputDecoration(
-                  //           //             contentPadding: const EdgeInsets.symmetric(
-                  //           //                 vertical: 5, horizontal: 5),
-                  //           //             hintText: "0",
-                  //           //             filled: true,
-                  //           //             fillColor: Colors.white,
-                  //           //             border: InputBorder.none,
-                  //           //             focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //           //             enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                  //           //           ),
-                  //           //         ),
-                  //           //       ),
-                  //           //     ),
-                  //           //   ],
-                  //           // ),
-                  //           // Row(
-                  //           //   mainAxisAlignment: MainAxisAlignment.start,
-                  //           //   children: [
-                  //           //     Expanded(flex: 4,child: Text("Due",style: AllTextStyle.textFieldHeadStyle)),
-                  //           //     Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                  //           //     Expanded(
-                  //           //         flex: 5,
-                  //           //         child: Container(
-                  //           //           height: 30,
-                  //           //           padding: const EdgeInsets.only(
-                  //           //               left: 5, right: 5, top: 5, bottom: 5),
-                  //           //           decoration: ContDecoration.contDecoration,
-                  //           //           child: Text(
-                  //           //             double.parse("${TotalAmount == 0.0 ? CartTotal : TotalAmount}").toStringAsFixed(2),
-                  //           //             style:AllTextStyle.textValueStyle,
-                  //           //           ),
-                  //           //         )),
-                  //           //     const SizedBox(width: 5),
-                  //           //     Expanded(flex: 2,child: Text("P.Due",style: AllTextStyle.textFieldHeadStyle)),
-                  //           //     Expanded(
-                  //           //         flex: 5,
-                  //           //         child: Container(
-                  //           //           height: 30,
-                  //           //           padding: const EdgeInsets.only(
-                  //           //               left: 5, right: 5, top: 5, bottom: 5),
-                  //           //           decoration: ContDecoration.contDecoration,
-                  //           //           child: Text(
-                  //           //             "$previousDue" == 'null' ? '0' : "${previousDue}",
-                  //           //             style: const TextStyle(color: Colors.red),
-                  //           //           ),
-                  //           //         )),
-                  //           //   ],
-                  //           // ),
-                  //           Row(
-                  //             mainAxisAlignment: MainAxisAlignment.end,
-                  //             children: [
-                  //               GestureDetector(
-                  //                 onTap: () {},
-                  //                 child: Card(
-                  //                   elevation: 5.0,
-                  //                   child: Container(
-                  //                     height: 28.0.h,
-                  //                     width: 90.0.w,
-                  //                     decoration: BoxDecoration(
-                  //                       color: const Color.fromARGB(255, 3, 75, 209),
-                  //                       borderRadius: BorderRadius.circular(5.0.r),
-                  //                     ),
-                  //                     child: Center(child: Text("New Order", style: AllTextStyle.saveButtonTextStyle),
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //               SizedBox(width: 10.w),
-                  //               GestureDetector(
-                  //                 onTap: () {
-                  //                   setState(() {
-                  //                     isSellBtnClk = true;
-                  //                   });
-                  //                   if (CartTotal == 0) {
-                  //                     setState(() {
-                  //                       isSellBtnClk = false;
-                  //                     });
-                  //                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please Add to Cart")));
-                  //                   } else {
-                  //                     addOrder();
-                  //                   }
-                  //                 },
-                  //                 child: Card(
-                  //                   elevation: 5.0,
-                  //                   child: Container(
-                  //                     height: 28.h,
-                  //                     width: 60.w,
-                  //                     decoration: BoxDecoration(
-                  //                       color: AppColors.appColor,
-                  //                       borderRadius: BorderRadius.circular(5.0.r),
-                  //                     ),
-                  //                     child: Center(child: isSellBtnClk ? SizedBox(height:20.h,width:20.w,child: CircularProgressIndicator(color: Colors.white,))
-                  //                         : Text("Order", style: AllTextStyle.saveButtonTextStyle)),
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           )
-                  //         ]),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // Visibility(visible: isVisibleBankName, child: SizedBox(height: 200.h)),
-                  // SizedBox(height: 100.h)
+                 SizedBox(height: 10.h),
                  Container(
                     width: double.infinity,
                     margin: const EdgeInsets.only(top: 4, left: 4.0, right: 4.0, bottom: 5),
@@ -1842,36 +1279,36 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.only(left: 4.0, right: 4.0, bottom: 2.0),
+                          padding: EdgeInsets.only(left: 4.w, right: 4.w, bottom: 2.h),
                           child: Column(children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text("Sub Total :",style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 12),
+                                Expanded(flex: 3,child: Text("Sub Total", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                flex: 3,
+                                flex: 9,
                                 child: Container(
-                                  margin: const EdgeInsets.only(top: 4),
-                                  height: 28.0,
-                                  padding: const EdgeInsets.all(4.0),
+                                  margin: EdgeInsets.only(top: 4.h),
+                                  height: 25.h,
+                                  padding: EdgeInsets.only(left: 6.w, right: 5.w, top: 5.h, bottom: 5.h),
                                   decoration:ContDecoration.contDecoration,
                                   child: Text(double.parse("$subtotal").toStringAsFixed(0), style: AllTextStyle.textValueStyle,
                                   ),
                                 )),
                               ],
                             ),
-                            const SizedBox(height: 4.0),
+                            SizedBox(height: 3.h),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text("Discount  :", style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 8),
+                                Expanded(flex: 3,child: Text("Discount", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                  flex: 2,
+                                  flex: 4,
                                   child: Container(
-                                    height: 28.0,
-                                    margin: const EdgeInsets.only(left: 5, right: 5),
+                                    height: 25.h,
+                                    margin: EdgeInsets.only(right: 5.w),
                                     child: TextField(
                                       style: AllTextStyle.textValueStyle,
                                       controller: _discountPercentController,
@@ -1892,7 +1329,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                         });
                                       },
                                       keyboardType: TextInputType.phone,
-                                      decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 6),
+                                      decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 3.w),
                                         hintText: "0",
                                         filled: true,
                                         fillColor: Colors.white,
@@ -1903,14 +1340,12 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     ),
                                   ),
                                 ),
-
                                 ///dis Amount
-                                Text("%", style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 5),
+                                Expanded(flex: 1,child: Center(child: Text("%", style: AllTextStyle.textFieldHeadStyle))),
                                 Expanded(
-                                  flex: 2,
+                                  flex: 4,
                                   child: SizedBox(
-                                    height: 28.0,
+                                    height: 25.h,
                                     child: TextField(
                                       style: AllTextStyle.textValueStyle,
                                       controller: _DiscountController,
@@ -1931,7 +1366,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                         });
                                       },
                                       decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.only(left: 6),
+                                        contentPadding: EdgeInsets.only(left: 4.w),
                                         hintText: "0",
                                         filled: true,
                                         fillColor: Colors.white,
@@ -1945,15 +1380,14 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                               ],
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text("Vat           :",style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 9),
+                                Expanded(flex: 3,child: Text("Vat", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                  flex: 2,
+                                  flex: 4,
                                   child: Container(
-                                    height: 28.0,
-                                    margin: const EdgeInsets.only(left: 5, right: 5,top: 5),
+                                    height: 25.h,
+                                    margin: EdgeInsets.only(right: 4.w,top: 3.h),
                                     child: TextField(
                                       style: AllTextStyle.textValueStyle,
                                       controller: _vatPercentageController,
@@ -1983,7 +1417,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
                                         hintText: "0",
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
                                         filled: true,
                                         fillColor: Colors.white,
                                         border: InputBorder.none,
@@ -1993,15 +1427,12 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     ),
                                   ),
                                 ),
-
-                                ///vat Amount
-                                Text("%",style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 5),
+                                Expanded(flex: 1,child: Center(child: Text("%", style: AllTextStyle.textFieldHeadStyle))),
                                 Expanded(
-                                    flex: 2,
+                                  flex: 4,
                                   child: Container(
-                                    height: 28.0,
-                                    margin: const EdgeInsets.only(top: 4.0),
+                                    height: 25.h,
+                                    margin: EdgeInsets.only(top: 3.h),
                                     child: TextField(
                                       style: AllTextStyle.textValueStyle,
                                       controller: _VatController,
@@ -2030,7 +1461,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                         });
                                       },
                                       decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.only(left: 6),
+                                        contentPadding: EdgeInsets.only(left: 4.w),
                                         hintText: "${vatAmount == 0 ? vatTotall : vatAmount}",
                                         hintStyle: TextStyle(color: Colors.grey.shade600,fontWeight: FontWeight.w400),
                                         filled: true,
@@ -2046,13 +1477,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                             ),
                             Row(
                               children: [
-                                Text("Transport :",style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 10),
+                                Expanded(flex: 3,child: Text("Transport", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                  flex: 3,
+                                  flex: 9,
                                   child: Container(
-                                    height: 28.0,
-                                    margin: const EdgeInsets.only(top: 4, bottom: 4),
+                                    height: 25.h,
+                                    margin: EdgeInsets.only(top: 3.h, bottom: 3.h),
                                     child: TextField(
                                       style: AllTextStyle.textValueStyle,
                                       controller: _transportController,
@@ -2068,7 +1499,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.only(top: 5, left: 5),
+                                        contentPadding: EdgeInsets.only(top: 5.h, left: 3.w),
                                         hintText: "0",
                                         filled: true,
                                         fillColor: Colors.white,
@@ -2084,29 +1515,29 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text("Total         :",style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 12),
+                                Expanded(flex: 3,child: Text("Total", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                    flex: 3,
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 4),
-                                      height: 28.0,
-                                      padding: const EdgeInsets.all(5.0),
-                                      decoration:ContDecoration.contDecoration,
-                                      child: Text(double.parse("$total").toStringAsFixed(0),style: AllTextStyle.textValueStyle,
-                                      ),
-                                    )),
+                                  flex: 9,
+                                  child: Container(
+                                    margin: EdgeInsets.only(bottom: 3.h),
+                                    height: 25.h,
+                                    padding: EdgeInsets.all(5.r),
+                                    decoration:ContDecoration.contDecoration,
+                                    child: Text(double.parse("$total").toStringAsFixed(0),style: AllTextStyle.textValueStyle,
+                                    ),
+                                  )),
                               ],
                             ),
                             Row(
                               children: [
-                                Text("Cash Paid :", style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 8),
+                                Expanded(flex: 3,child: Text("Cash Paid", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
                                   flex: 3,
                                   child: Container(
-                                    height: 28.0,
-                                    margin: const EdgeInsets.only(bottom: 4),
+                                    height: 25.h,
+                                    margin: EdgeInsets.only(bottom: 3.h),
                                     child: TextField(style: AllTextStyle.textValueStyle,
                                       controller: _paidController,
                                       onChanged: (value) {
@@ -2122,9 +1553,9 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
+                                        contentPadding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 3.w),
                                         hintText: "0",
-                                        hintStyle: TextStyle(fontSize: 13.5,fontWeight: FontWeight.w400,color: Colors.grey.shade600),
+                                        hintStyle: TextStyle(fontSize: 12.sp,fontWeight: FontWeight.w400,color: Colors.grey.shade600),
                                         filled: true,
                                         fillColor: Colors.white,
                                         border: InputBorder.none,
@@ -2134,16 +1565,12 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     ),
                                   ),
                                 ),
-
-                                /// bank paid
-                                const SizedBox(width: 2),
-                                Text("Bank Paid",style: AllTextStyle.textFieldHeadStyle),
-                                const SizedBox(width: 2),
+                                Expanded(flex: 3,child: Center(child: Text("Bank Paid",style: AllTextStyle.textFieldHeadStyle))),
                                 Expanded(
                                   flex: 3,
                                   child: Container(
-                                    height: 28.0,
-                                    margin: const EdgeInsets.only(bottom: 4),
+                                    height: 25.h,
+                                    margin: EdgeInsets.only(bottom: 3.h),
                                     child: TextField(
                                       style: AllTextStyle.textValueStyle,
                                       controller: _bankPaidController,
@@ -2168,7 +1595,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                         });
                                       },
                                       keyboardType: TextInputType.number,
-                                      decoration: InputDecoration(contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
+                                      decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 4.w),
                                         hintText: "0",
                                         filled: true,
                                         fillColor: Colors.white,
@@ -2185,66 +1612,67 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                               visible: isVisibleBankName,
                               child: Row(
                                 children: [
-                                Expanded(flex: 4, child: Text("Bank :",style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 3,child: Text("Bank", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                flex: 14,
+                                flex: 9,
                                 child: Container(
-                                 height: 28.0,
+                                 height: 25.h,
                                  width: MediaQuery.of(context).size.width / 2,
                                  margin: const EdgeInsets.only(bottom: 4.0),
                                  decoration:ContDecoration.contDecoration,
                                  child: TypeAheadField<BankAccountModel>(
-                                          controller: bankAccountController,
-                                          builder: (context, controller, focusNode) {
-                                            return TextField(
-                                              controller: controller,
-                                              focusNode: focusNode,
-                                              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                              decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
-                                                isDense: true,
-                                                hintText: 'Select Bank',
-                                                hintStyle: TextStyle(fontSize: 13.sp),
-                                                suffixIcon: _selectedBankId == '' || _selectedBankId == 'null' || _selectedBankId == null || controller.text == '' ? null
-                                                    : GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      bankAccountController.clear();
-                                                      controller.clear();
-                                                      _selectedBankId = null;
-                                                    });
-                                                  },
-                                                  child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                                ),
-                                                suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                border: InputBorder.none,
-                                                focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                                enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                                              ),
-                                            );
-                                          },
-                                          suggestionsCallback: (pattern) async {
-                                            return Future.delayed(const Duration(seconds: 1), () {
-                                              return allBankAccountList.where((element) =>
-                                                  element.bankName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                            });
-                                          },
-                                          itemBuilder: (context, BankAccountModel suggestion) {
-                                            return Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                              child: Text(suggestion.bankName!,
-                                                style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
-                                              ),
-                                            );
-                                          },
-                                          onSelected: (BankAccountModel suggestion) {
+                                  controller: bankAccountController,
+                                  builder: (context, controller, focusNode) {
+                                    return TextField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                      decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+                                        isDense: true,
+                                        hintText: 'Select Bank',
+                                        hintStyle: TextStyle(fontSize: 11.sp),
+                                        suffixIcon: _selectedBankId == '' || _selectedBankId == 'null' || _selectedBankId == null || controller.text == '' ? null
+                                            : GestureDetector(
+                                          onTap: () {
                                             setState(() {
-                                              bankAccountController.text = suggestion.bankName!;
-                                              _selectedBankId = suggestion.accountId.toString();
+                                              bankAccountController.clear();
+                                              controller.clear();
+                                              _selectedBankId = null;
                                             });
                                           },
+                                          child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
                                         ),
+                                        suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: InputBorder.none,
+                                        focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                        enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                      ),
+                                    );
+                                  },
+                                  suggestionsCallback: (pattern) async {
+                                    return Future.delayed(const Duration(seconds: 1), () {
+                                      return allBankAccountList.where((element) =>
+                                          element.bankName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                                    });
+                                  },
+                                  itemBuilder: (context, BankAccountModel suggestion) {
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                                      child: Text("${suggestion.accountName} - ${suggestion.bankName} - ${suggestion.accountNumber}",
+                                        style: TextStyle(fontSize: 10.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                      ),
+                                    );
+                                  },
+                                  onSelected: (BankAccountModel suggestion) {
+                                    setState(() {
+                                      bankAccountController.text = "${suggestion.accountName} - ${suggestion.bankName} - ${suggestion.accountNumber}";
+                                      _selectedBankId = suggestion.accountId.toString();
+                                    });
+                                  },
+                                ),
                                     ),
                                   ),
                                 ],
@@ -2253,26 +1681,26 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text("Due            :  ",style: AllTextStyle.textFieldHeadStyle),
+                                Expanded(flex: 3,child: Text("Due", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
                                 flex: 3,
                                 child: Container(
-                                  height: 28,
-                                  padding: const EdgeInsets.only(left: 5, right: 5, top: 4,),
+                                  height: 25.h,
+                                  padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 4.h),
                                   decoration:ContDecoration.contDecoration,
-                                  child: Text(double.parse("$due").toStringAsFixed(0),style:AllTextStyle.textValueStyle),
+                                  child: Text(double.parse("$due").toStringAsFixed(1),style:AllTextStyle.textValueStyle),
                                 )),
-                                const SizedBox(width: 2),
-                                Expanded(flex: 2, child: Center(child: Text("Prev.Due ", style: AllTextStyle.textFieldHeadStyle))),
+                                Expanded(flex: 3, child: Center(child: Text("Prev.Due ", style: AllTextStyle.textFieldHeadStyle))),
                                 Expanded(
                                   flex: 3,
                                   child: Container(
-                                    height: 28,
-                                    padding: const EdgeInsets.only(left: 5, right: 5, top: 4),
+                                    height: 25.h,
+                                    padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 4.h),
                                     decoration:ContDecoration.contDecoration,
                                     child: SizedBox(
-                                      child: Text("$previousDue" == 'null' ? '0' : double.parse("$previousDue").toStringAsFixed(0),
-                                        style: const TextStyle(color: Colors.red,fontSize: 13.5,),
+                                      child: Text("$previousDue" == 'null' ? '0' : double.parse("$previousDue").toStringAsFixed(1),
+                                        style: TextStyle(color: Colors.red,fontSize: 13.sp),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -2281,7 +1709,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 2.0),
+                            SizedBox(height: 2.h),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -2290,18 +1718,18 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                   child: Card(
                                     elevation: 5.0,
                                     child: Container(
-                                      height: 32.0,
-                                      width: 120.0,
+                                      height: 28.h,
+                                      width: 115.w,
                                       decoration: BoxDecoration(
                                         color: AppColors.buttonColor,
-                                        borderRadius: BorderRadius.circular(5.0),
+                                        borderRadius: BorderRadius.circular(5.r),
                                       ),
                                       child: Center(child: Text("New Order", style: AllTextStyle.saveButtonTextStyle),
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
+                                SizedBox(width: 10.w),
                                 GestureDetector(
                                   onTap: () {
                                     // if (customerController.text == '') {
@@ -2361,13 +1789,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                   child: Card(
                                     elevation: 5.0,
                                     child: Container(
-                                      height: 32.0,
-                                      width: 100.0,
+                                      height: 28.h,
+                                      width: 90.w,
                                       decoration: BoxDecoration(
                                         color: AppColors.appColor,
-                                        borderRadius: BorderRadius.circular(5.0),
+                                        borderRadius: BorderRadius.circular(5.r),
                                       ),
-                                      child: Center(child: isSellBtnClk ? const SizedBox(height:20,width:20,child: CircularProgressIndicator(color: Colors.white,))
+                                      child: Center(child: isSellBtnClk ? SizedBox(height:20.h,width:20.w,child: CircularProgressIndicator(color: Colors.white,))
                                           : Text("Order", style: AllTextStyle.saveButtonTextStyle)),
                                     ),
                                   ),
@@ -2379,7 +1807,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                       ],
                     ),
                   ),
-                  Visibility(visible: isVisibleBankName, child: const SizedBox(height: 200)),
+                  Visibility(visible: isVisibleBankName, child: SizedBox(height: 200.h)),
                   SizedBox(height: 120.0.h),
                 ],
               ),
@@ -2404,6 +1832,44 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
       });
     }
   }
+
+  String? mfgPickedDate; // শুরুতে null থাকবে
+var backEndMfgDate;
+
+void _mfgDate() async {
+  final mfgDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime(2050));
+      
+  if (mfgDate != null) {
+    setState(() {
+      // ডেট সিলেক্ট করলে ভ্যালু সেট হবে
+      mfgPickedDate = Utils.formatFrontEndDate(mfgDate);
+      backEndMfgDate = Utils.formatBackEndDate(mfgDate);
+    });
+  }
+}
+
+String? expPickedDate; // শুরুতে null থাকবে
+var backEndExpDate;
+
+void _expDate() async {
+  final expDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime(2050));
+      
+  if (expDate != null) {
+    setState(() {
+      expPickedDate = Utils.formatFrontEndDate(expDate);
+      backEndExpDate = Utils.formatBackEndDate(expDate);
+    });
+  }
+}
+
   emtyMethodAll() {
     setState(() {
       _nameController.text = "";
@@ -2419,7 +1885,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
       accountController.text = "";
       discountPer = 0;
       discountAmount = 0;
-      previousDue = 0;
+      previousDue = "";
       vatPer = 0;
       vatAmount = 0;
       subtotal = 0;
@@ -2517,7 +1983,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
         _VatController.text = "";
         _quantityController.text = "";
         _transportController.text = "";
-        previousDue = 0;
+        previousDue = "";
         TotalDiscountAmount = 0;
         CartTotal = 0;
         salesCartList.clear();
