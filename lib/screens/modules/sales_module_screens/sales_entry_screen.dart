@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:barishal_surgical/models/sales_module_models/bank_account_model.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/bank_account_provider.dart';
-import 'package:barishal_surgical/providers/sales_module_providers/expire_stock_provider.dart';
 import 'package:barishal_surgical/utils/animation_snackbar.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
@@ -82,7 +82,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   String? customerMobile;
   String? customerAddress;
   String? categoryId;
-  String?_expireId;
   var expireStock = 0;
   String? _selectedCustomer;
   String? _selectedProduct;
@@ -120,7 +119,9 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   String? cproductCode;
   String? ccategoryName;
   String? cname;
+  String? cTempRate;
   String? csalesRate;
+  String? cTempvat;
   String? cvat;
   String? cquantity;
   String? ctotal;
@@ -297,6 +298,8 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
+    Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,"");
+    
     _loadCustomerData();
   }
 
@@ -381,6 +384,8 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     final allProductList = Provider.of<ProductListProvider>(context).productsList;
     ///bank account
     final allBankAccountList = Provider.of<BankAccountProvider>(context).bankAccountList;
+    ///Invoice Due
+    final allInvoiceDueData = Provider.of<InvoiceDueProvider>(context).invoiceDueList;
     
     return Scaffold(
         appBar: CustomAppBar(title: 'Sales Entry'),
@@ -728,6 +733,8 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                             });
                                             previousDueAmount(_selectedCustomer);
                                             print("customerType========$customerType");
+                                            InvoiceDueProvider().on();
+                                            Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,"_selectedCustomer");
                                       },
                                     ),
                                   ),
@@ -876,7 +883,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                         }
                                         return null;
                                       },
-                                      enabled: isEnabled,
                                       decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.w),
                                        hintText: 'Attention Comment',
                                        hintStyle: AllTextStyle.textValueStyle,
@@ -1080,11 +1086,13 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                               cproductId = suggestion.productSlNo.toString();
                                               ccategoryName = suggestion.productCategoryName;
                                               cname = suggestion.productName;
+                                              cTempvat = suggestion.temporaryVat;
                                               cvat = suggestion.vat;
                                               productUnit = suggestion.unitName;
                                               isService = suggestion.isService;
                                               cpurchaseRate = suggestion.productPurchaseRate;
                                               _VatController.text = suggestion.vat;
+                                              cTempRate = suggestion.temporaryRate; 
                                               _salesRateController.text = suggestion.productSellingPrice;
                                               Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
                                               totalStack(cproductId);
@@ -1097,7 +1105,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                   ),
                                 ),
                               ],
-                            ), 
+                            ),
                             Row(
                               children: [
                                 Expanded(flex: 3,child: Text("Sale Rate", style: AllTextStyle.textFieldHeadStyle)),
@@ -1330,16 +1338,20 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       categoryId: categoryId,
                                       categoryName: ccategoryName,
                                       lotNo: _lotNoController.text,
+                                      purchaseRate: cpurchaseRate,
+                                      temporaryRate: cTempRate,
                                       salesRate: _salesRateController.text,
                                       quantity: findIndex > -1 ? "$newQty" : _quantityController.text,
                                       total: findIndex > -1 ? "$newTotal" : "$Total",
+                                      temporaryVat: "${double.parse(findIndex > -1 ? "$newTotal" : "$Total") * double.parse("$cTempvat") / 100}",
                                       vat: "${double.parse(findIndex > -1 ? "$newTotal" : "$Total") * double.parse("$cvat") / 100}",
                                       note:"",
                                       isService: isService,
                                       unitName: productUnit,
                                       discount: '',
                                       discountAmount: '',
-                                      expDate: ''
+                                      expDate: expPickedDate,
+                                      mfgDate: mfgPickedDate
                                     ));
                                      calculateTotal();
                                   });
@@ -2116,7 +2128,53 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                     ),
                   ),
                   Visibility(visible: isVisibleBankName, child: SizedBox(height: 200.h)),
-                  SizedBox(height: 100.h)
+                  SizedBox(height: 100.h),
+                  Container(
+                    height: 200.h,
+                  child: InvoiceDueProvider.isInvoiceDueLoading
+                      ? const Center(
+                      child: CircularProgressIndicator())
+                      : SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DataTable(
+                              headingRowHeight: 20.0,
+                              dataRowHeight: 20.0,
+                              headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+                              showCheckboxColumn: true,
+                              border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+                              columns: [
+                                DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                                DataColumn(label: Expanded(child: Center(child: Text('Due Amount',style:AllTextStyle.tableHeadTextStyle)))), 
+                                DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),                                                       
+                              ],
+                              rows: [
+                                ...List.generate(
+                                  allInvoiceDueData.length,
+                                      (int index) => DataRow(
+                                    color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
+                                    cells: <DataCell>[
+                                      DataCell(Center(child: Text(allInvoiceDueData[index].saleMasterInvoiceNo))),
+                                      DataCell(Center(child: Text(allInvoiceDueData[index].dueAmount))),
+                                      DataCell(Center(child: Icon(Icons.collections_bookmark))),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ) 
                 ],
               ),
             ),

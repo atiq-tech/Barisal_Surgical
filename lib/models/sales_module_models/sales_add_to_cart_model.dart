@@ -5,10 +5,14 @@ class SalesAddToCartModel {
   String? categoryId;
   String? categoryName;
   String? lotNo;
+  String? purchaseRate;
   String? salesRate;
+  String? temporaryRate;
+  String? mfgDate;
   String? expDate;
   String? quantity;
   String? vat;
+  String? temporaryVat;
   String? discount;
   String? discountAmount;
   String? total;
@@ -24,10 +28,14 @@ class SalesAddToCartModel {
     required this.categoryId,
     required this.categoryName,
     required this.lotNo,
+    required this.purchaseRate,
+    required this.temporaryRate,
     required this.salesRate,
+    required this.mfgDate,
     required this.expDate,
     required this.quantity,
     required this.discount,
+    required this.temporaryVat,
     required this.vat,
     required this.discountAmount,
     required this.total,

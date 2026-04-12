@@ -1097,11 +1097,11 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allSalesData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allSalesData[index].addedBy))),
+                                  DataCell(Center(child: Text(allSalesData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1109,7 +1109,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                       decoration: BoxDecoration(
                                           color:allSalesData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1196,8 +1196,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1205,7 +1205,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1313,11 +1313,11 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allSalesData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allSalesData[index].addedBy))),
+                                  DataCell(Center(child: Text(allSalesData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1325,7 +1325,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                     decoration: BoxDecoration(
                                       color:allSalesData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1412,8 +1412,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1421,7 +1421,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1528,11 +1528,11 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allSalesData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allSalesData[index].addedBy))),
+                                  DataCell(Center(child: Text(allSalesData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1540,7 +1540,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                       decoration: BoxDecoration(
                                           color:allSalesData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1627,8 +1627,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1636,7 +1636,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1891,11 +1891,11 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allSalesData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allSalesData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allSalesData[index].addedBy))),
+                                  DataCell(Center(child: Text(allSalesData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1903,7 +1903,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allSalesData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allSalesData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                       decoration: BoxDecoration(
                                           color:allSalesData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1990,8 +1990,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1999,7 +1999,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allSalesRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allSalesRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,

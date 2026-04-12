@@ -3,6 +3,7 @@ import 'package:barishal_surgical/models/order_module_models/orders_details_mode
 import 'package:barishal_surgical/models/order_module_models/orders_invoice_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_record_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/invoice_due_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/sales_details_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -562,6 +563,37 @@ class ApiService{
       print("Something is wrong getSaleslist=======:$e");
     }
     return ordersInvoiceModel;
+  }
+
+
+  ///==================get_invoice_due List======================
+  static fetchInvoiceDue(BuildContext context,String? customerId) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_invoice_due";
+    try {
+    Response response = await Dio().post(link,
+      data: {
+         "customerId": customerId,
+      },
+      options: Options(headers: {
+        "Content-Type": "application/json",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+        "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+      }));
+    var item = response.data;
+    print("get_invoice_due=====$item");
+    if(item is! List){
+      if(item['status'] == 401 && item['success'] == false) {
+        ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+        LogoutService.fetchLogout(context);
+      }
+    }
+   return List.from(item).map((e) => InvoiceDueModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
   }
 
   // //==================All Employee List=======================

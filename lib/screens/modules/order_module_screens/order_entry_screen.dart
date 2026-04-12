@@ -3,11 +3,12 @@ import 'package:barishal_surgical/models/administration_module_models/employees_
 import 'package:barishal_surgical/models/sales_module_models/bank_account_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/employees_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/bank_account_provider.dart';
+import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_screen.dart';
+import 'package:barishal_surgical/utils/animation_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:barishal_surgical/common_widget/custom_btmnbar/custom_navbar.dart';
@@ -37,6 +38,20 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   Color getColors(Set<MaterialState> states) {
     return Colors.white;
   }
+  String userName = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
+  String? userType = "";
+  SharedPreferences? sharedPreferences;
+  Future<void> _initializeData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    userName = "${sharedPreferences?.getString('userName')}";
+    userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
+    userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
+    userType = "${sharedPreferences?.getString('userType')}";
+    print("userName======$userName");
+  }
+
   final  _nameController = TextEditingController();
   final  _paidController = TextEditingController();
   final  _bankPaidController = TextEditingController();
@@ -109,7 +124,9 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   String? cproductCode;
   String? ccategoryName;
   String? cname;
+  String? cTempRate;
   String? csalesRate;
+  String? cTempvat;
   String? cvat;
   String? cquantity;
   String? ctotal;
@@ -129,6 +146,36 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
 
   late final Box box;
   bool isSellBtnClk = false;
+  void _clearInputFields() {
+    productController.text = '';
+    _lotNoController.text = '';
+    _salesRateController.text = '';
+    _quantityController.text = '';
+    isAdded = true;
+    Total = 0;
+    newQty = 0;
+    newTotal = 0;
+    availableStock = 0;
+
+    _bankPaidController.text="";
+    _paidController.text = "";
+    _discountPercentController.text = "";
+    _DiscountController.text = "";
+    _vatPercentageController.text="";
+    _VatController.text = "";
+    _transportController.text = "";
+    bankAccountController.text = "";
+    discountPer = 0;
+    transportCost=0;
+    discountAmount = 0;
+    previousDue = "0";
+    vatPer = 0;
+    vatAmount = 0;
+    cashPaid = 0;
+    bankPaid = 0;
+    due = 0;
+    calculateTotal();
+ }
 
   void removeFromCart(index) {
     salesCartList.removeAt(index);
@@ -194,6 +241,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
 
   @override
   void initState() {
+    _initializeData();
     super.initState();
     getSalesInvoice();
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
@@ -776,7 +824,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                         }
                                         return null;
                                       },
-                                      enabled: isEnabled,
                                       decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.w),
                                        hintText: 'Attention Comment',
                                        hintStyle: AllTextStyle.textValueStyle,
@@ -895,14 +942,19 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                               cproductCode = suggestion.productCode.toString();
                                               ccategoryName = suggestion.productCategoryName;
                                               cname = suggestion.productName;
+                                              cTempvat = suggestion.temporaryVat;
                                               cvat = suggestion.vat;
                                               productUnit = suggestion.unitName;
                                               isService = suggestion.isService;
                                               cpurchaseRate = suggestion.productPurchaseRate;
                                               _VatController.text = suggestion.vat;
+                                              cTempRate = suggestion.temporaryRate;
                                               _salesRateController.text = suggestion.productSellingPrice;
                                               Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
                                               totalStack(cproductId);
+                                              _lotNoController.text = suggestion.productLotNo ?? '';
+                                              mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
+                                              expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
                                             });
                                       },
                                     ),
@@ -1120,16 +1172,20 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       categoryId: categoryId,
                                       categoryName: ccategoryName,
                                       lotNo: _lotNoController.text,
+                                      purchaseRate: cpurchaseRate,
+                                      temporaryRate: cTempRate,
                                       salesRate: _salesRateController.text,
                                       quantity: findIndex > -1 ? "$newQty" : _quantityController.text,
                                       total: findIndex > -1 ? "$newTotal" : "$Total",
+                                      temporaryVat: "${double.parse(findIndex > -1 ? "$newTotal" : "$Total") * double.parse("$cTempvat") / 100}",
                                       vat: "${double.parse(findIndex > -1 ? "$newTotal" : "$Total") * double.parse("$cvat") / 100}",
                                       note:"",
                                       isService: isService,
                                       unitName: productUnit,
                                       discount: '',
                                       discountAmount: '',
-                                      expDate: ''
+                                      mfgDate: mfgPickedDate,
+                                      expDate: expPickedDate
                                     ));
 
                                     CartTotal += Total;
@@ -1699,12 +1755,14 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 4.h),
                                     decoration:ContDecoration.contDecoration,
                                     child: SizedBox(
-                                      child: Text("$previousDue" == 'null' ? '0' : double.parse("$previousDue").toStringAsFixed(1),
-                                        style: TextStyle(color: Colors.red,fontSize: 13.sp),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                    child: Text(
+                                      (double.tryParse(previousDue?.toString() ?? '') ?? 0)
+                                          .toStringAsFixed(1),
+                                      style: TextStyle(color: Colors.red, fontSize: 13.sp),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                  ),
                                   ),
                                 ),
                               ],
@@ -1732,59 +1790,61 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                 SizedBox(width: 10.w),
                                 GestureDetector(
                                   onTap: () {
-                                    // if (customerController.text == '') {
-                                    //   Utils.errorSnackBar(context, "Customer Field is required");
-                                    // }
-                                    // else if (customerType == 'N') {
-                                    //   if (_nameController.text == '') {
-                                    //     Utils.errorSnackBar(context, "Name Field is required");
-                                    //   } else if (_mobileNumberController.text == '') {
-                                    //     Utils.errorSnackBar(context, "Mobile Field is required");
-                                    //   }
-                                    //   else if (_bankPaidController.text.isNotEmpty && (_selectedAccount == null || _selectedAccount == '')) {
-                                    //     Utils.errorSnackBar(context, "Please Select Bank Account");
-                                    //   } 
-                                    //   else if (Paid > total) {
-                                    //     Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
-                                    //   }
-                                    //    else {
-                                    //     setState(() {
-                                    //       isSellBtnClk = true;
-                                    //     });
-                                    //     if (subtotal == 0) {
-                                    //       setState(() {
-                                    //         isSellBtnClk = false;
-                                    //       });
-                                    //       Utils.errorSnackBar(context, "Please Add to Cart");
-                                    //     } else {
-                                    //       addSales();
-                                    //     }
-                                    //   }
-                                    // } 
-                                    // else {
-                                    // if (_bankPaidController.text.isNotEmpty && (_selectedAccount == null || _selectedAccount == '')) {
-                                    //   Utils.errorSnackBar(context, "Please Select Bank Account");
-                                    // } 
-                                    // else if (Paid > total) {
-                                    //   Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
-                                    // }
-                                    // else if (customerType == 'G' && due > 0) {
-                                    //   Utils.errorSnackBar(context, "Cash Customer can not due sale");
-                                    // }
-                                    // else {
-                                    //   setState(() {
-                                    //     isSellBtnClk = true;
-                                    //   });
-                                    //   if (subtotal == 0) {
-                                    //     setState(() {
-                                    //       isSellBtnClk = false;
-                                    //     });
-                                    //     Utils.errorSnackBar(context, "Please Add to Cart");
-                                    //   } else {
-                                    //     addSales();
-                                    //   }
-                                    //  }
-                                    // }
+                                    if (customerController.text == '') {
+                                      Utils.errorSnackBar(context, "Customer Field is required");
+                                    }
+                                    else if (customerType == 'N') {
+                                      if (_nameController.text == '') {
+                                        Utils.errorSnackBar(context, "Name Field is required");
+                                      } else if (_mobileNumberController.text == '') {
+                                        Utils.errorSnackBar(context, "Mobile Field is required");
+                                      }
+                                      else if (_bankPaidController.text.isNotEmpty && (_selectedBankId == null || _selectedBankId == '')) {
+                                        Utils.errorSnackBar(context, "Please Select Bank Account");
+                                      } 
+                                      else if (Paid > total) {
+                                        Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
+                                      }
+                                       else {
+                                        setState(() {
+                                          isSellBtnClk = true;
+                                        });
+                                        if (subtotal == 0) {
+                                          setState(() {
+                                            isSellBtnClk = false;
+                                          });
+                                          Utils.errorSnackBar(context, "Please Add to Cart");
+                                        } else {
+                                          addOrder();
+                                          _clearInputFields();
+                                        }
+                                      }
+                                    } 
+                                    else {
+                                    if (_bankPaidController.text.isNotEmpty && (_selectedBankId == null || _selectedBankId == '')) {
+                                      Utils.errorSnackBar(context, "Please Select Bank Account");
+                                    } 
+                                    else if (Paid > total) {
+                                      Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
+                                    }
+                                    else if (customerType == 'G' && due > 0) {
+                                      Utils.errorSnackBar(context, "Cash Customer can not due sale");
+                                    }
+                                    else {
+                                      setState(() {
+                                        isSellBtnClk = true;
+                                      });
+                                      if (subtotal == 0) {
+                                        setState(() {
+                                          isSellBtnClk = false;
+                                        });
+                                        Utils.errorSnackBar(context, "Please Add to Cart");
+                                      } else {
+                                        addOrder();
+                                        _clearInputFields();
+                                      }
+                                     }
+                                    }
                                   },
                                   child: Card(
                                     elevation: 5.0,
@@ -1896,120 +1956,112 @@ void _expDate() async {
 
     });
   }
-  addOrder() async {
-    String link = "${baseUrl}api/v1/addOrder";
-    SharedPreferences? sharedPreferences;
-    sharedPreferences = await SharedPreferences.getInstance();
-    try {
-      var studentsmap = salesCartList.map((e) {
-        return {
-          "productId": e.productId,
-          "categoryName": e.categoryName,
-          "name": e.name,
-          "salesRate": e.salesRate,
-          "size_id": "",
-          "brand": "",
-          "vat": e.vat,
-          "quantity": e.quantity,
-          "total": e.total,
-          "purchaseRate": e.salesRate,
-        };
-      }).toList();
-      print(studentsmap);
-      Response response = await Dio().post(link,
-        data: {
-          "sales": {
-            "salesId": 0,
-            "invoiceNo": invoiceController.text,
-            "salesBy": GetStorage().read("name"),
-            "salesType": level,
-            "salesFrom": "1",
-            "salesDate": "$backEndFirstDate",
-            "customerId": "$_selectedCustomer",
-            "employeeId": "$employeeSlNo",
-            "subTotal": "$CartTotal",
-            "discount": TotalDiscountAmount,
-            "vat": _VatController.text,
-            "transportCost": _transportController.text,
-            "total": "${Paid}",
-            "paid": 0,
-            "previousDue": "145.00",
-            "due": "${Paid}",
-            "payment_type": "Cash",
-            "isService": "false",
-            "note": ""
-            //}
-          },
-          // "customer": {
-          //   "Customer_SlNo": "$_selectedCustomer",
-          //   "Customer_Code": "",
-          //   "Customer_Name": _nameController.text.trim(),
-          //   "display_name": "",
-          //   "Customer_Mobile": _mobileNumberController.text.trim(),
-          //   "Customer_Address": _addressController.text.trim(),
-          //   "Customer_Type": "G"
-          // },
-          //:null,
-          // "customer":_selectedCustomer == null?{
-          //   "Customer_SlNo": "",
-          //   "Customer_Code": "",
-          //   "Customer_Name": _nameController.text.trim(),
-          //   "display_name": "General Customer",
-          //   "Customer_Mobile": _mobileNumberController.text.trim(),
-          //   "Customer_Address": _addressController.text.trim(),
-          //   "Customer_Type": "G"
-          // }:null,
-          "cart": studentsmap
-        },
-        options: Options(headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-        }),
-      );
-      print(response.data);
-      var item = jsonDecode(response.data);
-      print("Order entry response====$item");
-      if(item["success"] == true){
-        setState(() {
-          isSellBtnClk = false;
-        });
-        _nameController.text = "";
-        _paidController.text = "";
-        _discountPercentController.text = "";
-        _mobileNumberController.text = "";
-        _addressController.text = "";
-        _salesRateController.text = "";
-        _DiscountController.text = "";
-        _VatController.text = "";
-        _quantityController.text = "";
-        _transportController.text = "";
-        previousDue = "";
-        TotalDiscountAmount = 0;
-        CartTotal = 0;
-        salesCartList.clear();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: const Duration(seconds: 1),backgroundColor: Colors.indigo,
-            content: Center(child: Text("${item["message"]}",style: TextStyle(fontSize: 16.sp,color: Colors.white),))));
-        Navigator.pop(context);
-      }
-      else{
-        setState(() {
-          isSellBtnClk = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: const Duration(seconds: 1),backgroundColor: Colors.black,
-            content: Text("${item["message"]}",style: TextStyle(fontSize: 16.sp,color: Colors.red),)));
-      }
 
-    } catch (e) {
-      print(e);
+  addOrder() async {
+  String link = "${baseUrl}add_order";
+  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+  try {
+    /// 🛒 CART DATA
+    var cartProducts = salesCartList.map((e) {
+      return {
+        "productId": e.productId,
+        "productCode": e.code,
+        "name": e.name,
+        "categoryName": e.categoryName,
+        "quantity": e.quantity,
+        "purchaseRate": e.purchaseRate,
+        "temporary_rate": e.temporaryRate,
+        "salesRate": e.salesRate,
+        "temporary_vat": e.temporaryVat ?? 0,
+        "vat": e.vat ?? 0,
+        "total": e.total,
+        "Product_LotNo": e.lotNo ?? "",
+        "Product_ManufactureDate": e.mfgDate ?? "",
+        "Product_ExpireDate": e.expDate ?? "",
+        "is_service": e.isService.toString(),
+      };
+    }).toList();
+
+    /// 🧾 SALES DATA
+    var salesData = {
+      "salesId": 0,
+      "invoiceNo": "",
+      "salesBy": userName,
+      "employeeId": userType == "m" || userType == "a" ? employeeSlNo ?? "" : userEmployeeID,
+      "salesFrom": "1",
+      "customerId": _selectedCustomer ?? "0",
+      "salesDate": backEndFirstDate,
+      "salesType": level,
+      "total": total,
+      "discount": discountAmount,
+      "vat": vatAmount,
+      "vatPercent": 0,
+      "transportCost": transportCost,
+      "subTotal": subtotal,
+      "accountId": _selectedBankId?? 0,
+      "cashPaid": accountController.text == "" ? Paid : 0,
+      "bankPaid": accountController.text != "" ? Paid : 0,
+      "paid": Paid,
+      "due": due,
+      "previousDue": previousDue,
+      "note": "Order from app",
+    };
+
+    /// 👤 CUSTOMER DATA
+    var customerData =_selectedCustomer == null || _selectedCustomer == "null" || _selectedCustomer == "" || _selectedCustomer == "0"
+        ?  {
+      "Customer_Name": customerType == 'G'? _nameController.text.trim(): customerController.text.trim(),
+      "Customer_Mobile": _mobileNumberController.text.trim(),
+      "Customer_Address": _addressController.text.trim(),
+      "Customer_Type": "$customerType",
+      "Customer_Email": "",
+    }:null;
+
+    print("🧾 SALES DATA:\n$salesData");
+    print("👤 CUSTOMER DATA:\n$customerData");
+    print("🛒 CART PRODUCTS:\n$cartProducts");
+
+    /// 🔗 API CALL
+    Response response = await Dio().post(
+      link,
+      data: {
+        "sales": salesData,
+        "customer": customerData,
+        "cart": cartProducts,
+      },
+      options: Options(headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+      }),
+    );
+
+    var item = response.data;
+    print("✅ API Response:\n$item");
+
+    if (item["success"] == true) {
       setState(() {
         isSellBtnClk = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(seconds: 1),backgroundColor: Colors.black,
-          content: Text(e.toString(),style: TextStyle(fontSize: 16.sp,color: Colors.red),)));
+
+      emtyMethodAll();
+      salesCartList.clear();
+      CustomSnackBar.showTopSnackBar(context, "${item["message"]}");
+      Navigator.push(context,MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: "${item["salesId"]}")));
+    } else {
+      setState(() {
+        isSellBtnClk = false;
+      });
+      Utils.showTopSnackBar(context, "${item["errorMsg"] ?? "Order entry failed"}");
     }
+  } catch (e) {
+    setState(() {
+      isSellBtnClk = false;
+    });
+    print("❌ Error during sales submission: $e");
+    Utils.showTopSnackBar(context, e.toString());
   }
+}
 }
 

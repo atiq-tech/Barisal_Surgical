@@ -8,7 +8,6 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../../common_widget/custom_appbar.dart';
 import '../../../providers/administration_module_providers/customer_list_provider.dart';
 import '../../../utils/all_textstyle.dart';
 

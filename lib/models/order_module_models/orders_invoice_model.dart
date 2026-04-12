@@ -27,14 +27,19 @@ class SaleDetail {
   final dynamic saleDetailsSlNo;
   final dynamic saleMasterIdNo;
   final dynamic productIdNo;
+  final dynamic orderQuantity;
   final dynamic saleDetailsTotalQuantity;
   final dynamic purchaseRate;
   final dynamic saleDetailsRate;
+  final dynamic temporaryRate;
   final dynamic saleDetailsDiscount;
   final dynamic discountAmount;
   final dynamic saleDetailsTax;
+  final dynamic saleDetailsTemporaryVat;
   final dynamic saleDetailsTotalAmount;
-  final dynamic isFree;
+  final dynamic lotNo;
+  final dynamic manufactureDate;
+  final dynamic expireDate;
   final dynamic isService;
   final dynamic status;
   final dynamic addBy;
@@ -49,19 +54,24 @@ class SaleDetail {
   final dynamic productName;
   final dynamic productCategoryName;
   final dynamic unitName;
-
+  
   SaleDetail({
     required this.saleDetailsSlNo,
     required this.saleMasterIdNo,
     required this.productIdNo,
+    required this.orderQuantity,
     required this.saleDetailsTotalQuantity,
     required this.purchaseRate,
     required this.saleDetailsRate,
+    required this.temporaryRate,
     required this.saleDetailsDiscount,
     required this.discountAmount,
     required this.saleDetailsTax,
+    required this.saleDetailsTemporaryVat,
     required this.saleDetailsTotalAmount,
-    required this.isFree,
+    required this.lotNo,
+    required this.manufactureDate,
+    required this.expireDate,
     required this.isService,
     required this.status,
     required this.addBy,
@@ -86,14 +96,19 @@ class SaleDetail {
     saleDetailsSlNo: json["SaleDetails_SlNo"],
     saleMasterIdNo: json["SaleMaster_IDNo"],
     productIdNo: json["Product_IDNo"],
+    orderQuantity: json["Order_Quantity"],
     saleDetailsTotalQuantity: json["SaleDetails_TotalQuantity"],
     purchaseRate: json["Purchase_Rate"],
     saleDetailsRate: json["SaleDetails_Rate"],
+    temporaryRate: json["temporary_rate"],
     saleDetailsDiscount: json["SaleDetails_Discount"],
     discountAmount: json["Discount_amount"],
     saleDetailsTax: json["SaleDetails_Tax"],
+    saleDetailsTemporaryVat: json["SaleDetails_Temporary_Vat"],
     saleDetailsTotalAmount: json["SaleDetails_TotalAmount"],
-    isFree: json["is_free"],
+    lotNo: json["LotNo"],
+    manufactureDate: json["ManufactureDate"],
+    expireDate: json["ExpireDate"],
     isService: json["is_service"],
     status: json["status"],
     addBy: json["AddBy"],
@@ -114,14 +129,19 @@ class SaleDetail {
     "SaleDetails_SlNo": saleDetailsSlNo,
     "SaleMaster_IDNo": saleMasterIdNo,
     "Product_IDNo": productIdNo,
+    "Order_Quantity": orderQuantity,
     "SaleDetails_TotalQuantity": saleDetailsTotalQuantity,
     "Purchase_Rate": purchaseRate,
     "SaleDetails_Rate": saleDetailsRate,
+    "temporary_rate": temporaryRate,
     "SaleDetails_Discount": saleDetailsDiscount,
     "Discount_amount": discountAmount,
     "SaleDetails_Tax": saleDetailsTax,
+    "SaleDetails_Temporary_Vat": saleDetailsTemporaryVat,
     "SaleDetails_TotalAmount": saleDetailsTotalAmount,
-    "is_free": isFree,
+    "LotNo": lotNo,
+    "ManufactureDate": manufactureDate,
+    "ExpireDate": expireDate,
     "is_service": isService,
     "status": status,
     "AddBy": addBy,

@@ -254,9 +254,9 @@ Future<Uint8List?> _fetchImage(String url) async {
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.end,
               children: [
-                _buildInfoRow("Prepared By:", data.sales[0].addedBy),
-                _buildInfoRow("Invoice No.:", data.sales[0].saleMasterInvoiceNo),
-                _buildInfoRow("Sales Date:", data.sales[0].saleMasterSaleDate),
+                _buildInfoRow("Prepared By:", data.sales[0].addedBy??""),
+                _buildInfoRow("Invoice No.:", data.sales[0].saleMasterInvoiceNo??""),
+                _buildInfoRow("Sales Date:", data.sales[0].saleMasterSaleDate??""),
                 _buildInfoRow("Employee:", data.sales[0].employeeName??""),
               ],
             ),
@@ -273,7 +273,7 @@ Future<Uint8List?> _fetchImage(String url) async {
             1: const pw.FixedColumnWidth(60), // Sl
             2: const pw.FlexColumnWidth(3),  // Description
             3: const pw.FixedColumnWidth(40), // Qty
-            4: const pw.FixedColumnWidth(40), // Ret Qty
+            //4: const pw.FixedColumnWidth(40), // Ret Qty
             5: const pw.FixedColumnWidth(40), // Unit
             6: const pw.FixedColumnWidth(50), // Rate
             7: const pw.FixedColumnWidth(60), // Total
@@ -302,7 +302,7 @@ Future<Uint8List?> _fetchImage(String url) async {
                   _buildTableCell("${i + 1}"),
                   _buildTableCell(item.productCode,),
                   _buildTableCell(item.productName, align: pw.TextAlign.left),
-                  _buildTableCell(item.saleDetailsTotalQuantity.toString()),
+                  _buildTableCell(item.orderQuantity.toString()),
                   //_buildTableCell("0"), // Return Qty static 0
                   _buildTableCell(item.unitName),
                   _buildTableCell(item.saleDetailsRate),
@@ -430,7 +430,7 @@ Future<Uint8List?> _fetchImage(String url) async {
 String _calculateTotalQty(List<dynamic> details) {
   double total = 0;
   for (var item in details) {
-    total += double.tryParse(item.saleDetailsTotalQuantity.toString()) ?? 0;
+    total += double.tryParse(item.orderQuantity.toString()) ?? 0;
   }
   return total.toStringAsFixed(0); 
 }
@@ -581,8 +581,10 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                           },
                           suggestionsCallback: (pattern) async {
                             return Future.delayed(const Duration(seconds: 1), () {
-                              return allOrdersInvoicesData.where((element) =>
-                                  element.invoiceText!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                              return allOrdersInvoicesData.where((element) {
+                              if (element.invoiceText == null) return false;
+                              return element.invoiceText!.toLowerCase().contains(pattern.toLowerCase());
+                            }).toList();  
                             });
                           },
                           itemBuilder: (context, OrdersModel suggestion) {
@@ -617,7 +619,7 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                       );
                     } else if (snapshot.hasData) {
                       /// Total Calculation
-                      int totalQty = snapshot.data!.saleDetails.fold<int>(0,(sum, item) => sum + int.tryParse(item.saleDetailsTotalQuantity.toString())!);
+                      int totalQty = snapshot.data!.saleDetails.fold<int>(0,(sum, item) => sum + int.tryParse(item.orderQuantity.toString())!);
                       double totalAmount = snapshot.data!.saleDetails.fold<double>(0.0,(sum, item) => sum + double.tryParse(item.saleDetailsTotalAmount.toString())!);
 
                       return SingleChildScrollView(
@@ -830,7 +832,7 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                                   child: Text('Description', style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.bold)),
                                 )),
                                 DataColumn(label: Center(child: Text('Qty', style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.bold)))),
-                                DataColumn(label: Center(child: Text('Return Qty', style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.bold)))),
+                                //DataColumn(label: Center(child: Text('Return Qty', style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.bold)))),
                                 DataColumn(label: Center(child: Text('Unit', style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.bold)))),
                                 DataColumn(label: Center(child: Text('Unit Price', style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.bold)))),
                                 DataColumn(label: Center(child: Text('Total', style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.bold)))),
@@ -842,8 +844,8 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                                     DataCell(Center(child: Text("${index + 1}"))),
                                     DataCell(Text("${snapshot.data!.saleDetails[index].productCode}", style: TextStyle(fontSize: 10.sp))),
                                     DataCell(Text("${snapshot.data!.saleDetails[index].productName}", style: TextStyle(fontSize: 10.sp))),
-                                    DataCell(Center(child: Text("${snapshot.data!.saleDetails[index].saleDetailsTotalQuantity}"))),
-                                    DataCell(Center(child: Text("${snapshot.data!.saleDetails[index].saleDetailsTotalQuantity}"))),
+                                    DataCell(Center(child: Text("${snapshot.data!.saleDetails[index].orderQuantity}"))),
+                                    //DataCell(Center(child: Text("${snapshot.data!.saleDetails[index].saleDetailsTotalQuantity}"))),
                                     DataCell(Center(child: Text("${snapshot.data!.saleDetails[index].unitName}"))),
                                     DataCell(Center(child: Text("${snapshot.data!.saleDetails[index].saleDetailsRate}"))),
                                     DataCell(Center(child: Text("${snapshot.data!.saleDetails[index].saleDetailsTotalAmount}"))),
@@ -856,7 +858,7 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                                     DataCell(SizedBox()),
                                     DataCell(Text('Total:', style: TextStyle(fontWeight: FontWeight.bold))),
                                     DataCell(Center(child: Text("$totalQty", style: TextStyle(fontWeight: FontWeight.bold)))),
-                                    DataCell(Center(child: Text("$totalQty", style: TextStyle(fontWeight: FontWeight.bold)))),
+                                    //DataCell(Center(child: Text("$totalQty", style: TextStyle(fontWeight: FontWeight.bold)))),
                                     DataCell(SizedBox()),
                                     DataCell(SizedBox()),
                                     DataCell(Center(child: Text('$totalAmount', style: TextStyle(fontWeight: FontWeight.bold)))),

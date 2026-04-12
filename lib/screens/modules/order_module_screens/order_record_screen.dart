@@ -3,7 +3,6 @@ import 'package:barishal_surgical/providers/administration_module_providers/user
 import 'package:barishal_surgical/providers/order_module_providers/orders_details_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
-import 'package:barishal_surgical/providers/sales_module_providers/sales_details_provider.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -982,10 +981,9 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
             ),
             SizedBox(height: 10.h),
             data == 'showAllWithoutDetails'
-                ? Expanded(
-              child: SalesProvider.isSalesLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersData.isNotEmpty?
+              ? Expanded(
+              child: SalesProvider.isSalesLoading ? const Center(child: CircularProgressIndicator())
+               :allOrdersData.isNotEmpty?
               SizedBox(
                 width: double.infinity,
                 height: double.infinity,
@@ -1027,11 +1025,11 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy))),
+                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1039,7 +1037,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                       decoration: BoxDecoration(
                                           color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1126,8 +1124,8 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1135,7 +1133,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1243,11 +1241,11 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy))),
+                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1255,7 +1253,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                     decoration: BoxDecoration(
                                       color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1342,8 +1340,8 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1351,7 +1349,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1458,11 +1456,11 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy))),
+                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1470,7 +1468,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                       decoration: BoxDecoration(
                                           color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1557,8 +1555,8 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1566,7 +1564,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1822,11 +1820,11 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                 cells: <DataCell>[
                                   DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy))),
+                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
@@ -1834,7 +1832,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription))),
+                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
                                       decoration: BoxDecoration(
                                           color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
@@ -1921,8 +1919,8 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
                               cells: <DataCell>[
                                 DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,
@@ -1930,7 +1928,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   ),
                                 ),
                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy))),
+                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
                                 DataCell(
                                   SizedBox(
                                     width:MediaQuery.of(context).size.width/2.5,

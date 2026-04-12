@@ -3,6 +3,7 @@ import 'package:barishal_surgical/providers/order_module_providers/orders_detail
 import 'package:barishal_surgical/providers/order_module_providers/orders_invoice_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
 import 'package:barishal_surgical/splash_seccen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -87,6 +88,7 @@ class MyApp extends StatelessWidget {
 
          ChangeNotifierProvider<UsersProvider>(create: (_) => UsersProvider()),
          ChangeNotifierProvider<OrdersProvider>(create: (_) => OrdersProvider()),
+         ChangeNotifierProvider<InvoiceDueProvider>(create: (_) => InvoiceDueProvider()),
          ChangeNotifierProvider<CategoriesProvider>(create: (_) => CategoriesProvider()),
          ChangeNotifierProvider<SalesRecordProvider>(create: (_) => SalesRecordProvider()),
          ChangeNotifierProvider<ExpireStockProvider>(create: (_) => ExpireStockProvider()),

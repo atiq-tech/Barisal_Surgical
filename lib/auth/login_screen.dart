@@ -49,6 +49,7 @@ class _LogInPageState extends State<LogInPage> {
         sharedPreferences?.setString("userId", "${item["data"]["id"]}");
         sharedPreferences?.setString("userType", "${item["data"]["userType"]}");
         sharedPreferences?.setString('employeeId', "${item["data"]["employee_id"]}");
+        sharedPreferences?.setString('employeeName', "${item["data"]["employee_name"]}");
         sharedPreferences?.setString('image_name', "${item["data"]["image_name"]}");
         sharedPreferences?.setString('employeePhone', "${item["data"]["employee_phone"]}");
         sharedPreferences?.setString('customerId', "${item["data"]["customerId"]}");
