@@ -135,14 +135,14 @@ Future<Uint8List?> _fetchImage(String url) async {
   
   final pdf = pw.Document();
   
-  // লোকাল লোগো লোড করা
-  Uint8List? logoImage;
-  try {
-    final logoImg = await rootBundle.load('images/brsgcl.png');
-    logoImage = logoImg.buffer.asUint8List();
-  } catch (e) {
-    print("Local logo not found: $e");
-  }
+  /// লোকাল লোগো লোড করা
+  // Uint8List? logoImage;
+  // try {
+  //   final logoImg = await rootBundle.load('images/brsgcl.png');
+  //   logoImage = logoImg.buffer.asUint8List();
+  // } catch (e) {
+  //   print("Local logo not found: $e");
+  // }
 
 
   pdf.addPage(
@@ -232,7 +232,7 @@ Future<Uint8List?> _fetchImage(String url) async {
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _buildInfoRow("Customer ID:", data!.sales[0].customerCode),
+                _buildInfoRow("Customer ID:", data.sales[0].customerCode),
                 _buildInfoRow("Name:", data.sales[0].customerName),
                 _buildInfoRow("Mobile:", data.sales[0].customerMobile),
                 _buildInfoRow("Attention:", data.sales[0].customerComment), 

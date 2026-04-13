@@ -1793,7 +1793,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     if (customerController.text == '') {
                                       Utils.errorSnackBar(context, "Customer Field is required");
                                     }
-                                    else if (customerType == 'N') {
+                                    else if (customerType == 'G') {
                                       if (_nameController.text == '') {
                                         Utils.errorSnackBar(context, "Name Field is required");
                                       } else if (_mobileNumberController.text == '') {

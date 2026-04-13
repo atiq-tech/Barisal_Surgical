@@ -571,10 +571,11 @@ class ApiService{
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
     String link = "${baseUrl}get_invoice_due";
+    print("customerId----get_invoice_due: $customerId");
     try {
     Response response = await Dio().post(link,
       data: {
-         "customerId": customerId,
+         "customerId": "$customerId",
       },
       options: Options(headers: {
         "Content-Type": "application/json",

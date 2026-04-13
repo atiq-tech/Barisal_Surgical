@@ -1,6 +1,7 @@
 import 'dart:convert';
-
 import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/sales_invoice_provider.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/sales_invoice_screen.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +36,16 @@ class SalesEntryScreen extends StatefulWidget {
 class _SalesEntryScreenState extends State<SalesEntryScreen> {
   bool? isFree = false;
   String userName = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
+  String? userType = "";
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
     userName = "${sharedPreferences?.getString('userName')}";
+    userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
+    userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
+    userType = "${sharedPreferences?.getString('userType')}";
     print("userName======$userName");
   }
 
@@ -62,7 +69,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   final TextEditingController _taxPercentageController = TextEditingController();
   final TextEditingController _TaxController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _convertedController = TextEditingController();
   final TextEditingController _transportController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _lotNoController = TextEditingController();
@@ -71,11 +77,10 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   var categoryController = TextEditingController();
   var productController = TextEditingController();
   var expDateController = TextEditingController();
-  var _discountAmountControllerProduct = TextEditingController();
   double discountPercentage = 0.0;
   var customerSlNo;
   String? _selectedBankId;
-  String?  customerType = 'N';
+  String? customerType = 'G';
   var  creditLimit = '';
 
   String? Salling_Rate = "0.0";
@@ -144,15 +149,13 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
 
   late final Box box;
   bool isSellBtnClk = false;
+  bool isMusokBtnClk = false;
 
   void _clearInputFields() {
     productController.text = '';
     expDateController.text = '';
     _salesRateController.text = '';
     _quantityController.text = '';
-    pDiscountController.text = '';
-    pDiscountPercentageController.text = '';
-    afterdisP = 0;
     isFree = false;
     isAdded = true;
     Total = 0;
@@ -226,64 +229,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     print("Paid===$Paid");
     print("due===$due");
     print("cashPaid===$cashPaid");
-    double quantity = double.tryParse(_quantityController.text.replaceAll(",", "").trim()) ?? 0;
-    double rate = double.tryParse(_salesRateController.text.replaceAll(",", "").trim()) ?? 0;
-    double totalBeforeDiscount = quantity * rate;
-    discountAmount = _discountAmountControllerProduct.text.isEmpty ? 0.0 : double.parse(_discountAmountControllerProduct.text);
-    Total = totalBeforeDiscount - discountAmount;
   }
-
-  TextEditingController pDiscountController = TextEditingController();
-  TextEditingController pDiscountPercentageController = TextEditingController();
-  double totalAmountP = 0;
-  double discountAmountP = 0;
-  double afterdisP = 0;
-  bool isPercentageInput = false;
-  double totalQty = 0;
-  void calculateTotalP() {
-  double quantityP = double.tryParse(_quantityController.text) ?? 0.0;
-  double salesRateP = double.tryParse(_salesRateController.text) ?? 0.0;
-  double perUnit = double.tryParse(perUnitConvert ?? '0') ?? 0.0;
-  double convertCtnValue = double.tryParse(_convertedController.text) ?? 0.0;
-  double convertValue = perUnit * convertCtnValue;
-  totalQty = quantityP + convertValue;
-  totalAmountP = totalQty * salesRateP;
-
-  double discountPercentageP = double.tryParse(pDiscountPercentageController.text) ?? 0.0;
-  double discountValueP = double.tryParse(pDiscountController.text) ?? 0.0;
-  double singleDiscount = 0.0;
-
-  if (isPercentageInput) {
-    singleDiscount = (salesRateP * discountPercentageP) / 100;
-    discountAmountP = singleDiscount * totalQty; 
-    pDiscountController.text = singleDiscount.toStringAsFixed(2);
-  } else {
-    singleDiscount = discountValueP;
-    discountAmountP = discountValueP * totalQty; 
-    if (salesRateP > 0) {
-      pDiscountPercentageController.text = ((singleDiscount / salesRateP) * 100).toStringAsFixed(2);
-    }
-  }
-  if (discountAmountP > totalAmountP) {
-    discountAmountP = totalAmountP;
-  }
-  afterdisP = totalAmountP - discountAmountP;
-  setState(() {
-    print("Discount==All=====$discountAmountP");
-    print("totalQty==All=====$totalQty");
-    print("convertValue==All=====$convertValue");   
-  });
-}
-
-  void onDiscountPercentageChanged(String value) {
-    isPercentageInput = true;
-    calculateTotalP();
-  }
-  void onDiscountValueChanged(String value) {
-    isPercentageInput = false;
-    calculateTotalP();
-  }
-
 
   @override
   void initState() {
@@ -298,8 +244,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
-    Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,"");
-    
+    // Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,_selectedCustomer??"");
     _loadCustomerData();
   }
 
@@ -316,7 +261,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
           _mobileNumberController.text = customerList.first.customerMobile ?? '';
           _addressController.text = customerList.first.customerAddress ?? '';
           customerSlNo = customerList.first.customerSlNo.toString();
-          customerType = customerList.first.customerType ?? 'N';
+          customerType = customerList.first.customerType ?? '';
           creditLimit = customerList.first.customerCreditLimit?.toString() ?? '';
           _nameController.text = customerList.first.customerName??"";
 
@@ -356,22 +301,34 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
 
   Response? result;
   void previousDueAmount(String? customerId) async {
-    SharedPreferences? sharedPreferences;
-    sharedPreferences = await SharedPreferences.getInstance();
-    result = await Dio().post("${baseUrl}get_customer_due",
-        data: {"customerId": "$customerId"},
-        options: Options(headers: {
-          "Content-Type": "application/json",
-          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-        }));
+  try {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    
+    result = await Dio().post(
+      "${baseUrl}get_customer_due",
+      data: {"customerId": "$customerId"},
+      options: Options(headers: {
+        "Content-Type": "application/json",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+        "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+      }),
+    );
+
     var data = result?.data;
-    if (data != null) {
+    if (data is List && data.isNotEmpty) {
       setState(() {
         previousDue = "${data[0]['dueAmount']}";
       });
+    } else {
+      setState(() {
+        previousDue = "0"; 
+      });
+      print("No due records found for this customer.");
     }
+  } catch (e) {
+    print("Error fetching due amount: $e");
   }
+}
 
   bool isDefaultCustomerSet = false;
   @override
@@ -386,6 +343,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     final allBankAccountList = Provider.of<BankAccountProvider>(context).bankAccountList;
     ///Invoice Due
     final allInvoiceDueData = Provider.of<InvoiceDueProvider>(context).invoiceDueList;
+    print("allInvoiceDueData========${allInvoiceDueData.length}");
     
     return Scaffold(
         appBar: CustomAppBar(title: 'Sales Entry'),
@@ -732,9 +690,10 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                               }
                                             });
                                             previousDueAmount(_selectedCustomer);
+                                            print("CustomerId========$_selectedCustomer");
                                             print("customerType========$customerType");
                                             InvoiceDueProvider().on();
-                                            Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,"_selectedCustomer");
+                                            Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,_selectedCustomer);
                                       },
                                     ),
                                   ),
@@ -895,91 +854,90 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                 ),
                               ],
                             ),
+                            // Checkbox এবং Label এর অংশ
                             Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    isInvoiceDue = !isInvoiceDue; 
-                                  });
-                                },
-                                child: Text( "Invoice Due :",style: AllTextStyle.textFieldHeadStyle),
-                              ),
-                              Transform.scale(
-                                scale: 1.1, 
-                                child: Checkbox(
-                                  value: isInvoiceDue, 
-                                  activeColor: Colors.teal.shade900, 
-                                  onChanged: (bool? value) {
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
                                     setState(() {
-                                      isInvoiceDue = value ?? false;
+                                      isInvoiceDue = !isInvoiceDue;
                                     });
                                   },
+                                  child: Text("Invoice Due :", style: AllTextStyle.textFieldHeadStyle),
+                                ),
+                                Transform.scale(
+                                  scale: 1.1,
+                                  child: Checkbox(
+                                    value: isInvoiceDue,
+                                    activeColor: Colors.teal.shade900,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        isInvoiceDue = value ?? false;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // কন্ডিশনাল রেন্ডারিং: যদি isInvoiceDue true হয়
+                            if (isInvoiceDue) ...[
+                              // টাইটেল কার্ড (Due Bills)
+                              Card(
+                                color: Colors.teal.shade900,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1.0)),
+                                child: Container(
+                                  height: 25.h,
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      "Due Bills",
+                                      style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              
+                              // মেইন টেবিল কন্টেইনার
+                              Container(
+                                height: allInvoiceDueData.isEmpty ? 40.h : allInvoiceDueData.length == 1 ? 55.h : 35.h + (allInvoiceDueData.length * 20.0.h),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.blue.shade200),
+                                ),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: DataTable(
+                                      headingRowHeight: 25.0,
+                                      dataRowHeight: 25.0,
+                                      headingRowColor: MaterialStateProperty.all(Colors.indigo.shade900),
+                                      border: TableBorder.all(color: AppColors.isMechanics),
+                                      columnSpacing: 200,
+                                      columns: [
+                                        DataColumn(label: Text('  Invoice', style: AllTextStyle.tableHeadTextStyle)),
+                                        DataColumn(label: Text('Due Amount       ', style: AllTextStyle.tableHeadTextStyle)),
+                                      ],
+                                      rows: allInvoiceDueData.asMap().entries.map((entry) {
+                                        int index = entry.key;
+                                        var data = entry.value;
+                                        
+                                        return DataRow(
+                                          color: MaterialStateProperty.resolveWith(
+                                            (states) => index % 2 == 0 ? getColor(states) : getColors(states),
+                                          ),
+                                          cells: [
+                                            DataCell(Text(data.saleMasterInvoiceNo.toString())),
+                                            DataCell(Text(data.dueAmount.toString())),
+                                          ],
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
-                          ),
-                          if (isInvoiceDue) ...[
-                            Card(
-                              color: Colors.teal.shade900,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1.0.r)),
-                              child: Container(
-                              height: 20.h,
-                              width: double.infinity, child: Center(child: Text("Due Bills ", style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.bold))))),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 3.w),
-                              child: Table(
-                                border: TableBorder.all(color: const Color.fromARGB(255, 73, 156, 115)),
-                                columnWidths: const {
-                                  0: FlexColumnWidth(1),
-                                  1: FlexColumnWidth(1),
-                                },
-                                children: [
-                                  // Table Header
-                                   TableRow(
-                                    decoration: BoxDecoration(color: Colors.white),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(1.r),
-                                        child: Center(child: Text("Invoice", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(1.r),
-                                        child: Center(child: Text("Due Amount", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
-                                      ),
-                                    ],
-                                  ),
-                                  // Table Data (Sample)
-                                  TableRow(
-                                    decoration: BoxDecoration(color: Colors.white),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(1.r),
-                                        child: Center(child: Text("INV-250102274",style: AllTextStyle.dateFormatStyle)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(1.r),
-                                        child: Center(child: Text("1500", style: AllTextStyle.dateFormatStyle)),
-                                      ),
-                                    ],
-                                  ),
-                                  TableRow(
-                                    decoration: BoxDecoration(color: Colors.white),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(1.r),
-                                        child: Center(child: Text("INV-150102271",style: AllTextStyle.dateFormatStyle)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(1.r),
-                                        child: Center(child: Text("500", style: AllTextStyle.dateFormatStyle)),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
                           ]),
                         ),
                       ],
@@ -1079,27 +1037,27 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                         );
                                       },
                                       onSelected: (ProductListModel suggestion) {
-                                            productController.text = suggestion.productName;
-                                            setState(() {
-                                              _selectedProduct = suggestion.productSlNo.toString();
-                                              cproductCode = suggestion.productCode.toString();
-                                              cproductId = suggestion.productSlNo.toString();
-                                              ccategoryName = suggestion.productCategoryName;
-                                              cname = suggestion.productName;
-                                              cTempvat = suggestion.temporaryVat;
-                                              cvat = suggestion.vat;
-                                              productUnit = suggestion.unitName;
-                                              isService = suggestion.isService;
-                                              cpurchaseRate = suggestion.productPurchaseRate;
-                                              _VatController.text = suggestion.vat;
-                                              cTempRate = suggestion.temporaryRate; 
-                                              _salesRateController.text = suggestion.productSellingPrice;
-                                              Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
-                                              totalStack(cproductId);
-                                              _lotNoController.text = suggestion.productLotNo ?? '';
-                                              mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
-                                              expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
-                                            });
+                                        productController.text = suggestion.productName;
+                                        setState(() {
+                                          _selectedProduct = suggestion.productSlNo.toString();
+                                          cproductCode = suggestion.productCode.toString();
+                                          cproductId = suggestion.productSlNo.toString();
+                                          ccategoryName = suggestion.productCategoryName;
+                                          cname = suggestion.productName;
+                                          cTempvat = suggestion.temporaryVat;
+                                          cvat = suggestion.vat;
+                                          productUnit = suggestion.unitName;
+                                          isService = suggestion.isService;
+                                          cpurchaseRate = suggestion.productPurchaseRate;
+                                          _VatController.text = suggestion.vat;
+                                          cTempRate = suggestion.temporaryRate; 
+                                          _salesRateController.text = suggestion.productSellingPrice;
+                                          Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
+                                          totalStack(cproductId);
+                                          _lotNoController.text = suggestion.productLotNo ?? '';
+                                          mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
+                                          expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
+                                        });
                                       },
                                     ),
                                   ),
@@ -1958,7 +1916,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       child: Text(double.parse("$due").toStringAsFixed(1),style:AllTextStyle.textValueStyle),
                                     )),
                                 SizedBox(width: 2.w),
-                                Expanded(flex: 2, child: Text("Prev.Due ", style: AllTextStyle.textFieldHeadStyle)),
+                                Expanded(flex: 2, child: Center(child: Text("Prev.Due ", style: AllTextStyle.textFieldHeadStyle))),
                                 Expanded(
                                   flex: 3,
                                   child: Container(
@@ -2000,59 +1958,67 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
-                                  flex: 1,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (customerController.text == '') {
-                                        Utils.errorSnackBar(context, "Customer Field is required");
+                                flex: 1,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (customerController.text.isEmpty) {
+                                      Utils.errorSnackBar(context, "Customer Field is required");
+                                      return;
+                                    }
+                                    if (customerType == 'G') {
+                                      if (_nameController.text.isEmpty) {
+                                        Utils.errorSnackBar(context, "Name Field is required");
+                                        return;
                                       }
-                                      else if (customerType == 'N') {
-                                        if (_nameController.text == '') {
-                                          Utils.errorSnackBar(context, "Name Field is required");
-                                        } else if (_mobileNumberController.text == '') {
-                                          Utils.errorSnackBar(context, "Mobile Field is required");
-                                        } else {
-                                          setState(() {
-                                            isSellBtnClk = true;
-                                          });
-                                          if (subtotal == 0) {
-                                            setState(() {
-                                              isSellBtnClk = false;
-                                            });
-                                            Utils.errorSnackBar(context, "Please Add to Cart");
-                                          } else {
-                                           addSales();
-                                          }
-                                        }
-                                      } else {
-                                        setState(() {
-                                          isSellBtnClk = true;
-                                        });
-                                        if (subtotal == 0) {
-                                          setState(() {
-                                            isSellBtnClk = false;
-                                          });
-                                          Utils.errorSnackBar(context, "Please Add to Cart");
-                                        } else {
-                                          addSales();
-                                        }
+                                      if (_mobileNumberController.text.isEmpty) {
+                                        Utils.errorSnackBar(context, "Mobile Field is required");
+                                        return;
                                       }
-                                    },
-                                    child: Card(
-                                      elevation: 5.0,
-                                      child: Container(
-                                        height: 28.0.h,
-                                        width: 60.0.w,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.appColor,
-                                          borderRadius: BorderRadius.circular(5.0.r),
-                                        ),
-                                        child: Center(child: isSellBtnClk ? SizedBox(height:20.h,width:20.w,child: CircularProgressIndicator(color: Colors.white))
-                                            : Text("Sale", style: AllTextStyle.saveButtonTextStyle)),
+                                      if (due > 0) {
+                                        Utils.errorSnackBar(context, "Cash Customer can not due sale");
+                                        return;
+                                      }
+                                    }
+                                    if (_bankPaidController.text.isNotEmpty && (_selectedBankId == null || _selectedBankId == '')) {
+                                      Utils.errorSnackBar(context, "Please Select Bank Account");
+                                      return;
+                                    }
+                                    if (Paid > total) {
+                                      Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
+                                      return;
+                                    }
+                                    if (subtotal == 0) {
+                                      Utils.errorSnackBar(context, "Please Add to Cart");
+                                      return;
+                                    }
+                                    setState(() {
+                                      isSellBtnClk = true;
+                                    });
+                                    addSales();
+                                    _clearInputFields();
+                                  },
+                                  child: Card(
+                                    elevation: 5.0,
+                                    child: Container(
+                                      height: 28.0.h,
+                                      width: 60.0.w,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.appColor,
+                                        borderRadius: BorderRadius.circular(5.0.r),
+                                      ),
+                                      child: Center(
+                                        child: isSellBtnClk
+                                            ? SizedBox(
+                                                height: 20.h,
+                                                width: 20.w,
+                                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                              )
+                                            : Text("Sale", style: AllTextStyle.saveButtonTextStyle),
                                       ),
                                     ),
                                   ),
-                                )
+                                ),
+                              )
                               ],
                             ),
                             Row(
@@ -2108,7 +2074,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                           borderRadius: BorderRadius.circular(5.0.r),
                                         ),
                                         child: Center(
-                                          child: isSellBtnClk
+                                          child: isMusokBtnClk
                                               ? SizedBox(
                                                   height: 20.h,
                                                   width: 20.w,
@@ -2128,9 +2094,8 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                     ),
                   ),
                   Visibility(visible: isVisibleBankName, child: SizedBox(height: 200.h)),
-                  SizedBox(height: 100.h),
-                  Container(
-                    height: 200.h,
+                 isInvoiceDue == true ? Container(
+                    height: allInvoiceDueData.isEmpty ? 40.h : allInvoiceDueData.length == 1 ? 55.h : 35.h + (allInvoiceDueData.length * 20.0.h),
                   child: InvoiceDueProvider.isInvoiceDueLoading
                       ? const Center(
                       child: CircularProgressIndicator())
@@ -2145,11 +2110,12 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             DataTable(
-                              headingRowHeight: 20.0,
-                              dataRowHeight: 20.0,
+                              headingRowHeight: 25.0,
+                              dataRowHeight: 25.0,
                               headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
                               showCheckboxColumn: true,
                               border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+                              columnSpacing: 100,
                               columns: [
                                 DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
                                 DataColumn(label: Expanded(child: Center(child: Text('Due Amount',style:AllTextStyle.tableHeadTextStyle)))), 
@@ -2158,13 +2124,191 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                               rows: [
                                 ...List.generate(
                                   allInvoiceDueData.length,
-                                      (int index) => DataRow(
+                                    (int index) => DataRow(
                                     color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
                                     cells: <DataCell>[
                                       DataCell(Center(child: Text(allInvoiceDueData[index].saleMasterInvoiceNo))),
                                       DataCell(Center(child: Text(allInvoiceDueData[index].dueAmount))),
-                                      DataCell(Center(child: Icon(Icons.collections_bookmark))),
-                                    ],
+                                      DataCell(
+                                      Center(
+                                        child: IconButton(
+                                          icon: Icon(Icons.collections_bookmark, color: Colors.black,size: 12.r),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  insetPadding: EdgeInsets.all(4.r),
+                                                  contentPadding: EdgeInsets.all(10.r),
+                                                  content: SizedBox(
+                                                    width: double.maxFinite,
+                                                    child: FutureBuilder(
+                                                      future: Provider.of<SalesInvoiceProvider>(context, listen: false).getSalesInvoice(context, allInvoiceDueData[index].saleMasterSlNo),
+                                                      builder: (context, snapshot) {
+                                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                                          return SizedBox(
+                                                            height: 200.h,
+                                                            child: Center(child: CircularProgressIndicator()),
+                                                          );
+                                                        } else if (snapshot.hasError) {
+                                                          return Center(child: Text("Error: ${snapshot.error}"));
+                                                        } else if (!snapshot.hasData || snapshot.data == null) {
+                                                          return const Center(child: Text("No Data Found"));
+                                                        } else {
+                                                          int totalQty = snapshot.data!.saleDetails.fold<int>(0,
+                                                             (sum, item) => sum + (int.tryParse(item.saleDetailsTotalQuantity.toString()) ?? 0));
+                                                          double totalAmount = snapshot.data!.saleDetails.fold<double>(0.0,
+                                                              (sum, item) => sum + (double.tryParse(item.saleDetailsTotalAmount.toString()) ?? 0.0));
+
+                                                          return SizedBox(
+                                                            height: 500.h, // 👉 dialog height fix (scrollable)
+                                                            child: SingleChildScrollView(
+                                                              child: Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  Text("Invoice Details", style: TextStyle(fontSize: 14.sp)),
+                                                                  Divider(),
+                                                                  Align(
+                                                                    alignment: Alignment.center,
+                                                                    child: Container(
+                                                                      width: 100.w,
+                                                                      decoration: BoxDecoration(border: Border.all(color: Colors.black,width: 1.w)),
+                                                                      child: Center(child: Text("Sales Invoice",style: TextStyle(fontSize: 12.sp)))),
+                                                                  ),
+                                                                  Row(
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child: Column(
+                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            infoText("Customer Id :", snapshot.data!.sales[0].customerCode),
+                                                                            infoText("Name :", snapshot.data!.sales[0].customerName),
+                                                                            infoText("Mobile :", snapshot.data!.sales[0].customerMobile),
+                                                                            infoText("Attention :", snapshot.data!.sales[0].customerComment),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+
+                                                                      /// RIGHT
+                                                                      Expanded(
+                                                                        child: Column(
+                                                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                                                          children: [
+                                                                            infoText("Prepared By:", snapshot.data!.sales[0].addedBy, alignEnd: true),
+                                                                            infoText("Invoice No:", snapshot.data!.sales[0].saleMasterInvoiceNo, alignEnd: true),
+                                                                            infoText("Sales Date:", snapshot.data!.sales[0].saleMasterSaleDate, alignEnd: true),
+                                                                            infoText("Employee:", snapshot.data!.sales[0].employeeName ?? "", alignEnd: true),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  SizedBox(height: 1.h),
+                                                                  infoText("Address :", snapshot.data!.sales[0].customerAddress),
+                                                                  Divider(),
+                                                                  /// 🔹 TABLE
+                                                                  SingleChildScrollView(
+                                                                    scrollDirection: Axis.horizontal,
+                                                                    child: SingleChildScrollView(
+                                                                      scrollDirection: Axis.vertical,
+                                                                      child: DataTable(
+                                                                        headingRowHeight: 15.h,
+                                                                        dataRowHeight: 15.h,
+                                                                         headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.appColor),
+                                                                        border: TableBorder.all(color: Colors.black54),
+                                                                        columns: [
+                                                                          DataColumn(label: Text('Sl.',style: TextStyle(color:Colors.white))),
+                                                                          DataColumn(label: Text('Description',style: TextStyle(color:Colors.white))),
+                                                                          DataColumn(label: Text('Qty',style: TextStyle(color:Colors.white))),
+                                                                          DataColumn(label: Text('Unit Price',style: TextStyle(color:Colors.white))),
+                                                                          DataColumn(label: Text('Total',style: TextStyle(color:Colors.white))),
+                                                                        ],
+                                                                        rows: [
+                                                                          ...List.generate(snapshot.data!.saleDetails.length, (i) {
+                                                                            final item = snapshot.data!.saleDetails[i];
+                                                                            return DataRow(cells: [
+                                                                              DataCell(Text("${i + 1}")),
+                                                                              DataCell(Text("${item.productName}")),
+                                                                              DataCell(Text("${item.saleDetailsTotalQuantity}")),
+                                                                              DataCell(Text("${item.saleDetailsRate}")),
+                                                                              DataCell(Text("${item.saleDetailsTotalAmount}")),
+                                                                            ]);
+                                                                          }),
+                                                                          /// TOTAL ROW
+                                                                          DataRow(cells: [
+                                                                            DataCell(Text("")),
+                                                                            DataCell(Text("Total", style: TextStyle(fontWeight: FontWeight.bold))),
+                                                                            DataCell(Text("$totalQty")),
+                                                                            DataCell(Text("")),
+                                                                            DataCell(Text("$totalAmount")),
+                                                                          ]),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(height: 10.h),
+                                                                  /// 🔹 SUMMARY
+                                                                  Align(
+                                                                    alignment: Alignment.centerRight,
+                                                                    child: SizedBox(
+                                                                      width: 200.w,
+                                                                      child: Column(
+                                                                        children: [
+                                                                          summaryRow("Sub Total", snapshot.data!.sales[0].saleMasterSubTotalAmount),
+                                                                          summaryRow("Discount", snapshot.data!.sales[0].saleMasterTotalDiscountAmount),
+                                                                          summaryRow("Vat", snapshot.data!.sales[0].saleMasterTaxAmount),
+                                                                          summaryRow("Transport", snapshot.data!.sales[0].saleMasterFreight),
+                                                                          Divider(),
+                                                                          summaryRow("Total", snapshot.data!.sales[0].saleMasterTotalSaleAmount),
+                                                                          summaryRow("Paid", snapshot.data!.sales[0].saleMasterPaidAmount),
+                                                                          Divider(),
+                                                                          summaryRow("Due", snapshot.data!.sales[0].saleMasterDueAmount, isBold: true),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+
+                                                  actions: [
+                                                    Container(
+                                                    height: 28.h,
+                                                    width: 100.w,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blueGrey,
+                                                      borderRadius: BorderRadius.circular(6.r),
+                                                    ),
+                                                    child: InkWell(
+                                                      borderRadius: BorderRadius.circular(6.r),
+                                                      onTap: () => Navigator.pop(context),
+                                                      child: Center(
+                                                        child: Text(
+                                                          "Close",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12.sp,
+                                                            fontWeight: FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                      ],
                                   ),
                                 ),
                               ],
@@ -2174,7 +2318,8 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                       ),
                     ),
                   ),
-                ) 
+                ):SizedBox(), 
+                 SizedBox(height: 100.h),
                 ],
               ),
             ),
@@ -2263,72 +2408,85 @@ void _expDate() async {
     });
   }
 
-Future<void> addSales() async {
+  Future<void> addSales() async {
   String link = "${baseUrl}add_sales";
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
   setState(() {
-    isSellBtnClk = true; 
+    isSellBtnClk = true;
   });
+
   try {
     var cartProducts = salesCartList.map((e) {
       return {
-        "productId": e.productId,
-        "productCode": "",
-        "categoryName": e.categoryName,
+        "productId": e.productId.toString(),
+        "productCode": e.code ?? "",
         "name": e.name,
-        "salesRate": e.salesRate,
-        "vat": e.vat ?? "0",
+        "categoryName": e.categoryName,
+        "quantity": e.quantity.toString(),
+        "purchaseRate": e.purchaseRate?.toString() ?? "0",
+        "salesRate": e.salesRate.toString(),
+        "temporary_rate": e.temporaryRate.toString(),
+        "temporary_vat": e.temporaryVat.toString(),
+        "vat": e.vat?.toString() ?? "0",
+        "total": e.total.toString(),
+        "Product_LotNo": e.lotNo,
+        "Product_ManufactureDate": e.mfgDate,
+        "Product_ExpireDate": e.expDate,
         "is_service": e.isService.toString(),
-        "discount": e.discount ?? "0",
-        "discountAmount": e.discountAmount ?? "0.00",
-        "quantity": e.quantity,
-        "pcs": e.quantity.toString(),
-        "total": e.total,
-        "purchaseRate": "",
-        "is_free": e.isFree,
-        "exp_date": e.expDate ?? ""
       };
     }).toList();
+
     Map<String, dynamic> requestData = {
       "sales": {
-        "salesId": 0, 
+        "salesId": 0,
         "invoiceNo": "",
-        "salesBy": userName, 
+        "salesBy": userName,
         "salesType": level,
-        "salesFrom": "1",
-        "salesDate": backEndFirstDate,
+        "salesFrom": "",
         "customerId": _selectedCustomer,
-        "employeeId": employeeSlNo,
-        "accountId": _selectedBankId ?? "",
+        "employeeId":  userType == "m" || userType == "a" ? employeeSlNo ?? "" : userEmployeeID,
+        "salesDate": backEndFirstDate,
+        "total": total.toString(),
         "subTotal": subtotal.toString(),
         "discount": discountAmount.toString(),
-        "vatPercent": vatPer.toString(),
+        "tax": 0,
+        "taxPercent": 0,
         "vat": vatAmount.toString(),
+        "vatPercent": vatPer.toString(),
         "transportCost": transportCost.toString(),
-        "total": total.toString(),
+        "paid": Paid.toString(),
+        "due": due.toString(),
         "cashPaid": cashPaid.toString(),
         "bankPaid": bankPaid.toString(),
-        "paid": Paid.toString(),
         "previousDue": previousDue.toString(),
-        "due": due.toString(),
-        "note": ""
+        "isShipping": false,
+        "note": "test",
+        "accountId": _selectedBankId ?? ""
       },
-      "cart": cartProducts,
-      "customer": {
-        "Customer_SlNo": _selectedCustomer,
-        "Customer_Name": customerType == "N" ? _nameController.text.trim() : customerController.text.trim(),
+
+      "customer":_selectedCustomer == null || _selectedCustomer == "null" || _selectedCustomer == "" || _selectedCustomer == "0"
+        ? {
+        "Customer_Name": customerType == "G"? _nameController.text.trim(): customerController.text.trim(),
         "Customer_Mobile": _mobileNumberController.text.trim(),
         "Customer_Address": _addressController.text.trim(),
+        "Customer_Comment": _commentController.text.trim(),
         "Customer_Type": customerType,
-        "Customer_Credit_Limit": creditLimit.toString(),
-      }
+        "status": "a"
+      }:null,
+
+      "invoiceDueChecked": false,
+
+      "cart": cartProducts,
     };
+
     print("------- FULL REQUEST DATA -------");
-    print("Sales Data: ${jsonEncode(requestData['sales'])}");
-    print("Customer Data: ${jsonEncode(requestData['customer'])}");
-    print("Cart Items (${cartProducts.length}): ${jsonEncode(requestData['cart'])}");
+    print(jsonEncode(requestData));
     print("----------------------------------");
-    Response response = await Dio().post(link,data: requestData,
+
+    Response response = await Dio().post(
+      link,
+      data: requestData,
       options: Options(headers: {
         "Content-Type": "application/json",
         'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
@@ -2338,20 +2496,48 @@ Future<void> addSales() async {
 
     var item = response.data;
     print("Sales Entry Response ==> $item");
+
     if (item["status"] == true || item["success"] == true) {
       emtyMethodAll();
       salesCartList.clear();
-      CustomSnackBar.showTopSnackBar(context, "${item["message"] ?? "Success"}");
+       CustomSnackBar.showTopSnackBar(context, "${item["message"]}");
+       Navigator.push(context,MaterialPageRoute(builder: (context) => SalesInvoiceScreen(salesId: "${item["salesId"]}")));
     } else {
       Utils.showTopSnackBar(context, "${item["message"] ?? "Failed"}");
     }
   } catch (e) {
     print("Error in addSales: $e");
-    Utils.errorSnackBar(context, "Connection Error: ${e.toString()}");
+    Utils.errorSnackBar(
+        context, "Connection Error: ${e.toString()}");
   } finally {
     setState(() {
       isSellBtnClk = false;
     });
   }
- }
+}
+}
+Widget infoText(String title, String value, {bool alignEnd = false}) {
+  return Row(
+    mainAxisAlignment: alignEnd ? MainAxisAlignment.end : MainAxisAlignment.start,
+    children: [
+      Text("$title ", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 10.sp)),
+      Flexible(child: Text(value, style: TextStyle(fontSize: 10.sp))),
+    ],
+  );
+}
+
+Widget summaryRow(String title, String value, {bool isBold = false}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 10.sp)),
+      Text(
+        value,
+        style: TextStyle(
+          fontSize: 10.sp,
+          fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+        ),
+      ),
+    ],
+  );
 }

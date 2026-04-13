@@ -134,14 +134,14 @@ Future<Uint8List?> _fetchImage(String url) async {
   
   final pdf = pw.Document();
   
-  // লোকাল লোগো লোড করা
-  Uint8List? logoImage;
-  try {
-    final logoImg = await rootBundle.load('images/brsgcl.png');
-    logoImage = logoImg.buffer.asUint8List();
-  } catch (e) {
-    print("Local logo not found: $e");
-  }
+  /// লোকাল লোগো লোড করা
+  // Uint8List? logoImage;
+  // try {
+  //   final logoImg = await rootBundle.load('images/brsgcl.png');
+  //   logoImage = logoImg.buffer.asUint8List();
+  // } catch (e) {
+  //   print("Local logo not found: $e");
+  // }
 
 
   pdf.addPage(
