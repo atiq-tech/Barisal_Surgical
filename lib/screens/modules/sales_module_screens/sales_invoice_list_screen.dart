@@ -337,26 +337,85 @@ Future<Uint8List?> _fetchImage(String url) async {
           children: [
             pw.Expanded(
               flex: 1,
-              child: dueStatus== "true" ? pw.Column(
+              child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                  _buildSummaryRow("Previous Due:", data.sales[0].saleMasterPreviousDue),
-                  _buildSummaryRow("Current Due:", data.sales[0].saleMasterDueAmount),
-                  pw.Divider(thickness: 0.5, color: PdfColors.black),
-                  _buildSummaryRow(
-                    "Total Due:", 
-                    (double.parse("${data.sales[0].saleMasterPreviousDue}") + 
-                    double.parse("${data.sales[0].saleMasterDueAmount}"))
-                    .toStringAsFixed(2), 
-                    isBold: true
-                  ),
+                  // Eiti pw.Column er children er bhetore thakbe
+                  data.sales[0].bankName != null && data.sales[0].bankName != "null" 
+                    ? pw.Table(
+                        border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
+                        columnWidths: const {
+                          0: pw.FixedColumnWidth(25), // SL
+                          1: pw.FlexColumnWidth(),    // Bank Name
+                          2: pw.FixedColumnWidth(50), // Amount
+                        },
+                        defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                        children: [
+                          // Table Header
+                          pw.TableRow(
+                            decoration: pw.BoxDecoration(color: PdfColors.grey200),
+                            children: [
+                              pw.Padding(
+                                padding: pw.EdgeInsets.all(2),
+                                child: pw.Center(child: pw.Text("SL", style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold))),
+                              ),
+                              pw.Padding(
+                                padding: pw.EdgeInsets.all(2),
+                                child: pw.Center(child: pw.Text("Bank", style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold))),
+                              ),
+                              pw.Padding(
+                                padding: pw.EdgeInsets.all(2),
+                                child: pw.Center(child: pw.Text("Amount", style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold))),
+                              ),
+                            ],
+                          ),
+                          // Table Data Row
+                          pw.TableRow(
+                            children: [
+                              pw.Padding(
+                                padding: pw.EdgeInsets.all(2),
+                                child: pw.Center(child: pw.Text("1", style: pw.TextStyle(fontSize: 8))),
+                              ),
+                              pw.Padding(
+                                padding: pw.EdgeInsets.all(2),
+                                child: pw.Text(
+                                  "${data.sales[0].bankName ?? ""}", 
+                                  style: pw.TextStyle(fontSize: 8),
+                                  softWrap: true,
+                                ),
+                              ),
+                              pw.Padding(
+                                padding: pw.EdgeInsets.all(2),
+                                child: pw.Center(
+                                  child: pw.Text(
+                                    "${data.sales[0].bankPaid}", 
+                                    style: pw.TextStyle(fontSize: 8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ): pw.SizedBox(),
+                      pw.SizedBox(height: 8.h),
+                      dueStatus== "true" ? pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                      _buildSummaryRow("Previous Due:", data.sales[0].saleMasterPreviousDue),
+                      _buildSummaryRow("Current Due:", data.sales[0].saleMasterDueAmount),
+                      pw.Divider(thickness: 0.5, color: PdfColors.black),
+                      _buildSummaryRow(
+                        "Total Due:", 
+                        (double.parse("${data.sales[0].saleMasterPreviousDue}") + 
+                        double.parse("${data.sales[0].saleMasterDueAmount}"))
+                        .toStringAsFixed(2), 
+                        isBold: true
+                      ),
+                    ]): pw.SizedBox(),
                 ],
-              ) : pw.SizedBox(),
+              ),
             ),
-             pw.Expanded(
-              flex: 1,
-              child: pw.SizedBox(),
-            ),
+            pw.SizedBox(width: 30.w),
             pw.Expanded(
               flex: 1,
               child: pw.Column(
@@ -877,34 +936,84 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   snapshot.data!.sales[0].bankName != null && snapshot.data!.sales[0].bankName != "null" 
+                                   ? Table(
+                                    border: TableBorder.all(color: Colors.grey.shade300),
+                                    columnWidths: const {
+                                      0: FixedColumnWidth(35), 
+                                      1: FlexColumnWidth(),    
+                                      2: FixedColumnWidth(60), 
+                                    },
+                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle, 
+                                    children: [
+                                      // Table Header
+                                      TableRow(
+                                        decoration: BoxDecoration(color: Colors.grey.shade200),
+                                        children: [
+                                          Center(child: Text("SL", style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold))),
+                                          Center(child: Text("Bank", style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold))),
+                                          Center(child: Text("Amount", style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold))),
+                                        ],
+                                      ),
+                                      TableRow(
+                                        children: [
+                                          Center(child: Text("1", style: TextStyle(fontSize: 10.sp))),
+                                          Padding(
+                                            padding: EdgeInsets.all(2.w), 
+                                            child: Text(
+                                              "${snapshot.data!.sales[0].bankName??""}", 
+                                              style: TextStyle(fontSize: 9.sp),
+                                              softWrap: true,
+                                              overflow: TextOverflow.visible, 
+                                            )
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.all(2.w), 
+                                            child: Text(
+                                              snapshot.data!.sales[0].bankPaid, 
+                                              style: TextStyle(fontSize: 9.sp),
+                                              softWrap: true,
+                                              overflow: TextOverflow.visible, 
+                                              textAlign: TextAlign.center, 
+                                            )
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ):SizedBox(),
+                                    SizedBox(height: 5.h),
+                                    dueStatus == "true" ? Column(
                                       children: [
-                                        Text("Previous Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
-                                        Text(snapshot.data!.sales[0].saleMasterPreviousDue, style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text("Previous Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
+                                            Text(snapshot.data!.sales[0].saleMasterPreviousDue, style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text("Current Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
+                                            Text(snapshot.data!.sales[0].saleMasterDueAmount, style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
+                                          ],
+                                        ),
+                                        Container(height: 1.h,color: Colors.black),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text("Total Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
+                                            Text(double.parse("${double.parse('${snapshot.data!.sales[0].saleMasterPreviousDue}') + double.parse('${snapshot.data!.sales[0].saleMasterDueAmount}')}").toStringAsFixed(2),style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
+                                          ],
+                                        ),
                                       ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Current Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
-                                        Text(snapshot.data!.sales[0].saleMasterDueAmount, style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-                                      ],
-                                    ),
-                                    Divider(color: Colors.black),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Total Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
-                                        Text(double.parse("${double.parse('${snapshot.data!.sales[0].saleMasterPreviousDue}') + double.parse('${snapshot.data!.sales[0].saleMasterDueAmount}')}").toStringAsFixed(2),style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-                                      ],
-                                    ),
+                                    ):SizedBox(),
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 100.0.w),
+                              SizedBox(width: 20.0.w),
                               Expanded(
-                                flex: 5,
+                                flex: 4,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
@@ -932,7 +1041,7 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text("Transport Cost:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
+                                        Text("Tr. Cost:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w700)),
                                         Text(snapshot.data!.sales[0].saleMasterFreight, style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
                                       ],
                                     ),

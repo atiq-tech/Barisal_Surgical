@@ -151,37 +151,37 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   bool isSellBtnClk = false;
   bool isMusokBtnClk = false;
 
-  void _clearInputFields() {
-    productController.text = '';
-    expDateController.text = '';
-    _salesRateController.text = '';
-    _quantityController.text = '';
-    isFree = false;
-    isAdded = true;
-    Total = 0;
-    newQty = 0;
-    newTotal = 0;
-    availableStock = 0;
+//   void _clearInputFields() {
+//     productController.text = '';
+//     expDateController.text = '';
+//     _salesRateController.text = '';
+//     _quantityController.text = '';
+//     isFree = false;
+//     isAdded = true;
+//     Total = 0;
+//     newQty = 0;
+//     newTotal = 0;
+//     availableStock = 0;
 
-    _bankPaidController.text="";
-    _paidController.text = "";
-    _discountPercentController.text = "";
-    _DiscountController.text = "";
-    _vatPercentageController.text="";
-    _VatController.text = "";
-    _transportController.text = "";
-    bankAccountController.text = "";
-    discountPer = 0;
-    transportCost=0;
-    discountAmount = 0;
-    previousDue = "0";
-    vatPer = 0;
-    vatAmount = 0;
-    cashPaid = 0;
-    bankPaid = 0;
-    due = 0;
-    calculateTotal();
- }
+//     _bankPaidController.text="";
+//     _paidController.text = "";
+//     _discountPercentController.text = "";
+//     _DiscountController.text = "";
+//     _vatPercentageController.text="";
+//     _VatController.text = "";
+//     _transportController.text = "";
+//     bankAccountController.text = "";
+//     discountPer = 0;
+//     transportCost=0;
+//     discountAmount = 0;
+//     previousDue = "0";
+//     vatPer = 0;
+//     vatAmount = 0;
+//     cashPaid = 0;
+//     bankPaid = 0;
+//     due = 0;
+//     calculateTotal();
+//  }
 
   void removeFromCart(index) {
     salesCartList.removeAt(index);
@@ -204,32 +204,38 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
       calculateTotal();
     });
   }
+double getDouble(TextEditingController c) {
+  return double.tryParse(c.text) ?? 0.0;
+}
 
-  void calculateTotal() {
-    final allGetSalesData = salesCartList;
+void calculateTotal() {
+  final allGetSalesData = salesCartList;
     double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
-    vatTotall = allGetSalesData.map((e) => e.vat).fold(0.0, (p, element) => p + double.parse(element!));
     subtotal = double.parse("$cartTotall");
-    afterDisTotal = subtotal - discountAmount;
-    total = afterDisTotal + (vatAmount == 0 ? vatTotall : vatAmount) + transportCost;
-    //===
-    total = (subtotal - discountAmount) + vatAmount + taxAmount + (double.tryParse(_transportController.text) ?? 0.0);
-    //===
- 
-    if(isAdded) {
-      cashPaid = double.parse("$total") - double.parse("$bankPaid");
-      _paidController.text = "$cashPaid";
-    }
-    Paid = (cashPaid + bankPaid);
-    due = total - Paid;
-    setState(() {});
+  double afterDiscount = subtotal - discountAmount;
+
+  // VAT & TAX শুধু show হবে
+  vatAmount = (afterDiscount * vatPer) / 100;
+  taxAmount = (afterDiscount * taxPer) / 100;
+
+  total = afterDiscount + transportCost;
+  if (isAdded) {
+    cashPaid = double.parse("$total") - double.parse("$bankPaid");
+    _paidController.text = "$cashPaid";
+  }
+  Paid = (cashPaid + bankPaid);
+  due = total - Paid;
+
+  setState(() {});
     print("SubTotal===$subtotal");
     print("Total===$total");
     print("afterDisTotal===$afterDisTotal");
+    print("vatAmount===$vatAmount");
+    print("taxAmount===$taxAmount");
     print("Paid===$Paid");
     print("due===$due");
     print("cashPaid===$cashPaid");
-  }
+}
 
   @override
   void initState() {
@@ -245,6 +251,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     // Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,_selectedCustomer??"");
+    Provider.of<InvoiceDueProvider>(context, listen: false).invoiceDueList=[];
     _loadCustomerData();
   }
 
@@ -417,30 +424,30 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                           ),
                         ],
                       ),
-                      Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isChangeDate = !isChangeDate; 
-                                });
-                              },
-                              child: Text("Don't Change Date :",style: AllTextStyle.textFieldHeadStyle),
-                            ),
-                            Transform.scale(
-                              scale: 1.1, 
-                              child: Checkbox(
-                                value: isChangeDate, 
-                                activeColor: Colors.teal.shade900, 
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    isChangeDate = value ?? false;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
+                      // Row(
+                      //     children: [
+                      //       GestureDetector(
+                      //         onTap: () {
+                      //           setState(() {
+                      //             isChangeDate = !isChangeDate; 
+                      //           });
+                      //         },
+                      //         child: Text("Don't Change Date :",style: AllTextStyle.textFieldHeadStyle),
+                      //       ),
+                      //       Transform.scale(
+                      //         scale: 1.1, 
+                      //         child: Checkbox(
+                      //           value: isChangeDate, 
+                      //           activeColor: Colors.teal.shade900, 
+                      //           onChanged: (bool? value) {
+                      //             setState(() {
+                      //               isChangeDate = value ?? false;
+                      //             });
+                      //           },
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
                         Row(
                           children: [
                             Expanded(
@@ -451,7 +458,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                               flex: 3,
                               child: Container(
                                 height: 25.0.h,
-                                margin: EdgeInsets.only(bottom: 4.h),
+                                margin: EdgeInsets.only(top: 4.h,bottom: 4.h),
                                 child: TypeAheadField<EmployeesModel>(
                                   controller: empluyeeNameController,
                                   builder: (context, controller, focusNode) {
@@ -789,7 +796,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                 Expanded(
                                   flex: 3,
                                   child: Container(
-                                    height: 35.h,
+                                    height: 40.h,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5.0.r),
                                       color: Colors.grey[50],
@@ -827,7 +834,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                 Expanded(
                                   flex: 3,
                                   child: Container(
-                                    height: 35.h,
+                                    height: 40.h,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5.0.r),
                                       color: Colors.grey[50],
@@ -1049,7 +1056,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                           productUnit = suggestion.unitName;
                                           isService = suggestion.isService;
                                           cpurchaseRate = suggestion.productPurchaseRate;
-                                          _VatController.text = suggestion.vat;
                                           cTempRate = suggestion.temporaryRate; 
                                           _salesRateController.text = suggestion.productSellingPrice;
                                           Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
@@ -1482,14 +1488,12 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       style: AllTextStyle.textValueStyle,
                                       controller: _discountPercentController,
                                       onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
-                                        ///discount per
                                         setState(() {
-                                          discountPer = double.parse(_discountPercentController.text);
+                                          discountPer = getDouble(_discountPercentController);
                                           discountAmount = (subtotal * discountPer) / 100;
-                                          _DiscountController.text = double.parse("$discountAmount").toStringAsFixed(1);
+
+                                          _DiscountController.text = discountAmount.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1518,13 +1522,13 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       controller: _DiscountController,
                                       keyboardType: TextInputType.number,
                                       onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
                                         setState(() {
-                                          discountAmount = double.parse(_DiscountController.text);
-                                          discountPer = (discountAmount * 100) / subtotal;
-                                          _discountPercentController.text = double.parse("$discountPer").toStringAsFixed(1);
+                                          discountAmount = getDouble(_DiscountController);
+
+                                          discountPer = subtotal == 0 ? 0 : (discountAmount * 100) / subtotal;
+
+                                          _discountPercentController.text = discountPer.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1556,16 +1560,15 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       style: AllTextStyle.textValueStyle,
                                       controller: _vatPercentageController,
                                       onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
                                         setState(() {
-                                          ///vatPer
-                                          double totalAmount = subtotal - discountAmount;
-                                          vatPer = double.parse(_vatPercentageController.text);
-                                          vatAmount = (totalAmount * vatPer) / 100;
-                                          vatTotall = vatAmount;
-                                          _VatController.text = double.parse("$vatAmount").toStringAsFixed(1);
+                                          vatPer = getDouble(_vatPercentageController);
+
+                                          double afterDiscount = subtotal - discountAmount;
+
+                                          vatAmount = (afterDiscount * vatPer) / 100;
+
+                                          _VatController.text = vatAmount.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1596,14 +1599,15 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       controller: _VatController,
                                       keyboardType: TextInputType.number,
                                       onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
                                         setState(() {
-                                          double totalAmount = subtotal - discountAmount;
-                                          vatAmount = double.parse(_VatController.text);
-                                          vatPer = (vatAmount * 100) / totalAmount;
-                                          _vatPercentageController.text = double.parse("$vatPer").toStringAsFixed(1);
+                                          double afterDiscount = subtotal - discountAmount;
+
+                                          vatAmount = getDouble(_VatController);
+
+                                          vatPer = afterDiscount == 0 ? 0 : (vatAmount * 100) / afterDiscount;
+
+                                          _vatPercentageController.text = vatPer.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1638,17 +1642,15 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                     controller: _taxPercentageController,
                                     keyboardType: TextInputType.number,
                                     onChanged: (value) {
-                                      _transportController.text = '';
-                                      _paidController.text = '';
-                                      _bankPaidController.text = '';
                                       setState(() {
-                                        double totalAmount = subtotal - discountAmount;
-                                        // ইউজার ইনপুট দিলে সেটি নিয়ে ট্যাক্স অ্যামাউন্ট ক্যালকুলেশন
-                                        double inputTaxPer = double.tryParse(value) ?? 0.0;
-                                        taxPer = inputTaxPer;
-                                        taxAmount = (totalAmount * taxPer) / 100;
-                                        
+                                        double afterDiscount = subtotal - discountAmount;
+
+                                        taxPer = getDouble(_taxPercentageController);
+
+                                        taxAmount = (afterDiscount * taxPer) / 100;
+
                                         _TaxController.text = taxAmount.toStringAsFixed(1);
+
                                         calculateTotal();
                                       });
                                     },
@@ -1667,7 +1669,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
 
                               Text("%", style: AllTextStyle.textFieldHeadStyle),
                               SizedBox(width: 5.w),
-
                               /// Tax Amount Field
                               Expanded(
                                 flex: 2,
@@ -1679,19 +1680,15 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                     controller: _TaxController,
                                     keyboardType: TextInputType.number,
                                     onChanged: (value) {
-                                      _transportController.text = '';
-                                      _paidController.text = '';
-                                      _bankPaidController.text = '';
                                       setState(() {
-                                        double totalAmount = subtotal - discountAmount;
-                                        // অ্যামাউন্ট ইনপুট দিলে সেটি থেকে পার্সেন্টেজ বের করা
-                                        double inputTaxAmount = double.tryParse(value) ?? 0.0;
-                                        taxAmount = inputTaxAmount;
-                                        
-                                        if (totalAmount > 0) {
-                                          taxPer = (taxAmount * 100) / totalAmount;
-                                          _taxPercentageController.text = taxPer.toStringAsFixed(1);
-                                        }
+                                        double afterDiscount = subtotal - discountAmount;
+
+                                        taxAmount = getDouble(_TaxController);
+
+                                        taxPer = afterDiscount == 0 ? 0 : (taxAmount * 100) / afterDiscount;
+
+                                        _taxPercentageController.text = taxPer.toStringAsFixed(1);
+
                                         calculateTotal();
                                       });
                                     },
@@ -1724,7 +1721,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       controller: _transportController,
                                       onChanged: (value) {
                                         setState(() {
-                                          transportCost = double.parse(_transportController.text);
+                                          transportCost = getDouble(_transportController);
                                           calculateTotal();
                                         });
                                       },
@@ -1773,8 +1770,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       controller: _paidController,
                                       onChanged: (value) {
                                         setState(() {
-                                          cashPaid = double.parse(_paidController.text);
-                                          isAdded = false;
+                                          cashPaid = getDouble(_paidController);
                                           calculateTotal();
                                         });
                                       },
@@ -1807,16 +1803,8 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       controller: _bankPaidController,
                                       onChanged: (value) {
                                         setState(() {
-                                          if (_bankPaidController.text == "" || _bankPaidController.text == '0') {
-                                            isVisibleBankName = false;
-                                            bankAccountController.text = "";
-                                          } else {
-                                            isVisibleBankName = true;
-                                          }
-                                        });
-                                        setState(() {
-                                          bankPaid = double.parse(_bankPaidController.text);
-                                          isAdded = false;
+                                          bankPaid = getDouble(_bankPaidController);
+                                          isVisibleBankName = bankPaid > 0;
                                           calculateTotal();
                                         });
                                       },
@@ -1936,30 +1924,26 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                             ),
                             SizedBox(height: 2.0.h),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: GestureDetector(
-                                    onTap: () {},
-                                    child: Card(
-                                      elevation: 5.0,
-                                      child: Container(
-                                        height: 28.0.h,
-                                        width: 90.0.w,
-                                        decoration: BoxDecoration(
-                                          color: Colors.cyan.shade700,
-                                          borderRadius: BorderRadius.circular(5.0.r),
-                                        ),
-                                        child: Center(child: Text("New Sale", style: AllTextStyle.saveButtonTextStyle),
-                                        ),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Card(
+                                    elevation: 5.0,
+                                    child: Container(
+                                      height: 28.0.h,
+                                      width: 90.0.w,
+                                      decoration: BoxDecoration(
+                                        color: Colors.cyan.shade700,
+                                        borderRadius: BorderRadius.circular(5.0.r),
+                                      ),
+                                      child: Center(child: Text("New Sale", style: AllTextStyle.saveButtonTextStyle),
                                       ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                Expanded(
-                                flex: 1,
-                                child: GestureDetector(
+                                GestureDetector(
                                   onTap: () {
                                     if (customerController.text.isEmpty) {
                                       Utils.errorSnackBar(context, "Customer Field is required");
@@ -1995,13 +1979,13 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       isSellBtnClk = true;
                                     });
                                     addSales();
-                                    _clearInputFields();
+                                    //_clearInputFields();
                                   },
                                   child: Card(
                                     elevation: 5.0,
                                     child: Container(
                                       height: 28.0.h,
-                                      width: 60.0.w,
+                                      width: 70.0.w,
                                       decoration: BoxDecoration(
                                         color: AppColors.appColor,
                                         borderRadius: BorderRadius.circular(5.0.r),
@@ -2017,84 +2001,35 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       ),
                                     ),
                                   ),
-                                ),
-                              )
+                                )
                               ],
                             ),
-                            Row(
-                              children: [
-                                // প্রথম বাটন: New Sale
-                                Expanded(
-                                  flex: 1,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      // New Sale logic here
-                                    },
-                                    child: Card(
-                                      elevation: 5.0,
-                                      child: Container(
-                                        height: 28.0.h,
-                                        decoration: BoxDecoration(
-                                          color: Colors.indigo.shade900,
-                                          borderRadius: BorderRadius.circular(5.0.r),
-                                        ),
-                                        child: Center(
-                                          child: Text("Invoice & Challan", style: AllTextStyle.saveButtonTextStyle),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10), 
-                                // দ্বিতীয় বাটন: Sale
-                                Expanded(
-                                  flex: 1,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (customerController.text == '') {
-                                        Utils.errorSnackBar(context, "Customer Field is required");
-                                      } else if (customerType == 'N') {
-                                        if (_nameController.text == '') {
-                                          Utils.errorSnackBar(context, "Name Field is required");
-                                        } else if (_mobileNumberController.text == '') {
-                                          Utils.errorSnackBar(context, "Mobile Field is required");
-                                        } else {
-                                          // handleSaleAction();
-                                        }
-                                      } else {
-                                        //handleSaleAction();
-                                      }
-                                    },
-                                    child: Card(
-                                      elevation: 5.0,
-                                      child: Container(
-                                        height: 28.0.h,
-                                        decoration: BoxDecoration(
-                                          color: Colors.orange.shade900,
-                                          borderRadius: BorderRadius.circular(5.0.r),
-                                        ),
-                                        child: Center(
-                                          child: isMusokBtnClk
-                                              ? SizedBox(
-                                                  height: 20.h,
-                                                  width: 20.w,
-                                                  child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                                )
-                                              : Text("Sale Mushok", style: AllTextStyle.saveButtonTextStyle),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
                           ]),
                         ),
                       ],
                     ),
                   ),
                   Visibility(visible: isVisibleBankName, child: SizedBox(height: 200.h)),
-                 isInvoiceDue == true ? Container(
+                  allInvoiceDueData.isEmpty ? SizedBox() : Container(
+                    height: 25.h,
+                    width: double.infinity,
+                    margin: EdgeInsets.only(top: 10.h),
+                    child: Card(
+                      margin: EdgeInsets.only(bottom: 2.h),
+                      child: Container(
+                        decoration: BoxDecoration(borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(6.0.r),
+                            topRight: Radius.circular(6.0.r)),
+                            color: AppColors.appColor),
+                        child: Center(
+                          child: Text('Invoice Wise Due Bills',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                 allInvoiceDueData.isEmpty ? SizedBox() : Container(
                     height: allInvoiceDueData.isEmpty ? 40.h : allInvoiceDueData.length == 1 ? 55.h : 35.h + (allInvoiceDueData.length * 20.0.h),
                   child: InvoiceDueProvider.isInvoiceDueLoading
                       ? const Center(
@@ -2110,8 +2045,8 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             DataTable(
-                              headingRowHeight: 25.0,
-                              dataRowHeight: 25.0,
+                              headingRowHeight: 18.h,
+                              dataRowHeight: 18.h,
                               headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
                               showCheckboxColumn: true,
                               border: TableBorder.all(color: Colors.blue.shade200, width: 1),
@@ -2132,7 +2067,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                       DataCell(
                                       Center(
                                         child: IconButton(
-                                          icon: Icon(Icons.collections_bookmark, color: Colors.black,size: 12.r),
+                                          icon: Icon(Icons.collections_bookmark, color: Colors.black,size: 10.r),
                                           onPressed: () {
                                             showDialog(
                                               context: context,
@@ -2157,23 +2092,49 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                         } else {
                                                           int totalQty = snapshot.data!.saleDetails.fold<int>(0,
                                                              (sum, item) => sum + (int.tryParse(item.saleDetailsTotalQuantity.toString()) ?? 0));
+                                                             int totalReturnQty = snapshot.data!.saleDetails.fold<int>(0,
+                                                             (sum, item) => sum + (int.tryParse(item.returnQuantity.toString()) ?? 0));
                                                           double totalAmount = snapshot.data!.saleDetails.fold<double>(0.0,
                                                               (sum, item) => sum + (double.tryParse(item.saleDetailsTotalAmount.toString()) ?? 0.0));
+                                                              
 
                                                           return SizedBox(
-                                                            height: 500.h, // 👉 dialog height fix (scrollable)
+                                                            height: 400.h,
                                                             child: SingleChildScrollView(
                                                               child: Column(
                                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                                 children: [
-                                                                  Text("Invoice Details", style: TextStyle(fontSize: 14.sp)),
+                                                                  Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                    children: [
+                                                                     Text("Invoice Details", style: TextStyle(fontSize: 14.sp,fontWeight: FontWeight.w700)),
+                                                                     InkWell(
+                                                                      borderRadius: BorderRadius.circular(3.r),
+                                                                      onTap: () => Navigator.pop(context),
+                                                                      child: Container(
+                                                                        decoration: BoxDecoration(
+                                                                          color: Colors.blueGrey.shade100,
+                                                                          borderRadius: BorderRadius.circular(100.r)
+                                                                        ),
+                                                                        child: Center(
+                                                                          child: Padding(
+                                                                            padding: EdgeInsets.all(4.r),
+                                                                            child: Icon(Icons.close,color: Colors.blueGrey,),
+                                                                          )
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                    ],
+                                                                  ),
                                                                   Divider(),
                                                                   Align(
                                                                     alignment: Alignment.center,
                                                                     child: Container(
                                                                       width: 100.w,
-                                                                      decoration: BoxDecoration(border: Border.all(color: Colors.black,width: 1.w)),
-                                                                      child: Center(child: Text("Sales Invoice",style: TextStyle(fontSize: 12.sp)))),
+                                                                      decoration: BoxDecoration(
+                                                                        borderRadius: BorderRadius.circular(3.r),
+                                                                        border: Border.all(color: Colors.black,width: 1.5.w)),
+                                                                      child: Center(child: Text("Sales Invoice",style: TextStyle(fontSize: 11.sp,fontWeight: FontWeight.bold)))),
                                                                   ),
                                                                   Row(
                                                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2182,10 +2143,10 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                                         child: Column(
                                                                           crossAxisAlignment: CrossAxisAlignment.start,
                                                                           children: [
-                                                                            infoText("Customer Id :", snapshot.data!.sales[0].customerCode),
-                                                                            infoText("Name :", snapshot.data!.sales[0].customerName),
-                                                                            infoText("Mobile :", snapshot.data!.sales[0].customerMobile),
-                                                                            infoText("Attention :", snapshot.data!.sales[0].customerComment),
+                                                                            infoText("Customer Id :", snapshot.data!.sales[0].customerCode??""),
+                                                                            infoText("Name :", snapshot.data!.sales[0].customerName??""),
+                                                                            infoText("Mobile :", snapshot.data!.sales[0].customerMobile??""),
+                                                                            infoText("Attention :", snapshot.data!.sales[0].customerComment??""),
                                                                           ],
                                                                         ),
                                                                       ),
@@ -2195,9 +2156,9 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                                         child: Column(
                                                                           crossAxisAlignment: CrossAxisAlignment.end,
                                                                           children: [
-                                                                            infoText("Prepared By:", snapshot.data!.sales[0].addedBy, alignEnd: true),
-                                                                            infoText("Invoice No:", snapshot.data!.sales[0].saleMasterInvoiceNo, alignEnd: true),
-                                                                            infoText("Sales Date:", snapshot.data!.sales[0].saleMasterSaleDate, alignEnd: true),
+                                                                            infoText("Prepared By:", snapshot.data!.sales[0].addedBy??"", alignEnd: true),
+                                                                            infoText("Invoice No:", snapshot.data!.sales[0].saleMasterInvoiceNo??"", alignEnd: true),
+                                                                            infoText("Sales Date:", snapshot.data!.sales[0].saleMasterSaleDate??"", alignEnd: true),
                                                                             infoText("Employee:", snapshot.data!.sales[0].employeeName ?? "", alignEnd: true),
                                                                           ],
                                                                         ),
@@ -2206,7 +2167,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                                   ),
                                                                   SizedBox(height: 1.h),
                                                                   infoText("Address :", snapshot.data!.sales[0].customerAddress),
-                                                                  Divider(),
+                                                                  SizedBox(height: 4.h),
                                                                   /// 🔹 TABLE
                                                                   SingleChildScrollView(
                                                                     scrollDirection: Axis.horizontal,
@@ -2216,32 +2177,44 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                                         headingRowHeight: 15.h,
                                                                         dataRowHeight: 15.h,
                                                                          headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.appColor),
-                                                                        border: TableBorder.all(color: Colors.black54),
+                                                                        border: TableBorder.all(color: Colors.blueGrey),
                                                                         columns: [
-                                                                          DataColumn(label: Text('Sl.',style: TextStyle(color:Colors.white))),
-                                                                          DataColumn(label: Text('Description',style: TextStyle(color:Colors.white))),
-                                                                          DataColumn(label: Text('Qty',style: TextStyle(color:Colors.white))),
-                                                                          DataColumn(label: Text('Unit Price',style: TextStyle(color:Colors.white))),
-                                                                          DataColumn(label: Text('Total',style: TextStyle(color:Colors.white))),
+                                                                          DataColumn(label: Text('Sl.',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Product Code',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Description',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Category',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Quantity',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Return Qty',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Unit',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Unit Price',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
+                                                                          DataColumn(label: Text('Total',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
                                                                         ],
                                                                         rows: [
                                                                           ...List.generate(snapshot.data!.saleDetails.length, (i) {
                                                                             final item = snapshot.data!.saleDetails[i];
                                                                             return DataRow(cells: [
-                                                                              DataCell(Text("${i + 1}")),
-                                                                              DataCell(Text("${item.productName}")),
-                                                                              DataCell(Text("${item.saleDetailsTotalQuantity}")),
-                                                                              DataCell(Text("${item.saleDetailsRate}")),
-                                                                              DataCell(Text("${item.saleDetailsTotalAmount}")),
+                                                                              DataCell(Text("${i + 1}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.productCode}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.productName}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.productCategoryName}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.saleDetailsTotalQuantity}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.returnQuantity}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.unitName}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.saleDetailsRate}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
+                                                                              DataCell(Text("${item.saleDetailsTotalAmount}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
                                                                             ]);
                                                                           }),
                                                                           /// TOTAL ROW
                                                                           DataRow(cells: [
                                                                             DataCell(Text("")),
-                                                                            DataCell(Text("Total", style: TextStyle(fontWeight: FontWeight.bold))),
-                                                                            DataCell(Text("$totalQty")),
                                                                             DataCell(Text("")),
-                                                                            DataCell(Text("$totalAmount")),
+                                                                            DataCell(Text("")),
+                                                                            DataCell(Text("Total", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
+                                                                            DataCell(Text("$totalQty", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
+                                                                            DataCell(Text("$totalReturnQty", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
+                                                                            DataCell(Text("")),
+                                                                            DataCell(Text("")),
+                                                                            DataCell(Text("$totalAmount", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
                                                                           ]),
                                                                         ],
                                                                       ),
@@ -2259,12 +2232,38 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                                           summaryRow("Discount", snapshot.data!.sales[0].saleMasterTotalDiscountAmount),
                                                                           summaryRow("Vat", snapshot.data!.sales[0].saleMasterTaxAmount),
                                                                           summaryRow("Transport", snapshot.data!.sales[0].saleMasterFreight),
-                                                                          Divider(),
+                                                                          Container(height: 1.h,color: Colors.black26),
                                                                           summaryRow("Total", snapshot.data!.sales[0].saleMasterTotalSaleAmount),
                                                                           summaryRow("Paid", snapshot.data!.sales[0].saleMasterPaidAmount),
-                                                                          Divider(),
+                                                                          Container(height: 1.h,color: Colors.black26),
                                                                           summaryRow("Due", snapshot.data!.sales[0].saleMasterDueAmount, isBold: true),
                                                                         ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Align(
+                                                                    alignment: Alignment.centerRight,
+                                                                    child: Container(
+                                                                      height: 25.h,
+                                                                      width: 70.w,
+                                                                      margin: EdgeInsets.only(top: 8.h),
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.blueGrey,
+                                                                        borderRadius: BorderRadius.circular(3.r),
+                                                                      ),
+                                                                      child: InkWell(
+                                                                        borderRadius: BorderRadius.circular(3.r),
+                                                                        onTap: () => Navigator.pop(context),
+                                                                        child: Center(
+                                                                          child: Text(
+                                                                            "Close",
+                                                                            style: TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 11.sp,
+                                                                              fontWeight: FontWeight.w600,
+                                                                            ),
+                                                                          ),
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                   ),
@@ -2276,31 +2275,6 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                                                       },
                                                     ),
                                                   ),
-
-                                                  actions: [
-                                                    Container(
-                                                    height: 28.h,
-                                                    width: 100.w,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.blueGrey,
-                                                      borderRadius: BorderRadius.circular(6.r),
-                                                    ),
-                                                    child: InkWell(
-                                                      borderRadius: BorderRadius.circular(6.r),
-                                                      onTap: () => Navigator.pop(context),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "Close",
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 12.sp,
-                                                            fontWeight: FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  ],
                                                 );
                                               },
                                             );
@@ -2318,7 +2292,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
                       ),
                     ),
                   ),
-                ):SizedBox(), 
+                ), 
                  SizedBox(height: 100.h),
                 ],
               ),
@@ -2450,8 +2424,8 @@ void _expDate() async {
         "total": total.toString(),
         "subTotal": subtotal.toString(),
         "discount": discountAmount.toString(),
-        "tax": 0,
-        "taxPercent": 0,
+        "tax": taxAmount.toString(),
+        "taxPercent": taxPer.toString(),
         "vat": vatAmount.toString(),
         "vatPercent": vatPer.toString(),
         "transportCost": transportCost.toString(),
@@ -2461,7 +2435,7 @@ void _expDate() async {
         "bankPaid": bankPaid.toString(),
         "previousDue": previousDue.toString(),
         "isShipping": false,
-        "note": "test",
+        "note": "Sale from app",
         "accountId": _selectedBankId ?? ""
       },
 

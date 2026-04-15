@@ -1,14 +1,16 @@
 
+import 'package:barishal_surgical/auth/add_finger.dart';
+import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
+import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_list_screen.dart';
+import 'package:barishal_surgical/screens/modules/order_module_screens/order_record_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barishal_surgical/auth/global_logout.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_report_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/category_list_screen.dart';
-import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/my_profile_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/product_list_screen.dart';
-import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/sales_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/sales_invoice_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/sales_record_screen.dart';
@@ -142,7 +144,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
         padding: EdgeInsets.zero,
         children: [
           SizedBox(
-              height: 180.h,
+              height: 160.h,
               child: DrawerHeader(
                 decoration: BoxDecoration(
                   color: AppColors.appColor,
@@ -157,13 +159,13 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                     child: Row(
                       children: [
                         Container(
-                          width: 70.w,
+                          width: 55.w,
                           height: 70.h,
                           decoration: BoxDecoration(shape: BoxShape.circle,
                             border: Border.all(color: Colors.white,width: 2.w),
                           ),
                           child: CircleAvatar(
-                            radius: 50.r,
+                            radius: 40.r,
                             backgroundImage: (userImage != null && userImage!.isNotEmpty && userImage != 'null')
                             ? NetworkImage("$imageBaseUrl${userImage!}")
                             : const NetworkImage(
@@ -171,31 +173,30 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                            ),
                           ),
                         ),
-                        SizedBox(width: 10.w),
+                        SizedBox(width: 5.w),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                           SizedBox(
                           width: 150.w, 
-                          child: Text(
-                            "${widget.name}",
+                          child: Text("${widget.name}",
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 17.sp,
+                              fontSize: 15.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                                ),
+                              ),
+                            Text(
+                            "Barisal Surgical",
+                            style: TextStyle(
+                              fontSize: 12.sp,
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ),
-                      Text(
-                      "Barisal Surgical",
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
                           ],
                         ),
                       ],
@@ -212,6 +213,39 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
             )),
             SizedBox(height: 5.h),
           const Divider(height: 1.0,thickness: 1.0,),
+          InkWell(
+              onTap: (){
+                if(salesEntry == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>  OrderEntryScreen()));
+                }
+                else{
+                  showWarningDialog(context);
+                }
+              },
+              child: Custom_List_Tile(imagePath: "images/orderEntry.png", icon_name: "Order Entry")),
+          const Divider(height: 1.0,thickness: 1.0,),
+          InkWell(
+              onTap: (){
+                if(salesRecord == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderRecordScreen()));
+                }
+                else{
+                  showWarningDialog(context);
+                }
+              },
+              child: Custom_List_Tile(imagePath:"images/orderRecord.png", icon_name: "Order Record")),
+              const Divider(height: 1.0,thickness: 1.0,),
+          InkWell(
+              onTap: (){
+                if(saleInvoice == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderInvoiceListScreen()));
+                }
+                else{
+                  showWarningDialog(context);
+                }
+              },
+              child: Custom_List_Tile(imagePath:"images/orderInvoice.png", icon_name: "Order Invoice")),
+              const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
                 if(salesEntry == "true"|| userType=="m"|| userType== "a"){
@@ -269,17 +303,6 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                if(customerEntry == "true"|| userType=="m"|| userType== "a"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => CustomerEntryScreen()));
-                }
-                else{
-                  showWarningDialog(context);
-                }
-                },
-              child: Custom_List_Tile(imagePath: "images/ccentry.png", icon_name: "Customer Entry")),
-          const Divider(height: 1.0,thickness: 1.0,),
-          InkWell(
-              onTap: (){
                 if(customerList == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerListScreen()));
                 }
@@ -314,7 +337,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                      const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitEntryScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const BiometricAuthScreen()));
                 // if(attendanceRecord == "true"|| userType=="m"|| userType== "a"){
                 //   Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitEntryScreen()));
                 // }
@@ -322,7 +345,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                 //   showWarningDialog(context);
                 // }
               },
-              child: Custom_List_Tile(imagePath: "images/visite.png", icon_name: "Visit Entry")),
+              child: Custom_List_Tile(imagePath: "images/fngr.png", icon_name: "Add Fingerprint")),
           const Divider(height: 1.0,thickness: 1.0,),
           
           InkWell(

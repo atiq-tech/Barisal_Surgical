@@ -73,6 +73,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                   dataRowHeight: 20.0.h,
                   headingRowColor: MaterialStateColor.resolveWith((states) => Colors.teal.shade900),
                   border: TableBorder.all(color: Colors.blueGrey.shade100, width: 1.w),
+                  columnSpacing: 100,
                   columns: [
                     DataColumn(label: Center(child: Text('SI.', style: AllTextStyle.tableHeadTextStyle))),
                     DataColumn(label: Center(child: Text('Category Name', style: AllTextStyle.tableHeadTextStyle))),
