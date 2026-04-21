@@ -53,11 +53,14 @@ class _LogInPageState extends State<LogInPage> {
         sharedPreferences?.setString('image_name', "${item["data"]["image_name"]}");
         sharedPreferences?.setString('employeePhone', "${item["data"]["employee_phone"]}");
         sharedPreferences?.setString('customerId', "${item["data"]["customerId"]}");
-        sharedPreferences?.setString("branch", "${item["data"]["branch"]}");
-        sharedPreferences?.setString("branchName", "${item["data"]["branch_name"]}");
+        sharedPreferences?.setString("branchName", "${item["data"]["branchName"]}");
+        sharedPreferences?.setString("userBranchId", "${item["data"]["user_branch_id"]}");
+        sharedPreferences?.setString("loginAddress", "${item["data"]["login_address"]}");
+        sharedPreferences?.setString("branchAddress", "${item["data"]["branchAddress"]}");
         var box = Hive.box('profile');
         box.put('name', "${item["data"]["name"]}");
         box.put('token', "${item["token"]}");
+
 
         print('tokeeeen=====${sharedPreferences?.getString('token')}');
         print('employeeId=====${sharedPreferences?.getString('employeeId')}');

@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_invoice_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_model.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_invoice_provider.dart';
@@ -109,8 +110,22 @@ class _OrderInvoiceListScreenState extends State<OrderInvoiceListScreen> {
     print("get_current_branch-------Branch_footer======$footerImg");
   }
 
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+
   @override
   void initState() {
+    _initLocation();
     getCompanyProfile();
     getCurrentBranch();
     _initializeData();

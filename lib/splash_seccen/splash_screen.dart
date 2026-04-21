@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,8 +18,22 @@ class SplashScreenState extends State<AnimatedSplashScreen> with SingleTickerPro
   late AnimationController _controller;
   late Animation<double> _animation;
 
+  String myAddress = "Loading...";
+  double? myLat, myLong;
+  Future<void> _initLocation() async {
+  var result = await LocationService.fetchAndUploadLocation();
+  if (result != null) {
+    setState(() {
+      myLat = result['lat'];
+      myLong = result['long'];
+      myAddress = result['address'];
+    });
+  }
+}
+
   @override
   void initState() {
+    _initLocation();
     super.initState();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1500),

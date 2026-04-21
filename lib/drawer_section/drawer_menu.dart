@@ -1,5 +1,7 @@
 
 import 'package:barishal_surgical/auth/add_finger.dart';
+import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
+import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_record_screen.dart';
@@ -327,17 +329,17 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           InkWell(
               onTap: (){
                 if(attendanceRecord == "true"|| userType=="m"|| userType== "a"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AttendanceReportScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitEntryScreen()));
                 }
                 else{
                   showWarningDialog(context);
                 }
               },
-              child: Custom_List_Tile(imagePath: "images/attend.png", icon_name: "Attendance Report")),
+              child: Custom_List_Tile(imagePath: "images/visite.png", icon_name: "Visit Entry")),
                      const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const BiometricAuthScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitHistoryScreen()));
                 // if(attendanceRecord == "true"|| userType=="m"|| userType== "a"){
                 //   Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitEntryScreen()));
                 // }
@@ -345,7 +347,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                 //   showWarningDialog(context);
                 // }
               },
-              child: Custom_List_Tile(imagePath: "images/fngr.png", icon_name: "Add Fingerprint")),
+              child: Custom_List_Tile(imagePath: "images/vhistory.png", icon_name: "Visit List")),
           const Divider(height: 1.0,thickness: 1.0,),
           
           InkWell(

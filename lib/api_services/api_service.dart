@@ -1,4 +1,5 @@
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
+import 'package:barishal_surgical/models/administration_module_models/visits_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_details_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_invoice_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_model.dart';
@@ -591,6 +592,33 @@ class ApiService{
       }
     }
    return List.from(item).map((e) => InvoiceDueModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  //==================get_visits List =======================
+  static fetchVisitApi(String? customerId,String? employeeId,String? dateFrom,String? dateTo) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_visits";
+    try {
+      Response response = await Dio().post(link,
+       data: {
+          "customerId": customerId,
+          "employeeId": employeeId,
+          "dateFrom": dateFrom,
+          "dateTo": dateTo,
+         },
+         
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
+      var item = response.data;
+      return List.from(item).map((e) => VisitsModel.fromMap(e)).toList();
     } catch (e) {
       print(e);
     }

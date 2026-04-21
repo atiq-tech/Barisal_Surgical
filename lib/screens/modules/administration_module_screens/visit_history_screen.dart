@@ -1,3 +1,216 @@
+// library;
+// import 'package:barishal_surgical/common_widget/common_location.dart';
+// import 'package:barishal_surgical/common_widget/custom_appbar.dart';
+// import 'package:barishal_surgical/providers/administration_module_providers/visits_provider.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:provider/provider.dart';
+// import 'package:shimmer/shimmer.dart';
+// import '../../../utils/all_textstyle.dart';
+
+// class VisitListScreen extends StatefulWidget {
+//   const VisitListScreen({super.key,});
+//   @override
+//   State<VisitListScreen> createState() => _VisitListScreenState();
+// }
+
+// class _VisitListScreenState extends State<VisitListScreen> {
+//   Color getColor(Set<WidgetState> states) {
+//     return Colors.blue.shade200;
+//   }
+
+//   Color getColors(Set<WidgetState> states) {
+//     return Colors.white;
+//   }
+  
+//  String myAddress = "Loading...";
+//     double? myLat, myLong;
+//     Future<void> _initLocation() async {
+//     var result = await LocationService.fetchAndUploadLocation();
+//     if (result != null) {
+//       setState(() {
+//         myLat = result['lat'];
+//         myLong = result['long'];
+//         myAddress = result['address'];
+//       });
+//     }
+//   }
+
+//   @override
+//   void initState() {
+//     _initLocation();
+//     // TODO: implement initState
+//     super.initState();
+//     Provider.of<VisitsProvider>(context, listen: false).getVisits();
+//   }
+
+//   ScrollController mainScrollController = ScrollController();
+//   late final ScrollController _listViewScrollController = ScrollController()
+//     ..addListener(listViewScrollListener);
+//   ScrollPhysics _physics = const ScrollPhysics();
+
+//   void listViewScrollListener() {
+//     if (_listViewScrollController.offset >=
+//         _listViewScrollController.position.maxScrollExtent &&
+//         !_listViewScrollController.position.outOfRange) {
+//       if (mainScrollController.offset == 0) {
+//         mainScrollController.animateTo(50,
+//             duration: const Duration(milliseconds: 200), curve: Curves.linear);
+//       }
+//       setState(() {
+//         _physics = const NeverScrollableScrollPhysics();
+//       });
+//       print("bottom");
+//     }
+//   }
+//   void mainScrollListener() {
+//     if (mainScrollController.offset <=
+//         mainScrollController.position.minScrollExtent &&
+//         !mainScrollController.position.outOfRange) {
+//       setState(() {
+//         if (_physics is NeverScrollableScrollPhysics) {
+//           _physics = const ScrollPhysics();
+//           _listViewScrollController.animateTo(
+//               _listViewScrollController.position.maxScrollExtent - 50,
+//               duration: const Duration(milliseconds: 200),
+//               curve: Curves.linear);
+//         }
+//       });
+//       print("top");
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     mainScrollController.addListener(mainScrollListener);
+//     final allVisitsData = Provider.of<VisitsProvider>(context).visitsList;
+//     return Scaffold(
+//       appBar: CustomAppBar(title: "Visit List"),
+//       body: SingleChildScrollView(
+//         controller: mainScrollController,
+//         child: Column(
+//           children: [
+//             SizedBox(height: 10.0.h),
+//             VisitsProvider.isVisitsLoading
+//                 ? SizedBox(
+//                 height: MediaQuery.of(context).size.height / 1.43,
+//                 child: _buildShimmerEffect(allVisitsData.length))
+//                 : Container(
+//               height: MediaQuery.of(context).size.height / 1.43,
+//               width: double.infinity,
+//               padding: EdgeInsets.only(left: 8.w, right: 8.w,bottom: 20.h),
+//               child: SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   controller: _listViewScrollController,
+//                   physics: _physics,
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: DataTable(
+//                       headingRowHeight: 20.h,
+//                       dataRowHeight: 20.h,
+//                       headingRowColor: WidgetStateColor.resolveWith((states) => Colors.blue.shade900),
+//                       showCheckboxColumn: true,
+//                       border: TableBorder.all(color: Colors.grey.shade400, width: 1),
+//                       columns: [
+//                         DataColumn(label: Expanded(child: Center(child: Text('Sl.',style: AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Date',style: AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Employee',style: AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Customer',style: AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Location',style: AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Latitude',style: AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Longitude',style: AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Remark',style: AllTextStyle.tableHeadTextStyle)))),
+//                       ],
+//                       rows: List.generate(
+//                        allVisitsData.length,
+//                             (int index) => DataRow(
+//                           color: index % 2 == 0 ? WidgetStateProperty.resolveWith(getColor) : WidgetStateProperty.resolveWith(getColors),
+//                           cells: <DataCell>[
+//                             DataCell(Center(child: Text('${index +1}'))),
+//                             DataCell(Center(child: Text('${allVisitsData[index].date??""}'))),
+//                             DataCell(Center(child: Text('${allVisitsData[index].employeeName??""}'))),
+//                             DataCell(Center(child: Text('${allVisitsData[index].customerName??""}'))),
+//                             DataCell(Center(child: Text('${allVisitsData[index].location??""}'))),
+//                             DataCell(Center(child: Text('${allVisitsData[index].latitude??""}'))),
+//                             DataCell(Center(child: Text('${allVisitsData[index].longitude??""}'))),
+//                             DataCell(Center(child: Text('${allVisitsData[index].remark??""}'))),
+//                           ],
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//             SizedBox(height: 15.0.h),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//   Widget _buildShimmerEffect(int length) {
+//     return ListView.builder(
+//       itemCount: length+1,
+//       itemBuilder: (context, index) {
+//         return Padding(
+//           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
+//           child: Shimmer.fromColors(
+//             baseColor: Colors.grey.shade300,
+//             highlightColor: Colors.grey.shade100,
+//             child: Container(
+//               height: 15.h,
+//               decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(2.r)),
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import 'package:barishal_surgical/common_widget/common_location.dart';
+import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
+import 'package:barishal_surgical/models/administration_module_models/employees_model.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/customer_list_provider.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/employees_provider.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/visits_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -5,8 +218,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common_widget/custom_appbar.dart';
-import '../../../models/administration_module_models/product_list_model.dart';
-import '../../../providers/administration_module_providers/products_list_provider.dart';
 import '../../../utils/all_textstyle.dart';
 import '../../../utils/utils.dart';
 
@@ -18,7 +229,7 @@ class VisitHistoryScreen extends StatefulWidget {
 }
 
 class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
-  Color getColor(Set<WidgetState> states) {return Colors.blue.shade100;}
+  Color getColor(Set<WidgetState> states) {return Colors.teal.shade100;}
   Color getColors(Set<WidgetState> states) {return Colors.white;}
   Color getColorsbyAll(Set<WidgetState> states) {return Colors.blue.shade100;}
 
@@ -70,7 +281,7 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
       });
     }
   }
-  String? employeeId = "";
+  
   String? userEmployeeId = "";
   String userName = "";
   String userType = "";
@@ -82,31 +293,148 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
     userType = "${sharedPreferences?.getString('userType')}";
     print("userEmployeeId==== $userEmployeeId");
   }
-  bool isCustomerListClicked = false;
+  String? customerId = '';
+  String? employeeId = "";
+  bool isAll = true;
   bool isEmployeeListClicked = false;
-  String _searchType = 'All';
-  String customerId = '';
-
-  final List<String> _searchTypeList = [
+  bool isCustomerListClicked = false;
+  bool _isDropdownOpen = false;
+  String? _selectedSearchTypes = 'All';
+  final List<String> _searchTypes = [
     'All',
     'By Customer',
-    'By Employee'
+    'By Employee',
   ];
-  String? _selectCustomerId;
-  var data;
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+
+  final GlobalKey _key = GlobalKey();
+  Size _dropdownSize = Size.zero;
+
+  void _getDropdownSize(Duration _) {
+    final RenderBox renderBox = _key.currentContext?.findRenderObject() as RenderBox;
+    _dropdownSize = renderBox.size;
+  }
+
+  void _toggleDropdown() {
+    if (_isDropdownOpen) {
+      _removeDropdown();
+    } else {
+      _showDropdown();
+    }
+  }
+  void _showDropdown() {
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+    setState(() {
+      _isDropdownOpen = true;
+    });
+  }
+
+  void _removeDropdown() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    setState(() {
+      _isDropdownOpen = false;
+    });
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _removeDropdown,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              width: _dropdownSize.width,
+              child: CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0.0, _dropdownSize.height + 0),
+                child: Material(
+                  elevation: 9.0,
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(5.r),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _searchTypes.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final type = entry.value;
+                      return InkWell(
+                        onTap: () {
+                          _onSelectedType(type);
+                          _removeDropdown();
+                        },
+                        child: Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                              child: Text(type, style: TextStyle(fontSize: 13.sp)),
+                            ),
+                            if (index != _searchTypes.length - 1)
+                              Divider(height: 1.h, thickness: 0.8, color: Colors.indigo.shade400),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onSelectedType(String selectedValue) {
+    setState(() {
+      _selectedSearchTypes = selectedValue;
+      isAll = selectedValue == "All";
+      isCustomerListClicked = selectedValue == "By Customer";
+      isEmployeeListClicked = selectedValue == "By Employee";
+      emtyMethod();
+    });
+  }
+
+   emtyMethod() {
+    setState(() {
+      customerController.text= "";
+      _employeeController.text= "";
+      customerId = "";
+      employeeId = "";
+    });
+  }
+
+
+
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
 
   @override
   void initState() {
+     WidgetsBinding.instance.addPostFrameCallback(_getDropdownSize);
+    _initLocation();
     _initializeData();
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     secondPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndSecondtDate = Utils.formatBackEndDate(DateTime.now());
-    Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
-    // Provider.of<EmployeeProvider>(context,listen: false).getEmployee();
-    // Provider.of<VisitsProvider>(context, listen: false).visitslist=[];
-    // ///Get customers
-    // Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("", "", "");
+    Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
+    Provider.of<VisitsProvider>(context, listen: false).visitsList = [];
     // TODO: implement initState
     super.initState();
   }
@@ -115,17 +443,15 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final allEmployeeData = Provider.of<ProductListProvider>(context).productsList;
-    // final allEmployeeData = Provider.of<EmployeeProvider>(context).allEmployeeList;
-    ///Get customers
-    // final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerCode != "").toList();
-    // print("allCustomerData====${allCustomerData.length}");
-    ///get Visits
-
-    // final allGetVisitsData = Provider.of<VisitsProvider>(context).visitslist;
-    // print("Get allGetVisitsData length=====> ${allGetVisitsData.length} ");
+    final allEmployeeData = Provider.of<EmployeesProvider>(context).employeesList;
+    //Get customers
+    final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerCode != "").toList();
+    print("allCustomerData====${allCustomerData.length}");
+    //get Visits
+    final allVisitsData = Provider.of<VisitsProvider>(context).visitsList;
+    print("Get allVisitsData length=====> ${allVisitsData.length} ");
     return Scaffold(
-      appBar: CustomAppBar(title: "Visit History"),
+      appBar: CustomAppBar(title: "Visit List"),
       body: Column(
         children: [
           Container(
@@ -150,63 +476,56 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                 children: [
                   Row(
                     children: [
-                      Expanded(flex: 4,child: Text("Search Type :",style:AllTextStyle.textFieldHeadStyle)),
+                      Expanded(flex: 4, child: Text("Search Type", style: AllTextStyle.textFieldHeadStyle)),
+                      Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 8,
-                        child: Container(
-                          height: 25.0.h,
-                          margin: EdgeInsets.only(top: 5.h, bottom: 5.h),
-                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
-                          decoration: ContDecoration.contDecoration,
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              isExpanded: true,
-                              value: _searchType,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  _searchType = newValue!;
-                                  _selectCustomerId='';
-                                  if (_searchType == "By Customer") {
-                                    isCustomerListClicked = true;
-                                    isEmployeeListClicked = false;
-                                  }
-                                  else if (_searchType == "By Employee") {
-                                    isEmployeeListClicked = true;
-                                    isCustomerListClicked = false;
-                                  }
-                                  else {
-                                    customerController.text = '';
-                                    _employeeController.text = '';
-                                    isCustomerListClicked = false;
-                                    isEmployeeListClicked = false;
-                                  }
-                                });
-                              },
-                              items: _searchTypeList.map((location) {
-                                return DropdownMenuItem(
-                                  value: location,
-                                  child: Text(location, style: TextStyle(fontSize: 13.sp)),
-                                );
-                              }).toList(),
+                        child: CompositedTransformTarget(
+                        link: _layerLink,
+                        child: GestureDetector(
+                          onTap: _toggleDropdown,
+                          child: Container(
+                            key: _key,
+                            padding: EdgeInsets.symmetric(horizontal: 6.w),
+                            height: 25.h,
+                            decoration: ContDecoration.contDecoration,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _selectedSearchTypes ?? 'Please select a type',
+                                  style: TextStyle(fontSize: 13.sp),
+                                ),
+                                GestureDetector(
+                                  onTap: _toggleDropdown,
+                                  child: Icon(
+                                    color: Colors.grey.shade700,
+                                    _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
+                    ),
                     ],
                   ),
+                  SizedBox(height: 3.0.h),
                   isCustomerListClicked == true ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Expanded(flex: 4, child: Text("Customer     : ",style:AllTextStyle.textFieldHeadStyle)),
+                          Expanded(flex: 4, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
+                          Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                           Expanded(
                             flex: 8,
                             child: Container(
                               margin: EdgeInsets.only(bottom: 5.w),
                               height: 25.0.h,
                               decoration: ContDecoration.contDecoration,
-                              child: TypeAheadField<ProductListModel>(
+                              child: TypeAheadField<CustomerListModel>(
                                 controller: customerController,
                                 builder: (context, controller, focusNode) {
                                   return TextField(
@@ -217,13 +536,13 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                                       isDense: true,
                                       hintText: 'Select Customer',
                                       hintStyle: TextStyle(fontSize: 13.sp),
-                                      suffixIcon: _selectCustomerId == '' || _selectCustomerId == 'null' || _selectCustomerId == null || controller.text == '' ? null
+                                      suffixIcon: customerId == '' || customerId == 'null' || customerId == null || controller.text == '' ? null
                                           : GestureDetector(
                                         onTap: () {
                                           setState(() {
                                             customerController.clear();
                                             controller.clear();
-                                            _selectCustomerId = null;
+                                            customerId = null;
                                           });
                                         },
                                         child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
@@ -239,92 +558,25 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                                 },
                                 suggestionsCallback: (pattern) async {
                                   return Future.delayed(const Duration(seconds: 1), () {
-                                    return allEmployeeData.where((element) =>
-                                        element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                                    return allCustomerData.where((element) =>
+                                        element.customerName!.toLowerCase().contains(pattern.toLowerCase())).toList();
                                   });
                                 },
-                                itemBuilder: (context, ProductListModel suggestion) {
+                                itemBuilder: (context, CustomerListModel suggestion) {
                                   return Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                    child: Text(suggestion.displayText!,
+                                    child: Text(suggestion.customerName!,
                                       style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
                                     ),
                                   );
                                 },
-                                onSelected: (ProductListModel suggestion) {
+                                onSelected: (CustomerListModel suggestion) {
                                   setState(() {
-                                    customerController.text = suggestion.displayText!;
-                                    _selectCustomerId = suggestion.productSlNo.toString();
+                                    customerController.text = suggestion.customerName!;
+                                    customerId = suggestion.customerSlNo.toString();
                                   });
                                 },
                               ),
-                              // child: TypeAheadFormField(
-                              //   textFieldConfiguration:
-                              //   TextFieldConfiguration(
-                              //     onChanged: (value){
-                              //       if (value == '') {
-                              //         _selectedCustomer = '';
-                              //       }
-                              //     },
-                              //     style: const TextStyle(fontSize: 13),
-                              //     controller: customerController,
-                              //     decoration: InputDecoration(
-                              //         contentPadding: const EdgeInsets.only(bottom: 10,left: 5.0),
-                              //         hintText: 'Select Customer',
-                              //         suffixIcon: _selectedCustomer  == "null"
-                              //             || _selectedCustomer  == ""
-                              //             || customerController.text == ""
-                              //             || _selectedCustomer == null ? null
-                              //             : GestureDetector(
-                              //           onTap: () {
-                              //             setState(() {
-                              //               customerController.text = '';
-                              //             });
-                              //           },
-                              //           child: const Padding(
-                              //             padding: EdgeInsets.only(left: 6,right: 6),
-                              //             child: Icon(Icons.close,size: 16,),
-                              //           ),
-                              //         ),
-                              //         suffixIconConstraints: const BoxConstraints(maxHeight: 30),
-                              //         filled: true,
-                              //         fillColor: Colors.white,
-                              //         border: InputBorder.none,
-                              //         focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                              //         enabledBorder: TextFieldInputBorder.focusEnabledBorder
-                              //     ),
-                              //   ),
-                              //   suggestionsCallback: (pattern) {
-                              //     return allCustomerData
-                              //         .where((element) => element.customerName!
-                              //         .toLowerCase()
-                              //         .contains(pattern
-                              //         .toString()
-                              //         .toLowerCase()))
-                              //         .take(allCustomerData.length)
-                              //         .toList();
-                              //   },
-                              //   itemBuilder: (context, suggestion) {
-                              //     return SizedBox(
-                              //       child: Padding(
-                              //         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              //         child: Text("${suggestion.customerName} ${suggestion.customerCode != "" ? " - ${suggestion.customerCode}" : ""} ${suggestion.customerMobile != "" ? " - ${suggestion.customerMobile}" : ""}",
-                              //           style: const TextStyle(fontSize: 12),
-                              //           maxLines: 1,overflow: TextOverflow.ellipsis,),
-                              //       ),
-                              //     );
-                              //   },
-                              //   transitionBuilder: (context, suggestionsBox, controller) {
-                              //     return suggestionsBox;
-                              //   },
-                              //   onSuggestionSelected: (CustomerListModel suggestion) {
-                              //     setState(() {
-                              //       customerController.text = "${suggestion.customerName} ${suggestion.customerCode != "" ? " - ${suggestion.customerCode}" : ""} ${suggestion.customerMobile != "" ? " - ${suggestion.customerMobile}" : ""}";
-                              //       _selectedCustomer = suggestion.customerSlNo.toString();
-                              //     });
-                              //   },
-                              //   onSaved: (value) {},
-                              // ),
                             ),
                           ),
                         ],
@@ -337,7 +589,8 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                     children: [
                       Row(
                         children: [
-                          Expanded(flex: 4, child: Text("Employee     : ",style:AllTextStyle.textFieldHeadStyle)),
+                          Expanded(flex: 4, child: Text("Employee",style:AllTextStyle.textFieldHeadStyle)),
+                          Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                           userName == "Admin"? Expanded(
                             flex: 8,
                             child: Container(
@@ -345,7 +598,7 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                               width: MediaQuery.of(context).size.width / 2,
                               margin: EdgeInsets.only(bottom: 5.0.h),
                               decoration: ContDecoration.contDecoration,
-                              child: TypeAheadField<ProductListModel>(
+                              child: TypeAheadField<EmployeesModel>(
                                 controller: _employeeController,
                                 builder: (context, controller, focusNode) {
                                   return TextField(
@@ -379,21 +632,21 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                                 suggestionsCallback: (pattern) async {
                                   return Future.delayed(const Duration(seconds: 1), () {
                                     return allEmployeeData.where((element) =>
-                                        element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                                        element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
                                   });
                                 },
-                                itemBuilder: (context, ProductListModel suggestion) {
+                                itemBuilder: (context, EmployeesModel suggestion) {
                                   return Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                    child: Text(suggestion.displayText!,
+                                    child: Text(suggestion.displayName!,
                                       style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
                                     ),
                                   );
                                 },
-                                onSelected: (ProductListModel suggestion) {
+                                onSelected: (EmployeesModel suggestion) {
                                   setState(() {
-                                    _employeeController.text = suggestion.displayText!;
-                                    employeeId = suggestion.productSlNo.toString();
+                                    _employeeController.text = suggestion.displayName!;
+                                    employeeId = suggestion.employeeSlNo.toString();
                                   });
                                 },
                               ),
@@ -501,24 +754,17 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                         padding: EdgeInsets.all(1.0.r),
                         child: InkWell(
                           onTap: () async {
-                            // final connectivityResult = await (Connectivity().checkConnectivity());
-                            // if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
-                            //   setState(() {
-                            //     _searchType == "By Customer" ? data = 'by customer':
-                            //     _searchType == "By Employee" ? data = 'by employee':
-                            //     _searchType == "All" ? data = 'all' : '';
-                            //   });
-                            //   VisitsProvider().on();
-                            //   Provider.of<VisitsProvider>(context, listen: false).getVisits(
-                            //     _selectedCustomer ?? '',
-                            //     userType == "m"||userType == "a" ? "$employeeId" : userEmployeeId,
-                            //     "$backEndFirstDate",
-                            //     "$backEndSecondtDate",
-                            //   );
-                            // }
-                            // else{
-                            //   Utils.errorSnackBar(context, "Please check your internet connection");
-                            // }
+                              VisitsProvider().on();
+                              Provider.of<VisitsProvider>(context, listen: false).getVisits(
+                                customerId ?? '',
+                                userType == "m"||userType == "a" ? "$employeeId" : userEmployeeId,
+                                "$backEndFirstDate",
+                                "$backEndSecondtDate",
+                              );
+                              print("customerId=====> $customerId");
+                              print("employeeId=====> ${userType == "m"||userType == "a" ? employeeId : userEmployeeId}");
+                              print("backEndFirstDate=====> $backEndFirstDate");  
+                              print("backEndSecondtDate=====> $backEndSecondtDate");
                           },
                           child: Container(
                             height: 28.0.h,
@@ -546,60 +792,57 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
             ),
           ),
           SizedBox(height: 15.0.h),
-          // VisitsProvider.isVisitsLoading ?
-          // const Center(child: CircularProgressIndicator(),)
-          //     :allGetVisitsData.isNotEmpty? Expanded(child: Container(
-          //   padding: const EdgeInsets.only(left: 10,right: 10,bottom: 10),
-          //   child: SingleChildScrollView(
-          //     scrollDirection: Axis.vertical,
-          //     child: SingleChildScrollView(
-          //       scrollDirection: Axis.horizontal,
-          //       child: Column(
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           DataTable(
-          //             columnSpacing: 25,
-          //             headingRowHeight: 20.0,
-          //             dataRowHeight: 20.0,
-          //             headingRowColor: data == 'all'? WidgetStateColor.resolveWith((states) => Colors.indigo):WidgetStateColor.resolveWith((states) => Colors.blue.shade900),
-          //             showCheckboxColumn: true,
-          //             border: TableBorder.all(color: Colors.white, width: 1),
-          //             columns: const [
-          //               DataColumn(label: Expanded(child: Center(child: Text('Sl',style:AllTextStyle.tableHeadTextStyle)))),
-          //               DataColumn(label: Expanded(child: Center(child: Text('Customer Id',style:AllTextStyle.tableHeadTextStyle)))),
-          //               DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-          //               DataColumn(label: Expanded(child: Center(child: Text('Address	Name',style:AllTextStyle.tableHeadTextStyle)))),
-          //               DataColumn(label: Expanded(child: Center(child: Text('Name',style:AllTextStyle.tableHeadTextStyle)))),
-          //               DataColumn(label: Expanded(child: Center(child: Text('Mobile',style:AllTextStyle.tableHeadTextStyle)))),
-          //               DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
-          //             ],
-          //             rows: List.generate(
-          //               allGetVisitsData.length,
-          //                   (int index) => DataRow(
-          //                 color:data == 'all'? index % 2 == 0 ? WidgetStateProperty.resolveWith(getColor):WidgetStateProperty.resolveWith(getColors):index % 2 == 0 ? WidgetStateProperty.resolveWith(getColorsbyAll):WidgetStateProperty.resolveWith(getColors),
-          //                 cells: <DataCell>[
-          //                   DataCell(Center(child: Text("${index+1}"))),
-          //                   DataCell(Center(child: Text(allGetVisitsData[index].customerCode)),),
-          //                   DataCell(SizedBox(width: MediaQuery.of(context).size.width/2.4,
-          //                     child: Padding(padding: const EdgeInsets.only(left: 0),
-          //                       child: Text(allGetVisitsData[index].customerName),
-          //                     ),),
-          //                   ),
-          //                   DataCell(Center(child: Text(allGetVisitsData[index].customerAddress))),
-          //                   DataCell(Center(child: Text(allGetVisitsData[index].name))),
-          //                   DataCell(Center(child: Text(allGetVisitsData[index].customerMobile))),
-          //                   DataCell(Center(child: Text(allGetVisitsData[index].note))),
-          //                 ],
-          //               ),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
-          // ):const Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
-          //
+          VisitsProvider.isVisitsLoading ?
+          const Center(child: CircularProgressIndicator(),)
+              :allVisitsData.isNotEmpty? Expanded(child: Container(
+            padding: const EdgeInsets.only(left: 10,right: 10,bottom: 10),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DataTable(
+                      headingRowHeight: 20.h,
+                      dataRowHeight: 20.h,
+                      headingRowColor: WidgetStateColor.resolveWith((states) => Colors.teal.shade900),
+                      showCheckboxColumn: true,
+                      border: TableBorder.all(color: Colors.grey.shade400, width: 1),
+                      columns: [
+                        DataColumn(label: Expanded(child: Center(child: Text('Sl.',style: AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Date',style: AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Employee',style: AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Customer',style: AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Location',style: AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Latitude',style: AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Longitude',style: AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Remark',style: AllTextStyle.tableHeadTextStyle)))),
+                      ],
+                      rows: List.generate(
+                       allVisitsData.length,
+                            (int index) => DataRow(
+                          color: index % 2 == 0 ? WidgetStateProperty.resolveWith(getColor) : WidgetStateProperty.resolveWith(getColors),
+                          cells: <DataCell>[
+                            DataCell(Center(child: Text('${index +1}'))),
+                            DataCell(Center(child: Text('${allVisitsData[index].date??""}'))),
+                            DataCell(Center(child: Text('${allVisitsData[index].employeeName??""}'))),
+                            DataCell(Center(child: Text('${allVisitsData[index].customerName??""}'))),
+                            DataCell(Center(child: Text('${allVisitsData[index].location??""}'))),
+                            DataCell(Center(child: Text('${allVisitsData[index].latitude??""}'))),
+                            DataCell(Center(child: Text('${allVisitsData[index].longitude??""}'))),
+                            DataCell(Center(child: Text('${allVisitsData[index].remark??""}'))),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
+          
         ],
       ),
     );

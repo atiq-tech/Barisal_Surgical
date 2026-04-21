@@ -18,9 +18,10 @@ List dashboardItems = [
     {"name": "Customer List", "image": "images/customerlist.png"},
     // {"name": "My Profile", "image": "images/mpofile.png"},
     {"name": "Logout", "image": "images/logout.png"},
-    {"name": "Attendance Report", "image": "images/attend.png"},
-    //{"name": "Visit Entry", "image": "images/visite.png"},
-    {"name": "Add Fingerprint", "image": "images/fngr.png"},
+    //{"name": "Attendance Report", "image": "images/attend.png"},
+    {"name": "Visit Entry", "image": "images/visite.png"},
+    {"name": "Visit List", "image": "images/vhistory.png"},
+    //{"name": "Add Fingerprint", "image": "images/fngr.png"},
   ];
 
 List orderModuleItems = [

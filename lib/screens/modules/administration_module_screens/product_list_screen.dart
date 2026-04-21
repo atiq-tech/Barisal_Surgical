@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -20,8 +21,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Color getColor(Set<WidgetState> states) {return Colors.teal.shade100;}
   Color getColors(Set<WidgetState> states) {return Colors.white;}
 
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+
   @override
   void initState() {
+    _initLocation();
     super.initState();
     ProductListProvider.isProductsListLoading = true;
     Provider.of<ProductListProvider>(context, listen: false).getProductList(context);

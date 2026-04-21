@@ -1,4 +1,7 @@
 import 'package:barishal_surgical/auth/add_finger.dart';
+import 'package:barishal_surgical/common_widget/common_location.dart';
+import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
+import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_record_screen.dart';
@@ -99,8 +102,22 @@ class _HomePageState extends State<HomePage> {
   }
   late ScrollController _scrollController;
 
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+
   @override
   void initState() {
+    _initLocation();
     _getLocation();
     _initializeData();
     // TODO: implement initState
@@ -396,14 +413,14 @@ class _HomePageState extends State<HomePage> {
                         }
                         else if(index == 10) {
                            if (attendanceRecord == "true" || userType=="m"|| userType== "a") {
-                           Navigator.push(context,MaterialPageRoute(builder: (context) => const AttendanceReportScreen()));
+                           Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitEntryScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
                         else {
                            //if (attendanceRecord == "true" || userType=="m"|| userType== "a") {
-                           Navigator.push(context,MaterialPageRoute(builder: (context) => const BiometricAuthScreen()));
+                           Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitHistoryScreen()));
                           // } else {
                           //   showWarningDialog(context);
                           // }

@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -18,8 +19,22 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   SharedPreferences? sharedPreferences;
   String searchQuery = "";
 
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+
   @override
   void initState() {
+    _initLocation();
     super.initState();
     CategoriesProvider.isCategoriesListLoading = true;
     Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);

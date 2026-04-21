@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/employees_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/bank_account_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/employees_provider.dart';
@@ -239,8 +240,22 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     print("cashPaid===$cashPaid");
 }
 
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+
   @override
   void initState() {
+    _initLocation();
     _initializeData();
     super.initState();
     getSalesInvoice();
@@ -409,24 +424,41 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                             Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                             Expanded(
                               flex: 9,
-                              child: GestureDetector(
-                                onTap: () {
+                              child: userType == "a" || userType == "m" ? GestureDetector(
+                                onTap: (() {
                                   _selectedDate();
-                                },
-                                child: Container(
-                                  height: 25.0.h,
-                                  width: double.infinity,
-                                  padding: EdgeInsets.only(top: 3.h, bottom: 5.h, left: 5.w, right: 5.w),
-                                  decoration:ContDecoration.contDecoration,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(firstPickedDate == null ? Utils.formatFrontEndDate(DateTime.now()) : firstPickedDate!,
-                                          style:AllTextStyle.dateFormatStyle
-                                      ),
-                                      Icon(Icons.calendar_month, size: 18.r)
-                                    ],
+                                  //FocusScope.of(context).requestFocus(quantityFocusNode);
+                                }),
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
+                                      suffixIcon: const Padding(padding: EdgeInsets.only(left: 20),
+                                        child: Icon(Icons.calendar_month, color: Colors.black87, size: 16)),
+                                      border: const OutlineInputBorder(borderSide: BorderSide.none),
+                                      hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
                                   ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return null;
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ):GestureDetector(
+                                onTap: (() {
+                                }),
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
+                                      border: const OutlineInputBorder(borderSide: BorderSide.none),
+                                      hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return null;
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
                             ),
@@ -438,7 +470,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                             Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                             Expanded(
                               flex: 9,
-                              child: Container(
+                              child: userType == "a" || userType == "m" ? Container(
                                 height: 25.0.h,
                                 margin: EdgeInsets.only(bottom: 4.h,top: 4.h),
                                 child: TypeAheadField<EmployeesModel>(
@@ -493,6 +525,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     });
                                   },
                                 ),
+                              ) : Container(
+                                height: 25.h,
+                                decoration:ContDecoration.contDecoration,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
+                                  child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
+                                )
                               ),
                             ),
                           ],

@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/sales_details_provider.dart';
@@ -267,8 +268,23 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
   double? totalQuantitySD;
   double? totalAmountSD;
   double? totalQuantitySbS;
+
+   String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+  
   @override
   void initState() {
+    _initLocation();
     _initializeData();
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());

@@ -1,4 +1,5 @@
 
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/sales_module_models/sales_invoice_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -98,10 +99,22 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
     print("get_current_branch-------Branch_footer======$footerImg");
   }
 
-  
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
 
   @override
   void initState() {
+    _initLocation();
     getCompanyProfile();
     getCurrentBranch();
     Provider.of<SalesProvider>(context, listen: false).getSales(context,"", "", "", "", "");

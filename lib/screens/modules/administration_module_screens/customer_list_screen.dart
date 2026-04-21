@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/common_widget/custom_btmnbar/custom_navbar.dart';
 import 'package:barishal_surgical/models/administration_module_models/employees_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/employees_provider.dart';
@@ -34,6 +35,20 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   Color getColorsPaid(Set<MaterialState> states) {
     return Colors.teal.shade100;
   }
+
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -117,6 +132,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
 
   @override
   void initState() {
+    _initLocation();
     _initializeData();
     // TODO: implement initState
     super.initState();

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,16 +35,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     sharedPreferences = await SharedPreferences.getInstance();
     userName = "${sharedPreferences?.getString('userName')}";
     userImage = "${sharedPreferences?.getString('image_name')}";
-    isBrand = "${sharedPreferences?.getString('branch_name')}";
+    branchName = "${sharedPreferences?.getString('branchName')}";
+    branchAddress = "${sharedPreferences?.getString('branchAddress')}";
     print("profile userName====$userName");
     print("profile userImage====$userImage");
-    print("profile isBrand====$isBrand");
+    print("profile branchName====$branchName");
+    print("profile branchAddress====$branchAddress");
     setState(() {
     });
   }
   String? userName = "";
   String? userImage = "";
-  String? isBrand = "";
+  String? branchName = "";
+  String? branchAddress = "";
 
   XFile? imageFile;
   File? file;
@@ -55,8 +59,23 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     });
   }
+
+  String myAddress = "Loading...";
+    double? myLat, myLong;
+    Future<void> _initLocation() async {
+    var result = await LocationService.fetchAndUploadLocation();
+    if (result != null) {
+      setState(() {
+        myLat = result['lat'];
+        myLong = result['long'];
+        myAddress = result['address'];
+      });
+    }
+  }
+
   @override
   void initState() {
+    _initLocation();
     _initializeData();
     // TODO: implement initState
     super.initState();
@@ -189,21 +208,25 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         Row(
                           children: [
                             Text("Branch Name  :  ",style: AllTextStyle.profileTextStyle),
-                            Text("Main Branch",style: TextStyle(color: Colors.black,fontSize: 12.sp)),
+                            Text("$branchName",style: TextStyle(color: Colors.black,fontSize: 12.sp)),
                           ],
                         ),
                         Row(
-                          children: [
-                            Text("Role                  :  ",style: AllTextStyle.profileTextStyle),
-                            Text("Member",style: TextStyle(color: Colors.black,fontSize: 12.sp)),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text("Branch\nLocation           :  ",style: AllTextStyle.profileTextStyle),
-                            Text("Link Up Technology Ltd.\nMirpur 10, Dhaka",overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 12.0.sp)),
-                          ],
-                        ),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Branch\nLocation          :  ",
+                            style: AllTextStyle.profileTextStyle,
+                          ),
+                          Expanded(
+                            child: Text(
+                              "$branchAddress",
+                              style: TextStyle(fontSize: 12.0.sp),
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
                       ],
                     )),
                  SizedBox(height: 10.0.h),
@@ -412,7 +435,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     print("image======  $image");
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
-    String link = "${baseUrl}api/v1/uploadUserImage";
+    String link = "${baseUrl}uploadUserImage";
     try {
       final formData = FormData.fromMap({
         'image': image == "" || image == null || image == 'null' ? null : await MultipartFile.fromFile(
@@ -423,6 +446,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       final response = await Dio().post(link, data: formData,
         options: Options(headers: {
           "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }),
       );
@@ -458,7 +482,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
-    String link = "${baseUrl}api/v1/passwordChange";
+    String link = "${baseUrl}passwordChange";
      try {
     final formData = FormData.fromMap({
       "current_password": oldPass.trim(),
@@ -468,6 +492,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     final response = await Dio().post(link, data: formData,
       options: Options(headers: {
         "Content-Type": "application/json",
+        'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
       }),);
     var item = response.data;
