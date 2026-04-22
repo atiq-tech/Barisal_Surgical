@@ -417,36 +417,46 @@ String myAddress = "Loading...";
                                   _selectedDate();
                                   //FocusScope.of(context).requestFocus(quantityFocusNode);
                                 }),
-                                child: TextFormField(
-                                  enabled: false,
-                                  decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
-                                      suffixIcon: const Padding(padding: EdgeInsets.only(left: 20),
-                                        child: Icon(Icons.calendar_month, color: Colors.black87, size: 16)),
-                                      border: const OutlineInputBorder(borderSide: BorderSide.none),
-                                      hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
+                                child: Container(
+                                  height: 25.0.h,
+                                  margin: EdgeInsets.only(top: 4.h),
+                                  decoration: ContDecoration.contDecoration,
+                                  child: TextFormField(
+                                    enabled: false,
+                                    decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
+                                        suffixIcon: const Padding(padding: EdgeInsets.only(left: 20),
+                                          child: Icon(Icons.calendar_month, color: Colors.black87, size: 16)),
+                                        border: const OutlineInputBorder(borderSide: BorderSide.none),
+                                        hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return null;
+                                      }
                                       return null;
-                                    }
-                                    return null;
-                                  },
+                                    },
+                                  ),
                                 ),
                               ):GestureDetector(
                                 onTap: (() {
                                 }),
-                                child: TextFormField(
-                                  enabled: false,
-                                  decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
-                                      border: const OutlineInputBorder(borderSide: BorderSide.none),
-                                      hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
+                                child: Container(
+                                  height: 25.0.h,
+                                  margin: EdgeInsets.only(top: 4.h, bottom: 4.h),
+                                  decoration: ContDecoration.contDecoration,
+                                  child: TextFormField(
+                                    enabled: false,
+                                    decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
+                                        border: const OutlineInputBorder(borderSide: BorderSide.none),
+                                        hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return null;
+                                      }
                                       return null;
-                                    }
-                                    return null;
-                                  },
+                                    },
+                                  ),
                                 ),
                               ),
                                 ),
@@ -544,6 +554,7 @@ String myAddress = "Loading...";
                                 ),
                               ):Container(
                                 height: 25.h,
+                                margin: EdgeInsets.only(bottom: 4.h),
                                 decoration:ContDecoration.contDecoration,
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),

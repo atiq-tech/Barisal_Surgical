@@ -1,4 +1,3 @@
-import 'package:barishal_surgical/auth/add_finger.dart';
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
@@ -13,7 +12,6 @@ import 'package:intl/intl.dart';
 import 'package:barishal_surgical/auth/global_logout.dart';
 import 'package:barishal_surgical/auth/login_screen.dart';
 import 'package:barishal_surgical/drawer_section/drawer_menu.dart';
-import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_report_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_list_screen.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,8 +49,10 @@ class _HomePageState extends State<HomePage> {
     attendanceEntry = '${sharedPreferences?.getString("attendanceEntry")}';
     attendanceRecord = '${sharedPreferences?.getString("attendanceRecord")}';
     visitEntry = '${sharedPreferences?.getString("visitEntry")}';
-    visitRecord = '${sharedPreferences?.getString("visitEntryRecord")}';
+    visitList = '${sharedPreferences?.getString("visitList")}';
   }
+
+
           
   String? userType = "";
   String? userName = "";
@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
   String? attendanceEntry;
   String? attendanceRecord;
   String? visitEntry;
-  String? visitRecord;
+  String? visitList;
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
   String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
@@ -336,14 +336,14 @@ class _HomePageState extends State<HomePage> {
                     return InkWell(
                       onTap: () {
                         if (index == 0){
-                          if (salesEntry == "true" || userType=="m"|| userType== "a") {
+                          if (orderEntry == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const OrderEntryScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
                         else if (index == 1) {
-                          if (salesRecord == "true" || userType=="m"|| userType== "a") {
+                          if (orderRecord == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) =>  OrderRecordScreen()));
                           } else {
                             showWarningDialog(context);
@@ -392,38 +392,28 @@ class _HomePageState extends State<HomePage> {
                           }
                         }
                         else if (index == 8) {
-                          if (customerEntry == "true" || userType=="m"|| userType== "a") {
+                          if (customerList == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerListScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        // else if (index == 9) {
-                        //   if (customerList == "true" || userType=="m"|| userType== "a") {
-                        //   Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerListScreen()));
-                        //   } else {
-                        //     showWarningDialog(context);
-                        //   }
-                        // }
-                        // else if (index == 10) {
-                        //   Navigator.push(context,MaterialPageRoute(builder: (context) =>  MyProfileScreen()));
-                        // }
                         else if (index == 9) {
                           Navigator.push(context,MaterialPageRoute(builder: (context) =>  LogInPage()));
                         }
                         else if(index == 10) {
-                           if (attendanceRecord == "true" || userType=="m"|| userType== "a") {
+                           if (visitEntry == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitEntryScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
                         else {
-                           //if (attendanceRecord == "true" || userType=="m"|| userType== "a") {
+                           if (visitList == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitHistoryScreen()));
-                          // } else {
-                          //   showWarningDialog(context);
-                          // }
+                          } else {
+                            showWarningDialog(context);
+                          }
                         }
                       },
                       child: Column(

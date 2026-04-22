@@ -1,5 +1,4 @@
 
-import 'package:barishal_surgical/auth/add_finger.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
@@ -8,7 +7,6 @@ import 'package:barishal_surgical/screens/modules/order_module_screens/order_rec
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barishal_surgical/auth/global_logout.dart';
-import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_report_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/category_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/my_profile_screen.dart';
@@ -69,7 +67,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
   String? attendanceEntry;
   String? attendanceRecord;
   String? visitEntry;
-  String? visitRecord;
+  String? visitList;
 
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
@@ -99,21 +97,17 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
     attendanceEntry = '${sharedPreferences?.getString("attendanceEntry")}';
     attendanceRecord = '${sharedPreferences?.getString("attendanceRecord")}';
     visitEntry = '${sharedPreferences?.getString("visitEntry")}';
-    visitRecord = '${sharedPreferences?.getString("visitEntryRecord")}';
+    visitList = '${sharedPreferences?.getString("visitList")}';
     print("userType===$userType");
     print("salesEntry===$salesEntry");
     print("salesRecord===$salesRecord");
-    print("stockReport===$stockReport");
+    print("salesInvoice===$salesInvoice");
     print("orderEntry===$orderEntry");
-    print("orderRecord===$orderRecord");
-    print("pendingOrder===$pendingOrder");
-    print("deliveryOrder===$deliveryOrder");
-    print("customerPayment===$customerPayment");
-    print("supplierPayment===$supplierPayment");
-    print("customerLedger===$customerLedger");
-    print("supplierLedger===$supplierLedger");
-    print("cashTrReport===$cashTrReport");
-    print("bankTrReport===$bankTrReport");
+    print("customerList===$customerList");
+    print("productList===$productList");
+    print("categoryList===$categoryList");
+    print("visitEntry===$visitEntry");
+    print("visitList===$visitList");
   }
   
   bool isClick = false;
@@ -217,7 +211,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                if(salesEntry == "true"|| userType=="m"|| userType== "a"){
+                if(orderEntry == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) =>  OrderEntryScreen()));
                 }
                 else{
@@ -228,7 +222,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                if(salesRecord == "true"|| userType=="m"|| userType== "a"){
+                if(orderRecord == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderRecordScreen()));
                 }
                 else{
@@ -328,7 +322,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                if(attendanceRecord == "true"|| userType=="m"|| userType== "a"){
+                if(visitEntry == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitEntryScreen()));
                 }
                 else{
@@ -339,13 +333,12 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                      const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitHistoryScreen()));
-                // if(attendanceRecord == "true"|| userType=="m"|| userType== "a"){
-                //   Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitEntryScreen()));
-                // }
-                // else{
-                //   showWarningDialog(context);
-                // }
+                if(visitList == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const VisitHistoryScreen()));
+                }
+                else{
+                  showWarningDialog(context);
+                }
               },
               child: Custom_List_Tile(imagePath: "images/vhistory.png", icon_name: "Visit List")),
           const Divider(height: 1.0,thickness: 1.0,),

@@ -599,7 +599,7 @@ class ApiService{
   }
 
   //==================get_visits List =======================
-  static fetchVisitApi(String? customerId,String? employeeId,String? dateFrom,String? dateTo) async {
+  static fetchVisitApi(BuildContext context,String? customerId,String? employeeId,String? dateFrom,String? dateTo) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
     String link = "${baseUrl}get_visits";
@@ -618,6 +618,13 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
+      print("get_visits=====$item");
+     if(item is! List){
+      if(item['status'] == 401 && item['success'] == false) {
+        ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+        LogoutService.fetchLogout(context);
+      }
+    }
       return List.from(item).map((e) => VisitsModel.fromMap(e)).toList();
     } catch (e) {
       print(e);

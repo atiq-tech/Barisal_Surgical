@@ -7,8 +7,8 @@ class VisitsProvider extends ChangeNotifier {
   static bool isVisitsLoading = false;
 
   List<VisitsModel> visitsList = [];
-  getVisits(String? customerId,String? employeeId,String? dateFrom,String? dateTo) async {
-    visitsList = await ApiService.fetchVisitApi(customerId, employeeId, dateFrom, dateTo);
+  getVisits(BuildContext context,String? customerId,String? employeeId,String? dateFrom,String? dateTo) async {
+    visitsList = await ApiService.fetchVisitApi(context, customerId, employeeId, dateFrom, dateTo);
     off();
     notifyListeners();
   }

@@ -1,209 +1,3 @@
-// library;
-// import 'package:barishal_surgical/common_widget/common_location.dart';
-// import 'package:barishal_surgical/common_widget/custom_appbar.dart';
-// import 'package:barishal_surgical/providers/administration_module_providers/visits_provider.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:provider/provider.dart';
-// import 'package:shimmer/shimmer.dart';
-// import '../../../utils/all_textstyle.dart';
-
-// class VisitListScreen extends StatefulWidget {
-//   const VisitListScreen({super.key,});
-//   @override
-//   State<VisitListScreen> createState() => _VisitListScreenState();
-// }
-
-// class _VisitListScreenState extends State<VisitListScreen> {
-//   Color getColor(Set<WidgetState> states) {
-//     return Colors.blue.shade200;
-//   }
-
-//   Color getColors(Set<WidgetState> states) {
-//     return Colors.white;
-//   }
-  
-//  String myAddress = "Loading...";
-//     double? myLat, myLong;
-//     Future<void> _initLocation() async {
-//     var result = await LocationService.fetchAndUploadLocation();
-//     if (result != null) {
-//       setState(() {
-//         myLat = result['lat'];
-//         myLong = result['long'];
-//         myAddress = result['address'];
-//       });
-//     }
-//   }
-
-//   @override
-//   void initState() {
-//     _initLocation();
-//     // TODO: implement initState
-//     super.initState();
-//     Provider.of<VisitsProvider>(context, listen: false).getVisits();
-//   }
-
-//   ScrollController mainScrollController = ScrollController();
-//   late final ScrollController _listViewScrollController = ScrollController()
-//     ..addListener(listViewScrollListener);
-//   ScrollPhysics _physics = const ScrollPhysics();
-
-//   void listViewScrollListener() {
-//     if (_listViewScrollController.offset >=
-//         _listViewScrollController.position.maxScrollExtent &&
-//         !_listViewScrollController.position.outOfRange) {
-//       if (mainScrollController.offset == 0) {
-//         mainScrollController.animateTo(50,
-//             duration: const Duration(milliseconds: 200), curve: Curves.linear);
-//       }
-//       setState(() {
-//         _physics = const NeverScrollableScrollPhysics();
-//       });
-//       print("bottom");
-//     }
-//   }
-//   void mainScrollListener() {
-//     if (mainScrollController.offset <=
-//         mainScrollController.position.minScrollExtent &&
-//         !mainScrollController.position.outOfRange) {
-//       setState(() {
-//         if (_physics is NeverScrollableScrollPhysics) {
-//           _physics = const ScrollPhysics();
-//           _listViewScrollController.animateTo(
-//               _listViewScrollController.position.maxScrollExtent - 50,
-//               duration: const Duration(milliseconds: 200),
-//               curve: Curves.linear);
-//         }
-//       });
-//       print("top");
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     mainScrollController.addListener(mainScrollListener);
-//     final allVisitsData = Provider.of<VisitsProvider>(context).visitsList;
-//     return Scaffold(
-//       appBar: CustomAppBar(title: "Visit List"),
-//       body: SingleChildScrollView(
-//         controller: mainScrollController,
-//         child: Column(
-//           children: [
-//             SizedBox(height: 10.0.h),
-//             VisitsProvider.isVisitsLoading
-//                 ? SizedBox(
-//                 height: MediaQuery.of(context).size.height / 1.43,
-//                 child: _buildShimmerEffect(allVisitsData.length))
-//                 : Container(
-//               height: MediaQuery.of(context).size.height / 1.43,
-//               width: double.infinity,
-//               padding: EdgeInsets.only(left: 8.w, right: 8.w,bottom: 20.h),
-//               child: SizedBox(
-//                 width: double.infinity,
-//                 height: double.infinity,
-//                 child: SingleChildScrollView(
-//                   controller: _listViewScrollController,
-//                   physics: _physics,
-//                   scrollDirection: Axis.vertical,
-//                   child: SingleChildScrollView(
-//                     scrollDirection: Axis.horizontal,
-//                     child: DataTable(
-//                       headingRowHeight: 20.h,
-//                       dataRowHeight: 20.h,
-//                       headingRowColor: WidgetStateColor.resolveWith((states) => Colors.blue.shade900),
-//                       showCheckboxColumn: true,
-//                       border: TableBorder.all(color: Colors.grey.shade400, width: 1),
-//                       columns: [
-//                         DataColumn(label: Expanded(child: Center(child: Text('Sl.',style: AllTextStyle.tableHeadTextStyle)))),
-//                         DataColumn(label: Expanded(child: Center(child: Text('Date',style: AllTextStyle.tableHeadTextStyle)))),
-//                         DataColumn(label: Expanded(child: Center(child: Text('Employee',style: AllTextStyle.tableHeadTextStyle)))),
-//                         DataColumn(label: Expanded(child: Center(child: Text('Customer',style: AllTextStyle.tableHeadTextStyle)))),
-//                         DataColumn(label: Expanded(child: Center(child: Text('Location',style: AllTextStyle.tableHeadTextStyle)))),
-//                         DataColumn(label: Expanded(child: Center(child: Text('Latitude',style: AllTextStyle.tableHeadTextStyle)))),
-//                         DataColumn(label: Expanded(child: Center(child: Text('Longitude',style: AllTextStyle.tableHeadTextStyle)))),
-//                         DataColumn(label: Expanded(child: Center(child: Text('Remark',style: AllTextStyle.tableHeadTextStyle)))),
-//                       ],
-//                       rows: List.generate(
-//                        allVisitsData.length,
-//                             (int index) => DataRow(
-//                           color: index % 2 == 0 ? WidgetStateProperty.resolveWith(getColor) : WidgetStateProperty.resolveWith(getColors),
-//                           cells: <DataCell>[
-//                             DataCell(Center(child: Text('${index +1}'))),
-//                             DataCell(Center(child: Text('${allVisitsData[index].date??""}'))),
-//                             DataCell(Center(child: Text('${allVisitsData[index].employeeName??""}'))),
-//                             DataCell(Center(child: Text('${allVisitsData[index].customerName??""}'))),
-//                             DataCell(Center(child: Text('${allVisitsData[index].location??""}'))),
-//                             DataCell(Center(child: Text('${allVisitsData[index].latitude??""}'))),
-//                             DataCell(Center(child: Text('${allVisitsData[index].longitude??""}'))),
-//                             DataCell(Center(child: Text('${allVisitsData[index].remark??""}'))),
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             SizedBox(height: 15.0.h),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//   Widget _buildShimmerEffect(int length) {
-//     return ListView.builder(
-//       itemCount: length+1,
-//       itemBuilder: (context, index) {
-//         return Padding(
-//           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
-//           child: Shimmer.fromColors(
-//             baseColor: Colors.grey.shade300,
-//             highlightColor: Colors.grey.shade100,
-//             child: Container(
-//               height: 15.h,
-//               decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(2.r)),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
@@ -283,12 +77,14 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
   }
   
   String? userEmployeeId = "";
+  String? userEmployeeName = "";
   String userName = "";
   String userType = "";
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
     userEmployeeId = "${sharedPreferences?.getString('employeeId')}";
+    userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
     userName = "${sharedPreferences?.getString('userName')}";
     userType = "${sharedPreferences?.getString('userType')}";
     print("userEmployeeId==== $userEmployeeId");
@@ -487,6 +283,7 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                           child: Container(
                             key: _key,
                             padding: EdgeInsets.symmetric(horizontal: 6.w),
+                            margin: EdgeInsets.only(top: 3.0.h),
                             height: 25.h,
                             decoration: ContDecoration.contDecoration,
                             child: Row(
@@ -659,7 +456,7 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                                 padding: EdgeInsets.only(top: 5.0.h,left: 4.0.w),
                                 margin: EdgeInsets.only(bottom: 5.0.h),
                                 decoration: ContDecoration.contDecoration,
-                                child: Text(userName,style: AllTextStyle.textValueStyle)
+                                child: Text(userEmployeeName!,style: AllTextStyle.textValueStyle)
                             ),
                           ),
                         ],
@@ -755,9 +552,9 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                         child: InkWell(
                           onTap: () async {
                               VisitsProvider().on();
-                              Provider.of<VisitsProvider>(context, listen: false).getVisits(
+                              Provider.of<VisitsProvider>(context, listen: false).getVisits(context,
                                 customerId ?? '',
-                                userType == "m"||userType == "a" ? "$employeeId" : userEmployeeId,
+                                userType == "m"||userType == "a" ? employeeId : userEmployeeId,
                                 "$backEndFirstDate",
                                 "$backEndSecondtDate",
                               );

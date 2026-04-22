@@ -53,12 +53,15 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
     userType = "${sharedPreferences?.getString('userType')}";
-    userEmployee = "${sharedPreferences?.getString('employeeId')}";
+    userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
+    userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
     print("profile hoome userType====  $userType");
-    print("userEmployee====  $userEmployee");
+    print("userEmployeeID====  $userEmployeeID");
+    print("userEmployeeName====  $userEmployeeName");
   }
   String? userType = "";
-  String? userEmployee = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
   bool isAllTypeClicked = true;
   bool isRetailListClicked = false;
   bool isWholesaleListClicked = false;
@@ -211,7 +214,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                         Expanded(flex: 1, child: Text(":",style:AllTextStyle.textFieldHeadStyle)),
                         Expanded(
                           flex: 11,
-                          child: Container(
+                          child: userType =="a"|| userType == "m" ? Container(
                             height: 25.0.h,
                             margin: EdgeInsets.only(bottom: 4.h),
                             child: TypeAheadField<EmployeesModel>(
@@ -266,7 +269,15 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                 });
                               },
                             ),
-                          ),
+                          ): Container(
+                                height: 25.h,
+                                margin: EdgeInsets.only(bottom: 4.h),
+                                decoration:ContDecoration.contDecoration,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
+                                  child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
+                                )
+                              ),
                         ),
                       ],
                     ):SizedBox(),
@@ -286,23 +297,23 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","${sharedPreferences?.getString('employeeId')}");
                               }else if(data == 'retail'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"retail","");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"retail","${sharedPreferences?.getString('employeeId')}");
                               }else if(data == 'wholesale'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"wholesale","");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"wholesale","${sharedPreferences?.getString('employeeId')}");
                               }
                               else if(data == 'employee'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","$_selectEmployeeId");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"",userType =="a"|| userType == "m" ? _selectEmployeeId : userEmployeeID);
                               }
                             },
                             child: Container(

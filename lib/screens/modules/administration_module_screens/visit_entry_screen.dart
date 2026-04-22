@@ -146,12 +146,7 @@ class _VisitEntryScreenState extends State<VisitEntryScreen> {
     getCurrentLocation();
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
-    Provider.of<VisitsProvider>(context, listen: false).getVisits(
-      "",
-      userType == "a" || userType == "m" ? "" : userEmployeeId,
-      "",
-      "",
-    );
+    Provider.of<VisitsProvider>(context, listen: false).visitsList = [];
   }
 
   ScrollController mainScrollController = ScrollController();
@@ -505,7 +500,7 @@ class _VisitEntryScreenState extends State<VisitEntryScreen> {
                 
                         var result = await addVisit(context);
                         if (result == "true") {
-                          Provider.of<VisitsProvider>(context, listen: false).getVisits(
+                          Provider.of<VisitsProvider>(context, listen: false).getVisits(context,
                             customerId??"",
                             userType == "a" || userType == "m" ? employeeId??"" : userEmployeeId??"",
                             "",

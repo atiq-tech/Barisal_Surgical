@@ -84,17 +84,18 @@ class _LogInPageState extends State<LogInPage> {
           sharedPreferences?.setString("salesinvoice", "${item["access"].contains("salesinvoice")}");
           sharedPreferences?.setString("salesrecord", "${item["access"].contains("salesrecord")}");
           sharedPreferences?.setString("customerlist", "${item["access"].contains("customerlist")}");
-          sharedPreferences?.setString("order_entry", "${item["access"].contains("order_entry")}");
-          sharedPreferences?.setString("orderRecord", "${item["access"].contains("orderRecord")}");
+          sharedPreferences?.setString("order_entry", "${item["access"].contains("order")}");
+          sharedPreferences?.setString("orderRecord", "${item["access"].contains("order_record")}");
           sharedPreferences?.setString("customer", "${item["access"].contains("customer")}");
           sharedPreferences?.setString("productlist", "${item["access"].contains("productlist")}");
           sharedPreferences?.setString("category", "${item["access"].contains("category")}");
           sharedPreferences?.setString("currentStock", "${item["access"].contains("currentStock")}");
           sharedPreferences?.setString("attendanceEntry", "${item["access"].contains("attendance_entry")}");
           sharedPreferences?.setString("attendanceRecord", "${item["access"].contains("attendanceList")}");
-          sharedPreferences?.setString("visitEntry", "${item["access"].contains("visit_entry")}");
-          sharedPreferences?.setString("visitEntryRecord", "${item["access"].contains("visit_entry_record")}");
+          sharedPreferences?.setString("visitEntry", "${item["access"].contains("visit")}");
+          sharedPreferences?.setString("visitList", "${item["access"].contains("visit_list")}");
         }
+         
          
         setState(() {
           isLogInBtnClk = false;
