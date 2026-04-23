@@ -1,4 +1,5 @@
 import 'package:barishal_surgical/common_widget/common_location.dart';
+import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
@@ -408,12 +409,19 @@ class _HomePageState extends State<HomePage> {
                             showWarningDialog(context);
                           }
                         }
-                        else {
-                           if (visitList == "true" || userType=="m"|| userType== "a") {
+                         else if(index == 11) {
+                           if (visitEntry == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitHistoryScreen()));
                           } else {
                             showWarningDialog(context);
                           }
+                        }
+                        else {
+                           //if (visitList == "true" || userType=="m"|| userType== "a") {
+                           Navigator.push(context,MaterialPageRoute(builder: (context) => const AttendanceEntryScreen()));
+                          // } else {
+                          //   showWarningDialog(context);
+                          // }
                         }
                       },
                       child: Column(

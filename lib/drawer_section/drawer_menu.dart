@@ -1,4 +1,5 @@
 
+import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
@@ -330,7 +331,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                 }
               },
               child: Custom_List_Tile(imagePath: "images/visite.png", icon_name: "Visit Entry")),
-                     const Divider(height: 1.0,thickness: 1.0,),
+               const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
                 if(visitList == "true"|| userType=="m"|| userType== "a"){
@@ -341,6 +342,17 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                 }
               },
               child: Custom_List_Tile(imagePath: "images/vhistory.png", icon_name: "Visit List")),
+          const Divider(height: 1.0,thickness: 1.0,),
+          InkWell(
+              onTap: (){
+                //if(visitList == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AttendanceEntryScreen()));
+                // }
+                // else{
+                //   showWarningDialog(context);
+                // }
+              },
+              child: Custom_List_Tile(imagePath: "images/attend.png", icon_name: "Attendance")),
           const Divider(height: 1.0,thickness: 1.0,),
           
           InkWell(

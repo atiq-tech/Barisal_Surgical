@@ -1,3 +1,5 @@
+import 'package:barishal_surgical/utils/app_colors.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -22,8 +24,8 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCheckInStatus();
-    _checkAndResetCheckInStatus();
+    // _loadCheckInStatus();
+    // _checkAndResetCheckInStatus();
   }
 
   void _loadCheckInStatus() async {
@@ -52,6 +54,40 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
     });
   }
 
+
+  final Dio _dio = Dio();
+  Future<bool> checkInApi(Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        "YOUR_CHECK_IN_API_URL",
+        data: data,
+      );
+
+      print("Check In Response: ${response.data}");
+      return response.statusCode == 200;
+
+    } catch (e) {
+      print("Check In Error: $e");
+      return false;
+    }
+  }
+
+  Future<bool> checkOutApi(Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        "YOUR_CHECK_OUT_API_URL",
+        data: data,
+      );
+
+      print("Check Out Response: ${response.data}");
+      return response.statusCode == 200;
+
+    } catch (e) {
+      print("Check Out Error: $e");
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String currentTime = DateFormat.jm().format(DateTime.now());
@@ -64,7 +100,7 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.teal.shade800,
+                  color: AppColors.isOrder,
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.r), bottomRight: Radius.circular(15.r)),
                 ),
                 child: Padding(
@@ -113,7 +149,7 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                               buttonText: isCheckInCompleted ? "        Checked In" : "      Check In",
                                               buttontextstyle: TextStyle(fontSize: 16.sp, color: Colors.white),
                                               buttonWidget: Icon(size: 18.sp, Icons.arrow_forward_ios_rounded, color: Colors.grey),
-                                              activeColor: isCheckInCompleted ? Colors.red : Colors.teal,
+                                              activeColor: isCheckInCompleted ? Colors.red : AppColors.appColor,
                                               onWaitingProcess: () {
                                                 if (!isCheckInCompleted) {
                                                   Future.delayed(const Duration(seconds: 2), () => setState(() => isFinished = true),
@@ -121,22 +157,48 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                                 }
                                               },
                                               isFinished: isCheckInCompleted ? false : isFinished,
-                                              onFinish: isCheckInCompleted ? () {} : () {
+                                              onFinish: isCheckInCompleted ? () {} : () async {
+
+                                              String date = DateFormat("yyyy-MM-dd").format(DateTime.now());
+                                              String time = DateFormat("HH:mm:ss").format(DateTime.now());
+
+                                              Map<String, dynamic> body = {
+                                                "employee_id": "11", // dynamic করবা
+                                                "date": date,
+                                                "time": time,
+                                                "type": "in"
+                                              };
+
+                                              bool success = await checkInApi(body);
+
+                                              if (success) {
                                                 QuickAlert.show(
                                                   context: context,
                                                   type: QuickAlertType.success,
                                                   title: 'Success!',
                                                   text: 'Check In Successfully!',
                                                   showConfirmBtn: false,
-                                                  barrierDismissible: true,
                                                   autoCloseDuration: const Duration(seconds: 3),
                                                 );
+
                                                 setState(() {
                                                   isFinished = false;
                                                   isCheckInCompleted = true;
                                                 });
+
                                                 _saveCheckInStatus(true);
-                                              },
+
+                                              } else {
+                                                QuickAlert.show(
+                                                  context: context,
+                                                  type: QuickAlertType.error,
+                                                  title: 'Failed!',
+                                                  text: 'Check In Failed!',
+                                                );
+
+                                                setState(() => isFinished = false);
+                                              }
+                                            }
                                             ),
                                             if (isCheckInCompleted)
                                               Positioned.fill(child: Container(color: Colors.transparent)),
@@ -166,9 +228,9 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                         mainAxisAlignment:
                                         MainAxisAlignment.start,
                                         children: [
-                                          Image.asset(height: 25.h, width: 25.w, "images/checked.png"),
-                                          SizedBox(width: 8.w),
-                                          Text("Check Out", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700)),
+                                          //Image.asset(height: 25.h, width: 25.w, "images/checked.png"),
+                                          //SizedBox(width: 8.w),
+                                          Text("⏰  Check Out", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700)),
                                         ],
                                       ),
                                       SizedBox(height: 4.h),
@@ -184,24 +246,49 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                           buttonText: '       Check Out',
                                           buttontextstyle: TextStyle(fontSize: 16.sp, color: Colors.white),
                                           buttonWidget: Icon(size: 18.sp, Icons.arrow_forward_ios_rounded, color: Colors.grey,),
-                                          activeColor: Colors.teal,
+                                          activeColor: AppColors.appColor,
                                           onWaitingProcess: () {
                                             Future.delayed(const Duration(seconds: 2), () => setState(() => isFinishedTwo = true),
                                             );
                                           },
                                           isFinished: isFinishedTwo,
-                                          onFinish: () {
+                                          onFinish: () async {
+
+                                          String date = DateFormat("yyyy-MM-dd").format(DateTime.now());
+                                          String time = DateFormat("HH:mm:ss").format(DateTime.now());
+
+                                          Map<String, dynamic> body = {
+                                            "employee_id": "11",
+                                            "date": date,
+                                            "time": time,
+                                            "type": "out"
+                                          };
+
+                                          bool success = await checkOutApi(body);
+
+                                          if (success) {
                                             QuickAlert.show(
                                               context: context,
                                               type: QuickAlertType.success,
                                               title: 'Success!',
                                               text: 'Check Out Successfully!',
                                               showConfirmBtn: false,
-                                              barrierDismissible: true,
                                               autoCloseDuration: const Duration(seconds: 3),
                                             );
+
                                             setState(() => isFinishedTwo = false);
-                                          },
+
+                                          } else {
+                                            QuickAlert.show(
+                                              context: context,
+                                              type: QuickAlertType.error,
+                                              title: 'Failed!',
+                                              text: 'Check Out Failed!',
+                                            );
+
+                                            setState(() => isFinishedTwo = false);
+                                          }
+                                        }
                                         ),
                                       )
                                     ],
@@ -223,10 +310,10 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(top: 20.h),
+                        padding: EdgeInsets.only(top: 15.h),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.teal.shade900,
+                            color: AppColors.isOrder,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.15),
@@ -261,7 +348,7 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                       ),
                       Expanded(
                         child: ListView.builder(
-                          itemCount: 35,
+                          itemCount: 10,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
