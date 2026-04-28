@@ -53,8 +53,6 @@ class _HomePageState extends State<HomePage> {
     visitList = '${sharedPreferences?.getString("visitList")}';
   }
 
-
-          
   String? userType = "";
   String? userName = "";
   String? salesEntry;
@@ -121,7 +119,6 @@ class _HomePageState extends State<HomePage> {
     _initLocation();
     _getLocation();
     _initializeData();
-    // TODO: implement initState
     super.initState();
     _scrollController = ScrollController();
   }
@@ -287,44 +284,6 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // GestureDetector(
-              //  onTap: () {
-              //    Navigator.pushAndRemoveUntil(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => const AttendanceAbsencePage()),
-              //     (route) => false,
-              //   );
-              //  },
-              //   child: Card(
-              //    elevation: 9,
-              //    color: Colors.purple,
-              //    shape: RoundedRectangleBorder(
-              //     borderRadius: BorderRadius.circular(100.r)
-              //    ),
-              //     child: Padding(
-              //       padding: EdgeInsets.symmetric(vertical: 5.h,horizontal: 8.w),
-              //       child: Row(
-              //         mainAxisSize: MainAxisSize.min,
-              //         children: [
-              //           Icon(
-              //             Icons.logout,
-              //             color: Colors.white,
-              //             size: 16.r,
-              //           ),
-              //           SizedBox(width: 5.w),
-              //           Text(
-              //             "Out Time",
-              //             style: TextStyle(
-              //               fontSize: 11.sp,
-              //               fontWeight: FontWeight.bold,
-              //               color: Colors.white,
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
               Container(
                 margin: EdgeInsets.only(top: 5.h),
                 height: MediaQuery.of(context).size.height,

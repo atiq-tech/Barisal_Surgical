@@ -29,13 +29,13 @@ class AllTextStyle {
   );
 
   static TextStyle attendTrueTextStyle = TextStyle(
-      fontSize: 14.sp,
+      fontSize: 11.sp,
       color: Colors.teal,
       fontWeight: FontWeight.w600,
     );
 
   static TextStyle attendDateTextStyle = TextStyle(
-    fontSize: 14.sp,
+    fontSize: 11.sp,
     color: const Color(0xFF1271B0),
     fontWeight: FontWeight.bold,
   );

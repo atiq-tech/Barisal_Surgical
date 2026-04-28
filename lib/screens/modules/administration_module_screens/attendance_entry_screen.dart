@@ -26,8 +26,9 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
     super.initState();
     // _loadCheckInStatus();
     // _checkAndResetCheckInStatus();
+    /// check in na dile check out button ta active hobe na,
   }
-
+/// check in na dile check out button ta active hobe na,
   void _loadCheckInStatus() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -142,7 +143,7 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                       SizedBox(height: 12.h),
                                       Spacer(),
                                       SizedBox(
-                                        height: 35.h,
+                                        height: 30.h,
                                         child: Stack(
                                           children: [
                                             SwipeableButtonView(
@@ -158,44 +159,34 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                               },
                                               isFinished: isCheckInCompleted ? false : isFinished,
                                               onFinish: isCheckInCompleted ? () {} : () async {
-
                                               String date = DateFormat("yyyy-MM-dd").format(DateTime.now());
                                               String time = DateFormat("HH:mm:ss").format(DateTime.now());
-
                                               Map<String, dynamic> body = {
-                                                "employee_id": "11", // dynamic করবা
+                                                "employee_id": "11", 
                                                 "date": date,
                                                 "time": time,
                                                 "type": "in"
                                               };
-
                                               bool success = await checkInApi(body);
-
                                               if (success) {
-                                                QuickAlert.show(
-                                                  context: context,
+                                                QuickAlert.show(context: context,
                                                   type: QuickAlertType.success,
                                                   title: 'Success!',
                                                   text: 'Check In Successfully!',
                                                   showConfirmBtn: false,
                                                   autoCloseDuration: const Duration(seconds: 3),
                                                 );
-
                                                 setState(() {
                                                   isFinished = false;
                                                   isCheckInCompleted = true;
                                                 });
-
                                                 _saveCheckInStatus(true);
-
                                               } else {
-                                                QuickAlert.show(
-                                                  context: context,
+                                                QuickAlert.show(context: context,
                                                   type: QuickAlertType.error,
                                                   title: 'Failed!',
                                                   text: 'Check In Failed!',
                                                 );
-
                                                 setState(() => isFinished = false);
                                               }
                                             }
@@ -238,10 +229,10 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                         padding: EdgeInsets.only(left: 35.w),
                                         child: Text(currentTime, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700)),
                                       ),
-                                      SizedBox(height: 12.h,),
+                                      SizedBox(height: 12.h),
                                       Spacer(),
                                       SizedBox(
-                                        height: 35.h,
+                                        height: 30.h,
                                         child: SwipeableButtonView(
                                           buttonText: '       Check Out',
                                           buttontextstyle: TextStyle(fontSize: 16.sp, color: Colors.white),
@@ -253,39 +244,30 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                                           },
                                           isFinished: isFinishedTwo,
                                           onFinish: () async {
-
                                           String date = DateFormat("yyyy-MM-dd").format(DateTime.now());
                                           String time = DateFormat("HH:mm:ss").format(DateTime.now());
-
                                           Map<String, dynamic> body = {
                                             "employee_id": "11",
                                             "date": date,
                                             "time": time,
                                             "type": "out"
                                           };
-
                                           bool success = await checkOutApi(body);
-
                                           if (success) {
-                                            QuickAlert.show(
-                                              context: context,
+                                            QuickAlert.show(context: context,
                                               type: QuickAlertType.success,
                                               title: 'Success!',
                                               text: 'Check Out Successfully!',
                                               showConfirmBtn: false,
                                               autoCloseDuration: const Duration(seconds: 3),
                                             );
-
                                             setState(() => isFinishedTwo = false);
-
                                           } else {
-                                            QuickAlert.show(
-                                              context: context,
+                                            QuickAlert.show(context: context,
                                               type: QuickAlertType.error,
                                               title: 'Failed!',
                                               text: 'Check Out Failed!',
                                             );
-
                                             setState(() => isFinishedTwo = false);
                                           }
                                         }
@@ -305,110 +287,59 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                 ),
               ),
               Expanded(
-                child: Container(
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: 15.h),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.isOrder,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.15),
-                                offset: const Offset(0, 4),
-                                blurRadius: 8,
+              child: Container(
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 10.h),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // HEADER TABLE
+                        DataTable(
+                          headingRowHeight: 20.h,
+                          dataRowHeight: 20.h,
+                          headingRowColor: MaterialStateProperty.resolveWith((states) => AppColors.isOrder),
+                          border: TableBorder.all(color: Colors.grey.shade300),
+                          columns: [
+                            DataColumn(label: Center(child: Text("SL", style: AllTextStyle.tableHeadTextStyle))),
+                            DataColumn(label: Center(child: Text("Date", style: AllTextStyle.tableHeadTextStyle))),
+                            DataColumn(label: Center(child: Text("Check In", style: AllTextStyle.tableHeadTextStyle))),
+                            DataColumn(label: Center(child: Text("Check Out", style: AllTextStyle.tableHeadTextStyle))),
+                          ],
+                          rows: List.generate(
+                            25,
+                           (index) => DataRow(
+                              color: MaterialStateProperty.resolveWith(
+                                (states) => index % 2 == 0 ? Colors.white : const Color.fromARGB(255, 228, 205, 255),
                               ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 20.w),
-                            child: Table(
-                              columnWidths: const {
-                                0: FlexColumnWidth(1),
-                                1: FlexColumnWidth(2),
-                                2: FlexColumnWidth(2),
-                                3: FlexColumnWidth(2),
-                              },
-                              border: TableBorder(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
-                              children: [
-                                TableRow(
-                                  children: [
-                                    TableCell(child: Center(child: Text("SL", style: AllTextStyle.tableHeadTextStyle))),
-                                    TableCell(child: Center(child: Text("Date", style: AllTextStyle.tableHeadTextStyle))),
-                                    TableCell(child: Center(child: Text("Check In", style: AllTextStyle.tableHeadTextStyle))),
-                                    TableCell(child: Center(child: Text("Check Out", style: AllTextStyle.tableHeadTextStyle))),
-                                  ],
-                                ),
+                              cells: [
+                                DataCell(Center(child: Text("${index + 1}", style: AllTextStyle.attendDateTextStyle))),
+                                DataCell(Center(child: Text("2025-02-22",style: AllTextStyle.attendDateTextStyle))),
+                                DataCell(
+                                Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset("images/checked.png",height: 18.h,width: 18.w),
+                                      SizedBox(width: 5.w),
+                                      Text(currentTime,style: AllTextStyle.attendTrueTextStyle),
+                                    ],
+                                ))),
+                                DataCell(Center(child: Text("⏰ $currentTime",style: TextStyle(color: Colors.red,fontSize: 11.0.sp,fontWeight: FontWeight.bold)))),
                               ],
                             ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: 10,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(5.r),
-                                  boxShadow: [
-                                    BoxShadow(color: Colors.grey.withOpacity(0.2), offset: const Offset(0, 4), blurRadius: 8,),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(1.r),
-                                  child: Table(
-                                    columnWidths: const {
-                                      0: FlexColumnWidth(1),
-                                      1: FlexColumnWidth(2),
-                                      2: FlexColumnWidth(2),
-                                      3: FlexColumnWidth(2),
-                                    },
-                                    border: TableBorder.symmetric(inside: BorderSide(color: Colors.teal)),
-                                    children: [
-                                      TableRow(
-                                        children: [
-                                          TableCell(child: Center(child: Text("${index+1}", style: AllTextStyle.attendDateTextStyle))),
-                                          TableCell(child: Center(child: Text("2025-02-22", style: AllTextStyle.attendDateTextStyle))),
-                                          TableCell(
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Image.asset("images/checked.png", height: 20.h, width: 20.w),
-                                                SizedBox(width: 2.w),
-                                                Text("08:00 AM", style: AllTextStyle.attendTrueTextStyle),
-                                              ],
-                                            ),
-                                          ),
-                                          TableCell(
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                               // Image.asset("images/out.png", height: 16.h, width: 16.w, color: const Color.fromARGB(255, 240, 89, 89)),
-                                                SizedBox(width: 5.w),
-                                                Text("⏰00.00PM", style: TextStyle(color: Colors.red,fontSize: 14.0.sp,fontWeight: FontWeight.bold)),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                        SizedBox(height: 100.h),
+                      ],
+                    ),
                   ),
                 ),
               ),
+             )
             ],
           ),
         ],
