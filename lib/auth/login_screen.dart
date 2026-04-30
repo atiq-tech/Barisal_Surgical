@@ -49,6 +49,7 @@ class _LogInPageState extends State<LogInPage> {
         sharedPreferences?.setString("userId", "${item["data"]["id"]}");
         sharedPreferences?.setString("userType", "${item["data"]["userType"]}");
         sharedPreferences?.setString('employeeId', "${item["data"]["employee_id"]}");
+        sharedPreferences?.setString('employeeCode', "${item["data"]["employee_code"]}");
         sharedPreferences?.setString('employeeName', "${item["data"]["employee_name"]}");
         sharedPreferences?.setString('image_name', "${item["data"]["image_name"]}");
         sharedPreferences?.setString('employeePhone', "${item["data"]["employee_phone"]}");
@@ -66,6 +67,7 @@ class _LogInPageState extends State<LogInPage> {
         print('employeeId=====${sharedPreferences?.getString('employeeId')}');
         print('sessionId===== ${sharedPreferences?.getString('sessionId')}');
         print('userName===== ${sharedPreferences?.getString('userName')}');
+        print('employeeCode===== ${sharedPreferences?.getString('employeeCode')}');
 
         GetStorage().write("token", "${item["token"]}");
         GetStorage().write("id", "${item["data"]["id"]}");

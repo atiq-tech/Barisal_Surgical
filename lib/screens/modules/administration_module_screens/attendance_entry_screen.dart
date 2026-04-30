@@ -1,5 +1,6 @@
 import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:barishal_surgical/utils/const_model.dart';
+import 'package:barishal_surgical/utils/utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,9 +25,27 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
 
   final Dio _dio = Dio();
 
+  String? firstPickedDate;
+  var backEndFirstDate;
+  void _selectedDate() async {
+    final selectedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1950),
+        lastDate: DateTime(2050));
+    if (selectedDate != null) {
+      setState(() {
+        firstPickedDate = Utils.formatFrontEndDate(selectedDate);
+        backEndFirstDate = Utils.formatBackEndDate(selectedDate);
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
+    backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     _loadCheckInStatus();
     _checkAndResetCheckInStatus();
   }
@@ -286,6 +305,63 @@ class _AttendanceEntryScreenState extends State<AttendanceEntryScreen> {
                           ],
                         ),
                         SizedBox(height: 8.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(flex: 3,child: Text("Date to", style: AllTextStyle.saveButtonTextStyle)),
+                            Expanded(flex: 1,child: Text(":", style: AllTextStyle.saveButtonTextStyle)),
+                            Expanded(
+                              flex: 9,
+                              child: GestureDetector(
+                                onTap: (() {
+                                  _selectedDate();
+                                  //FocusScope.of(context).requestFocus(quantityFocusNode);
+                                }),
+                                child: Container(
+                                  height: 25.0.h,
+                                  decoration: ContDecoration.contDecoration,
+                                  child: TextFormField(
+                                    enabled: false,
+                                    decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
+                                        suffixIcon: const Padding(padding: EdgeInsets.only(left: 20),
+                                          child: Icon(Icons.calendar_month, color: Colors.black87, size: 16)),
+                                        border: const OutlineInputBorder(borderSide: BorderSide.none),
+                                        hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return null;
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              )
+                              // :GestureDetector(
+                              //   onTap: (() {
+                              //   }),
+                              //   child: Container(
+                              //     height: 25.0.h,
+                              //     margin: EdgeInsets.only(bottom: 4.h),
+                              //     decoration: ContDecoration.contDecoration,
+                              //     child: TextFormField(
+                              //       enabled: false,
+                              //       decoration: InputDecoration(contentPadding: const EdgeInsets.only(left: 5),
+                              //           border: const OutlineInputBorder(borderSide: BorderSide.none),
+                              //           hintText: firstPickedDate, hintStyle:AllTextStyle.dropDownlistStyle
+                              //       ),
+                              //       validator: (value) {
+                              //         if (value == null || value.isEmpty) {
+                              //           return null;
+                              //         }
+                              //         return null;
+                              //       },
+                              //     ),
+                              //   ),
+                              // ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
