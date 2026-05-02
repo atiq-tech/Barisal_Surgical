@@ -39,6 +39,7 @@ class DrawerDemoPage extends StatefulWidget {
 class _DrawerDemoPageState extends State<DrawerDemoPage> {
   String? userImage = "";
   String? userType = "";
+  String? employeeCode = "";
   String isImage = "";
   String isColor = "";
   String isSize = "";
@@ -73,6 +74,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
+    employeeCode = "${sharedPreferences?.getString('employeeCode')}";
     isColor= "${sharedPreferences?.getString('is_color')}";
     isSize= "${sharedPreferences?.getString('is_size')}";
     userImage = "${sharedPreferences?.getString('userImage')}";
@@ -346,7 +348,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           InkWell(
               onTap: (){
                 //if(visitList == "true"|| userType=="m"|| userType== "a"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AttendanceEntryScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AttendanceEntryScreen(employeeCode: employeeCode!)));
                 // }
                 // else{
                 //   showWarningDialog(context);

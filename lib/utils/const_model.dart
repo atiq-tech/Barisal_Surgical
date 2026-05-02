@@ -1,7 +1,7 @@
 
 String imageBaseUrl = "https://api.swiftsurgical.net/";//imgUrlbase
 String baseUrl = "https://api.swiftsurgical.net/api/v1/";//sub
-String hrUrl = "https://hr.swiftsurgical.net/api/";  //hr
+String hrUrl = "https://hr.swiftsurgical.net/public/api/";  //hr
 String apiSecretKey = 'BSHR210';
 
 List dashboardItems = [

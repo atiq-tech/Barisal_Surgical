@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/providers/administration_module_providers/employee_attendance_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/visits_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_details_provider.dart';
@@ -98,6 +99,7 @@ class MyApp extends StatelessWidget {
          ChangeNotifierProvider<SalesDetailsProvider>(create: (_) => SalesDetailsProvider()),
          ChangeNotifierProvider<SalesInvoiceProvider>(create: (_) => SalesInvoiceProvider()),
          ChangeNotifierProvider<OrdersInvoiceProvider>(create: (_) => OrdersInvoiceProvider()),
+         ChangeNotifierProvider<EmployeeAttendanceProvider>(create: (_) => EmployeeAttendanceProvider()),
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,

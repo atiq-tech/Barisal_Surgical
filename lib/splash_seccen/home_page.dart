@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
     userName = "${sharedPreferences?.getString('userName')}";
+    employeeCode = "${sharedPreferences?.getString('employeeCode')}";
     userType = "${sharedPreferences?.getString('userType')}";
     salesEntry = '${sharedPreferences?.getString("sales")}';
     salesInvoice = '${sharedPreferences?.getString("salesinvoice")}';
@@ -55,6 +56,7 @@ class _HomePageState extends State<HomePage> {
 
   String? userType = "";
   String? userName = "";
+  String? employeeCode = "";
   String? salesEntry;
   String? salesRecord;
   String? salesInvoice;
@@ -377,7 +379,7 @@ class _HomePageState extends State<HomePage> {
                         }
                         else {
                            //if (visitList == "true" || userType=="m"|| userType== "a") {
-                           Navigator.push(context,MaterialPageRoute(builder: (context) => const AttendanceEntryScreen()));
+                           Navigator.push(context,MaterialPageRoute(builder: (context) => AttendanceEntryScreen(employeeCode: employeeCode!)));
                           // } else {
                           //   showWarningDialog(context);
                           // }

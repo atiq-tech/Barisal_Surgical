@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/models/administration_module_models/employee_attendance_model.dart';
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
 import 'package:barishal_surgical/models/administration_module_models/visits_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_details_model.dart';
@@ -631,6 +632,59 @@ class ApiService{
     }
     return null;
   }
+
+  //==================get_visits List =======================
+  static Future<List<EmployeeAttendanceModel>> fetchEmployeeAttendance(
+  BuildContext context,
+  String? employeeId,
+  String? dateFrom,
+  String? dateTo,
+) async {
+
+  String link = "${hrUrl}get_employee_attendance";
+
+  try {
+    Response response = await Dio().post(
+      link,
+      data: {
+        "employee_id": employeeId,
+        "from_date": dateFrom,
+        "to_date": dateTo,
+      },
+      options: Options(
+        headers: {
+          "Authorization": "Bearer $apiSecretKey",
+          "Content-Type": "application/json", // ✅ FIX (406 issue solve)
+        },
+      ),
+    );
+
+    print("STATUS CODE: ${response.statusCode}");
+    print("RESPONSE: ${response.data}");
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+
+      /// 🔥 safe list extract
+      List list = data["attendance"] ?? [];
+
+      return list
+          .map((e) => EmployeeAttendanceModel.fromMap(e))
+          .toList();
+    } else {
+      return [];
+    }
+
+  } on DioException catch (e) {
+    print("Dio Error Status: ${e.response?.statusCode}");
+    print("Dio Error Data: ${e.response?.data}");
+  } catch (e) {
+    print("Error: $e");
+  }
+
+  /// ❌ never return null
+  return [];
+}
 
   // //==================All Employee List=======================
   // static fetchAllEmployee() async {
