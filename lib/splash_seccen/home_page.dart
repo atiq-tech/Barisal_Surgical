@@ -1,10 +1,14 @@
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_entry_screen.dart';
+import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_payment_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_record_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_due_list_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_payment_due_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/ecp_sales_report_screen.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -339,38 +343,66 @@ class _HomePageState extends State<HomePage> {
                             showWarningDialog(context);
                           }
                         }
-                        else if (index == 6) {
+                         else if (index == 6){
+                          //if (salesEntry == "true" || userType=="m"|| userType== "a") {
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => const ECPSalesReportScreen()));
+                          // } else {
+                          //   showWarningDialog(context);
+                          // }
+                        }
+                        else if (index == 7) {
                           if (productList == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const ProductListScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        else if (index == 7) {
+                        else if (index == 8) {
                           if (categoryList == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const CategoryListScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        else if (index == 8) {
+                        else if (index == 9) {
+                          //if (customerList == "true" || userType=="m"|| userType== "a") {
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerPaymentScreen()));
+                          // } else {
+                          //   showWarningDialog(context);
+                          // }
+                        }
+                        else if (index == 10) {
+                          //if (customerList == "true" || userType=="m"|| userType== "a") {
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerPaymentDueScreen()));
+                          // } else {
+                          //   showWarningDialog(context);
+                          // }
+                        }
+                        else if (index == 11) {
+                          //if (customerList == "true" || userType=="m"|| userType== "a") {
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerDueListScreen()));
+                          // } else {
+                          //   showWarningDialog(context);
+                          // }
+                        }
+                        else if (index == 12) {
                           if (customerList == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerListScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        else if (index == 9) {
+                        else if (index == 13) {
                           Navigator.push(context,MaterialPageRoute(builder: (context) =>  LogInPage()));
                         }
-                        else if(index == 10) {
+                        else if(index == 14) {
                            if (visitEntry == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitEntryScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                         else if(index == 11) {
+                         else if(index == 15) {
                            if (visitEntry == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitHistoryScreen()));
                           } else {

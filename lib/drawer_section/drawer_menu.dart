@@ -1,10 +1,14 @@
 
 import 'package:barishal_surgical/screens/modules/administration_module_screens/attendance_entry_screen.dart';
+import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_payment_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/visit_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_entry_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_record_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_due_list_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_payment_due_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/ecp_sales_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barishal_surgical/auth/global_logout.dart';
@@ -143,14 +147,14 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
         padding: EdgeInsets.zero,
         children: [
           SizedBox(
-              height: 160.h,
+              height: 175.h,
               child: DrawerHeader(
                 decoration: BoxDecoration(
                   color: AppColors.appColor,
                 ),
                 child: SingleChildScrollView(
                   child: Container(
-                    padding: EdgeInsets.only(left:5.w, top:5.h,bottom: 15.h),
+                    padding: EdgeInsets.only(left: 5.w, top: 5.h,bottom: 5.h),
                     decoration: BoxDecoration(
                       color:AppColors.buttonColor,
                       borderRadius: BorderRadius.circular(10.r),
@@ -277,6 +281,17 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                 }
               },
               child: Custom_List_Tile(imagePath:"images/sInvc.png", icon_name: "Sales Invoice")),
+              const Divider(height: 1.0,thickness: 1.0,),
+          InkWell(
+              onTap: (){
+                //if(saleInvoice == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ECPSalesReportScreen()));
+                //}
+                // else{
+                //   showWarningDialog(context);
+                // }
+              },
+              child: Custom_List_Tile(imagePath:"images/empsreport.png", icon_name: "ECP Sales Report")),
           const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
@@ -300,6 +315,39 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
               },
               child: Custom_List_Tile(imagePath: "images/catelist.png", icon_name: "Category List")),
           const Divider(height: 1.0,thickness: 1.0,),
+          InkWell(
+              onTap: (){
+                //if(customerList == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentScreen()));
+                // }
+                // else{
+                //   showWarningDialog(context);
+                // }
+              },
+              child: Custom_List_Tile(imagePath: "images/cpay.png", icon_name: "Customer Payment Entry")),
+               const Divider(height: 1.0,thickness: 1.0,),
+               InkWell(
+              onTap: (){
+                //if(customerList == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentDueScreen()));
+                // }
+                // else{
+                //   showWarningDialog(context);
+                // }
+              },
+              child: Custom_List_Tile(imagePath: "images/cpdue.png", icon_name: "Customer Payment Due")),
+               const Divider(height: 1.0,thickness: 1.0,),
+               InkWell(
+              onTap: (){
+                //if(customerList == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerDueListScreen()));
+                // }
+                // else{
+                //   showWarningDialog(context);
+                // }
+              },
+              child: Custom_List_Tile(imagePath: "images/cdue.png", icon_name: "Customer Due List")),
+               const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
                 if(customerList == "true"|| userType=="m"|| userType== "a"){
@@ -449,6 +497,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
             },
            child: Custom_List_Tile(imagePath: "images/logout.png", icon_name: "Logout")),
           const Divider(height: 1.0,thickness: 1.0),
+          SizedBox(height: 110.h),
         ],
       ),
     );
