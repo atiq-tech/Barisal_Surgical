@@ -108,134 +108,353 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
       // _selectEmployeeId = "";
     });
   }
-    //main dropdowns logic
+
   bool isAllTypeClicked = true;
   bool isEmployeeWiseClicked = false;
+  bool _isSearchDropdownOpen = false;
+
   String? _selectedSearchTypes = 'All';
-  final List<String> _searchTypes = [
-    'All',
-    'By Employee'
-  ];
-  void _searchTypeDropdown(BuildContext context) async {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+  final List<String> _searchTypes = ['All', 'By Employee'];
 
-    final RelativeRect position = RelativeRect.fromLTRB(
-      button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
-      button.localToGlobal(Offset.zero, ancestor: overlay).dy+ 100.h,
-      overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
-      overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
-    );
+  final LayerLink _searchLayerLink = LayerLink();
+  OverlayEntry? _searchOverlayEntry;
+  final GlobalKey _searchKey = GlobalKey();
+  Size _searchDropdownSize = Size.zero;
 
-    final String? selectedValue = await showMenu<String>(
-      context: context,
-      position: position,
-      color: Colors.teal.shade900,
-      items: _searchTypes.asMap().entries.map((entry) {
-        final index = entry.key;
-        final type = entry.value;
-        return PopupMenuItem<String>(
-          value: type,
-          height: 22.0.h,
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.0.w),
-                child: Text(type, style: AllTextStyle.saveButtonTextStyle),
-              ),
-              if (index != _searchTypes.length - 1)
-                Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-
-    if (selectedValue != null) {
-      setState(() {
-        _selectedSearchTypes = selectedValue.toString();
-        _selectedSearchTypes == "All"
-            ? isAllTypeClicked = true
-            : isAllTypeClicked = false;
-
-        _selectedSearchTypes == "By Employee"
-            ? isEmployeeWiseClicked = true
-            : isEmployeeWiseClicked = false;
-
-        emtyMethod();
-      });
+  void _getSearchDropdownSize() {
+    final RenderBox? renderBox = _searchKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      _searchDropdownSize = renderBox.size;
     }
   }
 
+  void _toggleSearchDropdown() {
+    if (_isSearchDropdownOpen) {
+      _removeSearchDropdown();
+    } else {
+      _getSearchDropdownSize();
+      _showSearchDropdown();
+    }
+  }
+
+  void _showSearchDropdown() {
+    _searchOverlayEntry = _createSearchOverlayEntry();
+    Overlay.of(context).insert(_searchOverlayEntry!);
+    setState(() {
+      _isSearchDropdownOpen = true;
+    });
+  }
+
+  void _removeSearchDropdown() {
+    _searchOverlayEntry?.remove();
+    _searchOverlayEntry = null;
+    setState(() {
+      _isSearchDropdownOpen = false;
+    });
+  }
+
+  OverlayEntry _createSearchOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _removeSearchDropdown,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              width: _searchDropdownSize.width,
+              child: CompositedTransformFollower(
+                link: _searchLayerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0.0, _searchDropdownSize.height + 5), // বাটনের নিচে সামান্য গ্যাপ
+                child: Material(
+                  elevation: 9.0,
+                  color: Colors.teal.shade50,
+                  borderRadius: BorderRadius.circular(5.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _searchTypes.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final type = entry.value;
+                      return InkWell(
+                        onTap: () {
+                          _onSearchTypeSelected(type);
+                          _removeSearchDropdown();
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                              child: Text(
+                                type,style: TextStyle(fontSize: 12.sp)
+                              ),
+                            ),
+                            if (index != _searchTypes.length - 1)
+                              Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onSearchTypeSelected(String selectedValue) {
+    setState(() {
+      _selectedSearchTypes = selectedValue;
+      
+      // বুলিওন ফ্ল্যাগ আপডেট
+      isAllTypeClicked = (selectedValue == "All");
+      isEmployeeWiseClicked = (selectedValue == "By Employee");
+
+      emtyMethod(); // আপনার প্র্য়োজনীয় মেথড কল
+    });
+  }
+
+  
+  //   //main dropdowns logic
+  // bool isAllTypeClicked = true;
+  // bool isEmployeeWiseClicked = false;
+  // String? _selectedSearchTypes = 'All';
+  // final List<String> _searchTypes = [
+  //   'All',
+  //   'By Employee'
+  // ];
+  // void _searchTypeDropdown(BuildContext context) async {
+  //   final RenderBox button = context.findRenderObject() as RenderBox;
+  //   final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+  //   final RelativeRect position = RelativeRect.fromLTRB(
+  //     button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
+  //     button.localToGlobal(Offset.zero, ancestor: overlay).dy+ 100.h,
+  //     overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
+  //     overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
+  //   );
+
+  //   final String? selectedValue = await showMenu<String>(
+  //     context: context,
+  //     position: position,
+  //     color: Colors.teal.shade900,
+  //     items: _searchTypes.asMap().entries.map((entry) {
+  //       final index = entry.key;
+  //       final type = entry.value;
+  //       return PopupMenuItem<String>(
+  //         value: type,
+  //         height: 22.0.h,
+  //         padding: EdgeInsets.zero,
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Padding(
+  //               padding: EdgeInsets.symmetric(horizontal: 6.0.w),
+  //               child: Text(type, style: AllTextStyle.saveButtonTextStyle),
+  //             ),
+  //             if (index != _searchTypes.length - 1)
+  //               Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+  //           ],
+  //         ),
+  //       );
+  //     }).toList(),
+  //   );
+
+  //   if (selectedValue != null) {
+  //     setState(() {
+  //       _selectedSearchTypes = selectedValue.toString();
+  //       _selectedSearchTypes == "All"
+  //           ? isAllTypeClicked = true
+  //           : isAllTypeClicked = false;
+
+  //       _selectedSearchTypes == "By Employee"
+  //           ? isEmployeeWiseClicked = true
+  //           : isEmployeeWiseClicked = false;
+
+  //       emtyMethod();
+  //     });
+  //   }
+  //}
+
+
+  // bool isAllPaymentClicked = true;
+  // bool isPaidClicked = false;
+  // bool isDueClicked = false;
+  // String? _selectedPaymentTypes = 'All';
+  // final List<String> _paymentTypes = [
+  //   'All',
+  //   'Paid',
+  //   'Due'
+  // ];
+
+  // void _paymentTypeDropdown(BuildContext context) async {
+  //   final RenderBox button = context.findRenderObject() as RenderBox;
+  //   final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+  //   final RelativeRect position = RelativeRect.fromLTRB(
+  //     button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
+  //     button.localToGlobal(Offset.zero, ancestor: overlay).dy + 160.h,
+  //     overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
+  //     overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
+  //   );
+
+  //   final String? selectedValue = await showMenu<String>(
+  //     context: context,
+  //     position: position,
+  //     color: Colors.teal.shade900,
+  //     items: _paymentTypes.asMap().entries.map((entry) {
+  //       final index = entry.key;
+  //       final type = entry.value;
+  //       return PopupMenuItem<String>(
+  //         value: type,
+  //         height: 22.0.h,
+  //         padding: EdgeInsets.zero,
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Padding(
+  //               padding: EdgeInsets.symmetric(horizontal: 6.0.w),
+  //               child: Text(type, style: AllTextStyle.saveButtonTextStyle),
+  //             ),
+  //             if (index != _paymentTypes.length - 1)
+  //               Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+  //           ],
+  //         ),
+  //       );
+  //     }).toList(),
+  //   );
+
+  //   if (selectedValue != null) {
+  //     setState(() {
+  //       _selectedPaymentTypes = selectedValue.toString();
+  //       // Boolean flags update
+  //       isAllPaymentClicked = (_selectedPaymentTypes == "All");
+  //       isPaidClicked = (_selectedPaymentTypes == "Paid");
+  //       isDueClicked = (_selectedPaymentTypes == "Due");
+        
+  //       // Apnar proyojoniyo method call korun
+  //       emtyMethod(); 
+  //     });
+  //   }
+  // }
 
   bool isAllPaymentClicked = true;
   bool isPaidClicked = false;
   bool isDueClicked = false;
+  bool _isPaymentDropdownOpen = false;
+  
   String? _selectedPaymentTypes = 'All';
-  final List<String> _paymentTypes = [
-    'All',
-    'Paid',
-    'Due'
-  ];
+  final List<String> _paymentTypes = ['All', 'Paid', 'Due'];
 
-  void _paymentTypeDropdown(BuildContext context) async {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+  final LayerLink _paymentLayerLink = LayerLink();
+  OverlayEntry? _paymentOverlayEntry;
+  final GlobalKey _paymentKey = GlobalKey();
+  Size _paymentDropdownSize = Size.zero;
 
-    final RelativeRect position = RelativeRect.fromLTRB(
-      button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
-      button.localToGlobal(Offset.zero, ancestor: overlay).dy + 160.h,
-      overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
-      overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
-    );
+  // ড্রপডাউনের সাইজ ক্যালকুলেট করার জন্য
+  void _getPaymentDropdownSize() {
+    final RenderBox renderBox = _paymentKey.currentContext?.findRenderObject() as RenderBox;
+    _paymentDropdownSize = renderBox.size;
+  }
 
-    final String? selectedValue = await showMenu<String>(
-      context: context,
-      position: position,
-      color: Colors.teal.shade900,
-      items: _paymentTypes.asMap().entries.map((entry) {
-        final index = entry.key;
-        final type = entry.value;
-        return PopupMenuItem<String>(
-          value: type,
-          height: 22.0.h,
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.0.w),
-                child: Text(type, style: AllTextStyle.saveButtonTextStyle),
-              ),
-              if (index != _paymentTypes.length - 1)
-                Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-
-    if (selectedValue != null) {
-      setState(() {
-        _selectedPaymentTypes = selectedValue.toString();
-        // Boolean flags update
-        isAllPaymentClicked = (_selectedPaymentTypes == "All");
-        isPaidClicked = (_selectedPaymentTypes == "Paid");
-        isDueClicked = (_selectedPaymentTypes == "Due");
-        
-        // Apnar proyojoniyo method call korun
-        emtyMethod(); 
-      });
+  void _togglePaymentDropdown() {
+    if (_isPaymentDropdownOpen) {
+      _removePaymentDropdown();
+    } else {
+      _getPaymentDropdownSize(); // ওপেন করার সময় সাইজ আপডেট করে নেওয়া ভালো
+      _showPaymentDropdown();
     }
+  }
+
+  void _showPaymentDropdown() {
+    _paymentOverlayEntry = _createPaymentOverlayEntry();
+    Overlay.of(context).insert(_paymentOverlayEntry!);
+    setState(() {
+      _isPaymentDropdownOpen = true;
+    });
+  }
+
+  void _removePaymentDropdown() {
+    _paymentOverlayEntry?.remove();
+    _paymentOverlayEntry = null;
+    setState(() {
+      _isPaymentDropdownOpen = false;
+    });
+  }
+
+  OverlayEntry _createPaymentOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _removePaymentDropdown,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              width: _paymentDropdownSize.width,
+              child: CompositedTransformFollower(
+                link: _paymentLayerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0.0, _paymentDropdownSize.height + 5), // বাটনের ঠিক নিচে দেখাবে
+                child: Material(
+                  elevation: 9.0,
+                  color: Colors.teal.shade50, // আপনার আগের কালার থিম অনুযায়ী
+                  borderRadius: BorderRadius.circular(5.r),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _paymentTypes.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final type = entry.value;
+                      return InkWell(
+                        onTap: () {
+                          _onSelectedPayment(type);
+                          _removePaymentDropdown();
+                        },
+                        child: Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                              child: Text(
+                                type,style: TextStyle(fontSize: 12.sp), // আপনার কাস্টম স্টাইল
+                              ),
+                            ),
+                            if (index != _paymentTypes.length - 1)
+                              Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onSelectedPayment(String selectedValue) {
+    setState(() {
+      _selectedPaymentTypes = selectedValue;
+      isAllPaymentClicked = selectedValue == "All";
+      isPaidClicked = selectedValue == "Paid";
+      isDueClicked = selectedValue == "Due";
+      
+      emtyMethod(); // আপনার মেথড কল
+    });
   }
 
   @override
   void initState() {
     _initLocation();
+    //WidgetsBinding.instance.addPostFrameCallback(_getDropdownSize);
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     secondPickedDate = Utils.formatFrontEndDate(DateTime.now());
@@ -282,24 +501,34 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 4,
-                        child: GestureDetector(
-                          onTap: () => _searchTypeDropdown(context),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w),
-                            height: 25.0.h,
-                            decoration: ContDecoration.contDecoration,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedSearchTypes ?? 'Please select a type',
-                                  style: TextStyle(fontSize: 13.sp),
-                                ),
-                                Icon(Icons.arrow_drop_down,color: Colors.grey.shade700),
-                              ],
+                        child: CompositedTransformTarget(
+                          link: _searchLayerLink,
+                          child: InkWell(
+                            key: _searchKey,
+                            onTap: _toggleSearchDropdown,
+                            child: Container(
+                              height: 25.0.h,
+                              padding: EdgeInsets.symmetric(horizontal: 6.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey, width: 0.5.w),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _selectedSearchTypes ?? 'Select',
+                                    style: AllTextStyle.dateFormatStyle,
+                                  ),
+                                  SizedBox(width: 5.w),
+                                  Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        )
                       ),
                     ],
                   ),
@@ -442,24 +671,36 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 4,
-                        child: GestureDetector(
-                          onTap: () => _paymentTypeDropdown(context),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w),
-                            height: 25.0.h,
-                            decoration: ContDecoration.contDecoration,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedPaymentTypes ?? 'Please select a type',
-                                  style: TextStyle(fontSize: 13.sp),
-                                ),
-                                Icon(Icons.arrow_drop_down,color: Colors.grey.shade700),
-                              ],
+                        child: CompositedTransformTarget(
+                          link: _paymentLayerLink,
+                          child: InkWell(
+                            key: _paymentKey, 
+                            onTap: _togglePaymentDropdown,
+                            child: Container(
+                              height: 25.0.h,
+                              padding: EdgeInsets.symmetric(horizontal: 6.w) ,
+                              decoration: BoxDecoration(
+                              color: Colors.white,
+                                border: Border.all(color: Colors.grey, width: 0.5.w),
+                                borderRadius: BorderRadius.circular(5.r),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Text(_selectedPaymentTypes ?? 'Select'),
+                                  // Icon(Icons.arrow_drop_down),
+                                  Text(
+                                    _selectedPaymentTypes ?? 'Select',
+                                    style: AllTextStyle.dateFormatStyle,
+                                  ),
+                                  SizedBox(width: 5.w),
+                                  Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        )
                       ),
                     ],
                   ),
@@ -481,7 +722,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
                               child: TextFormField(
                                 style: AllTextStyle.dateFormatStyle,
                                 enabled: false,
-                                decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 5.w),
+                                decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 0.w),
                                     filled: true,
                                     suffixIcon: Padding(
                                       padding: EdgeInsets.only(left: 25.w),
@@ -515,7 +756,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
                               child: TextFormField(
                                 style: AllTextStyle.dateFormatStyle,
                                 enabled: false,
-                                decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 5.w),
+                                decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 0.w),
                                     filled: true,
                                     suffixIcon: Padding(
                                       padding: EdgeInsets.only(left: 25.w),

@@ -62,74 +62,194 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   String? userType = "";
   String? userEmployeeID = "";
   String? userEmployeeName = "";
+
   bool isAllTypeClicked = true;
   bool isRetailListClicked = false;
   bool isWholesaleListClicked = false;
   bool isDealerListClicked = false;
+  bool _isCustomerDropdownOpen = false;
+
   String? _searchType = "All";
   String data = "all";
   final List<String> _searchTypeList = [
     'All',
     'Retail',
     'Wholesale',
-    'By Employee',
+    'By Employee', // আপনার লিস্টে এটি ছিল
   ];
 
-  void _customerListDropdown(BuildContext context) async {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final RelativeRect position = RelativeRect.fromLTRB(
-      button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
-      button.localToGlobal(Offset.zero, ancestor: overlay).dy + 160.h,
-      overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
-      overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
-    );
+  final LayerLink _customerLayerLink = LayerLink();
+  OverlayEntry? _customerOverlayEntry;
+  final GlobalKey _customerKey = GlobalKey();
+  Size _customerDropdownSize = Size.zero;
 
-    final String? selectedValue = await showMenu<String>(
-      context: context,
-      position: position,
-      color: Colors.teal.shade900,
-      items: _searchTypeList.asMap().entries.map((entry) {
-        final index = entry.key;
-        final type = entry.value;
-        return PopupMenuItem<String>(
-          value: type,
-          height: 22.0.h,
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.0.w),
-                child: Text(type, style: AllTextStyle.saveButtonTextStyle),
-              ),
-              if (index != _searchTypeList.length - 1)
-                Divider(height: 1.h, thickness: 0.8.h, color: Colors.grey.shade400),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-
-    if (selectedValue != null) {
-      setState(() {
-        _searchType = selectedValue;
-        _searchType == "All"
-            ? isAllTypeClicked = true
-            : isAllTypeClicked = false;
-        _searchType == "Retail"
-            ? isRetailListClicked = true
-            : isRetailListClicked = false;
-        _searchType == "Wholesale"
-            ? isWholesaleListClicked = true
-            : isWholesaleListClicked = false;
-        _searchType == "Dealer"
-            ? isDealerListClicked = true
-            : isDealerListClicked = false;
-      });
+  void _getCustomerDropdownSize() {
+    final RenderBox? renderBox = _customerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      _customerDropdownSize = renderBox.size;
     }
   }
+
+  void _toggleCustomerDropdown() {
+    if (_isCustomerDropdownOpen) {
+      _removeCustomerDropdown();
+    } else {
+      _getCustomerDropdownSize();
+      _showCustomerDropdown();
+    }
+  }
+
+  void _showCustomerDropdown() {
+    _customerOverlayEntry = _createCustomerOverlayEntry();
+    Overlay.of(context).insert(_customerOverlayEntry!);
+    setState(() {
+      _isCustomerDropdownOpen = true;
+    });
+  }
+
+  void _removeCustomerDropdown() {
+    _customerOverlayEntry?.remove();
+    _customerOverlayEntry = null;
+    setState(() {
+      _isCustomerDropdownOpen = false;
+    });
+  }
+
+  OverlayEntry _createCustomerOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _removeCustomerDropdown,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              width: _customerDropdownSize.width,
+              child: CompositedTransformFollower(
+                link: _customerLayerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0.0, _customerDropdownSize.height + 5),
+                child: Material(
+                  elevation: 9.0,
+                  color: Colors.teal.shade50,
+                  borderRadius: BorderRadius.circular(5.r),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _searchTypeList.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final type = entry.value;
+                      return InkWell(
+                        onTap: () {
+                          _onCustomerTypeSelected(type);
+                          _removeCustomerDropdown();
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                              child: Text(
+                                type,
+                                style: AllTextStyle.dateFormatStyle,
+                              ),
+                            ),
+                            if (index != _searchTypeList.length - 1)
+                              Divider(height: 1.h, thickness: 0.8.h, color: Colors.grey.shade400),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onCustomerTypeSelected(String selectedValue) {
+    setState(() {
+      _searchType = selectedValue;
+      
+      // ফ্ল্যাগগুলো আপডেট করা হচ্ছে
+      isAllTypeClicked = (selectedValue == "All");
+      isRetailListClicked = (selectedValue == "Retail");
+      isWholesaleListClicked = (selectedValue == "Wholesale");
+      isDealerListClicked = (selectedValue == "Dealer");
+      
+      // আপনার যদি অন্য কোনো মেথড কল করার প্রয়োজন হয় এখানে করতে পারেন
+    });
+  }
+  // bool isAllTypeClicked = true;
+  // bool isRetailListClicked = false;
+  // bool isWholesaleListClicked = false;
+  // bool isDealerListClicked = false;
+  // String? _searchType = "All";
+  // String data = "all";
+  // final List<String> _searchTypeList = [
+  //   'All',
+  //   'Retail',
+  //   'Wholesale',
+  //   'By Employee',
+  // ];
+
+  // void _customerListDropdown(BuildContext context) async {
+  //   final RenderBox button = context.findRenderObject() as RenderBox;
+  //   final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+  //   final RelativeRect position = RelativeRect.fromLTRB(
+  //     button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
+  //     button.localToGlobal(Offset.zero, ancestor: overlay).dy + 160.h,
+  //     overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
+  //     overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
+  //   );
+
+  //   final String? selectedValue = await showMenu<String>(
+  //     context: context,
+  //     position: position,
+  //     color: Colors.teal.shade900,
+  //     items: _searchTypeList.asMap().entries.map((entry) {
+  //       final index = entry.key;
+  //       final type = entry.value;
+  //       return PopupMenuItem<String>(
+  //         value: type,
+  //         height: 22.0.h,
+  //         padding: EdgeInsets.zero,
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Padding(
+  //               padding: EdgeInsets.symmetric(horizontal: 6.0.w),
+  //               child: Text(type, style: AllTextStyle.saveButtonTextStyle),
+  //             ),
+  //             if (index != _searchTypeList.length - 1)
+  //               Divider(height: 1.h, thickness: 0.8.h, color: Colors.grey.shade400),
+  //           ],
+  //         ),
+  //       );
+  //     }).toList(),
+  //   );
+
+  //   if (selectedValue != null) {
+  //     setState(() {
+  //       _searchType = selectedValue;
+  //       _searchType == "All"
+  //           ? isAllTypeClicked = true
+  //           : isAllTypeClicked = false;
+  //       _searchType == "Retail"
+  //           ? isRetailListClicked = true
+  //           : isRetailListClicked = false;
+  //       _searchType == "Wholesale"
+  //           ? isWholesaleListClicked = true
+  //           : isWholesaleListClicked = false;
+  //       _searchType == "Dealer"
+  //           ? isDealerListClicked = true
+  //           : isDealerListClicked = false;
+  //     });
+  //   }
+  // }
   var employeeController = TextEditingController();
   String? _selectEmployeeId;
 
@@ -165,7 +285,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             Container(
               padding: EdgeInsets.only(left: 8.0.w, right: 8.0.w, top: 8.0.h),
               child: Container(
-                padding: EdgeInsets.only(left: 4.0.w, right: 4.0.w,bottom: 4.0.h),
+                padding: EdgeInsets.only(left: 4.0.w, right: 4.0.w, top: 4.0.h, bottom: 4.0.h),
                 decoration: BoxDecoration(
                   color: Colors.teal[100],
                   borderRadius: BorderRadius.circular(10.0.r),
@@ -188,19 +308,32 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                         Expanded(flex: 1, child: Text(":",style:AllTextStyle.textFieldHeadStyle)),
                         Expanded(
                           flex: 11,
-                          child: GestureDetector(
-                            onTap: () => _customerListDropdown(context),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 6.w),
-                              margin: EdgeInsets.only(top:4.h,bottom: 4.h),
-                              height: 25.0.h,
-                              decoration: ContDecoration.contDecoration,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(_searchType ?? 'Please select a type',style: TextStyle(fontSize: 13.sp)),
-                                  Icon(Icons.arrow_drop_down,color: Colors.grey.shade700),
-                                ],
+                          child: CompositedTransformTarget(
+                            link: _customerLayerLink,
+                            child: InkWell(
+                              key: _customerKey,
+                              onTap: _toggleCustomerDropdown,
+                              child: Container(
+                                height: 25.0.h,
+                                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                                margin: EdgeInsets.only(bottom: 4.h),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.grey, width: 0.5.w),
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _searchType ?? 'All',
+                                      style: AllTextStyle.dateFormatStyle,
+                                    ),
+                                    SizedBox(width: 5.w),
+                                    Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -274,7 +407,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                 margin: EdgeInsets.only(bottom: 4.h),
                                 decoration:ContDecoration.contDecoration,
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
+                                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 3.h),
                                   child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
                                 )
                               ),
@@ -297,24 +430,25 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","${sharedPreferences?.getString('employeeId')}");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"",userType =="a"|| userType == "m" ? _selectEmployeeId??"" : userEmployeeID??"");
                               }else if(data == 'retail'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"retail","${sharedPreferences?.getString('employeeId')}");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"retail",userType =="a"|| userType == "m" ? _selectEmployeeId??"" : userEmployeeID??"");
                               }else if(data == 'wholesale'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"wholesale","${sharedPreferences?.getString('employeeId')}");
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"wholesale",userType =="a"|| userType == "m" ? _selectEmployeeId??"" : userEmployeeID??"");
                               }
                               else if(data == 'employee'){
                                 setState(() {
                                   CustomerListProvider().on();
                                 });
-                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"",userType =="a"|| userType == "m" ? _selectEmployeeId : userEmployeeID);
+                                Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"",userType =="a"|| userType == "m" ? _selectEmployeeId??"" : userEmployeeID??"");
                               }
+                              print("employeeId data====${sharedPreferences?.getString('employeeId')}");
                             },
                             child: Container(
                                 height: 28.0.h,

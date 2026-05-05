@@ -100,7 +100,12 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     }
   }
 
-  //main dropdowns logic
+  String? _selectCustomerId;
+  String? _selectEmployeeId;
+  String? _selectCategoryId;
+  String? _selectQtyProductId;
+  String? _selectUserId;
+
   bool isAllTypeClicked = true;
   bool isCustomerWiseClicked = false;
   bool isEmployeeWiseClicked = false;
@@ -108,24 +113,9 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
   bool isQuantityWiseClicked = false;
   bool isUserWiseClicked = false;
 
-  //sub dropdowns logic
-  bool isWithoutDetailsClicked = true;
-  bool isWithDetailsClicked = false;
-  bool isCategorySelect = false;
-  bool isQuantitySelect = false;
-
-  // dropdown value
-  String? _selectCustomerId;
-  String? _selectEmployeeId;
-  String? _selectCategoryId;
-  String? _selectQtyProductId;
-  String? _selectUserId;
-
-  // util
-  String data = '';
-  bool selectArea = false;
-//
+  bool _isSearchDropdownOpen = false;
   String? _selectedSearchTypes = 'All';
+  
   final List<String> _searchTypes = [
     'All',
     'By Customer',
@@ -134,129 +124,226 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     'By Quantity',
     'By User',
   ];
-  void _searchTypeDropdown(BuildContext context) async {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
 
-    final RelativeRect position = RelativeRect.fromLTRB(
-      button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
-      button.localToGlobal(Offset.zero, ancestor: overlay).dy+80.h,
-      overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
-      overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
-    );
+  final LayerLink _searchLayerLink = LayerLink();
+  OverlayEntry? _searchOverlayEntry;
+  final GlobalKey _searchKey = GlobalKey();
+  Size _searchDropdownSize = Size.zero;
 
-    final String? selectedValue = await showMenu<String>(
-      context: context,
-      position: position,
-      color: Colors.teal.shade900,
-      items: _searchTypes.asMap().entries.map((entry) {
-        final index = entry.key;
-        final type = entry.value;
-        return PopupMenuItem<String>(
-          value: type,
-          height: 22.0.h,
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.0.w),
-                child: Text(type, style: AllTextStyle.saveButtonTextStyle),
-              ),
-              if (index != _searchTypes.length - 1)
-                Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-
-    if (selectedValue != null) {
-      setState(() {
-        _selectedSearchTypes = selectedValue.toString();
-        _selectedSearchTypes == "All"
-            ? isAllTypeClicked = true
-            : isAllTypeClicked = false;
-
-        _selectedSearchTypes == "By Customer"
-            ? isCustomerWiseClicked = true
-            : isCustomerWiseClicked = false;
-
-        _selectedSearchTypes == "By Employee"
-            ? isEmployeeWiseClicked = true
-            : isEmployeeWiseClicked = false;
-
-        _selectedSearchTypes == "By Category"
-            ? isCategoryWiseClicked = true
-            : isCategoryWiseClicked = false;
-
-        _selectedSearchTypes == "By Quantity"
-            ? isQuantityWiseClicked = true
-            : isQuantityWiseClicked = false;
-
-        _selectedSearchTypes == "By User"
-            ? isUserWiseClicked = true
-            : isUserWiseClicked = false;
-        emtyMethod();
-      });
+  void _getSearchDropdownSize() {
+    final RenderBox? renderBox = _searchKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      _searchDropdownSize = renderBox.size;
     }
   }
+
+  void _toggleSearchDropdown() {
+    if (_isSearchDropdownOpen) {
+      _removeSearchDropdown();
+    } else {
+      _getSearchDropdownSize();
+      _showSearchDropdown();
+    }
+  }
+
+  void _showSearchDropdown() {
+    _searchOverlayEntry = _createSearchOverlayEntry();
+    Overlay.of(context).insert(_searchOverlayEntry!);
+    setState(() {
+      _isSearchDropdownOpen = true;
+    });
+  }
+
+  void _removeSearchDropdown() {
+    _searchOverlayEntry?.remove();
+    _searchOverlayEntry = null;
+    setState(() {
+      _isSearchDropdownOpen = false;
+    });
+  }
+
+  OverlayEntry _createSearchOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _removeSearchDropdown,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              width: _searchDropdownSize.width,
+              child: CompositedTransformFollower(
+                link: _searchLayerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0.0, _searchDropdownSize.height + 5), 
+                child: Material(
+                  elevation: 9.0,
+                  color: Colors.teal.shade50,
+                  borderRadius: BorderRadius.circular(5.r),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _searchTypes.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final type = entry.value;
+                      return InkWell(
+                        onTap: () {
+                          _onSearchTypeSelected(type);
+                          _removeSearchDropdown();
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                              child: Text(
+                                type,
+                                style: AllTextStyle.dateFormatStyle,
+                              ),
+                            ),
+                            if (index != _searchTypes.length - 1)
+                              Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onSearchTypeSelected(String selectedValue) {
+    setState(() {
+      _selectedSearchTypes = selectedValue;
+      isAllTypeClicked = (selectedValue == "All");
+      isCustomerWiseClicked = (selectedValue == "By Customer");
+      isEmployeeWiseClicked = (selectedValue == "By Employee");
+      isCategoryWiseClicked = (selectedValue == "By Category");
+      isQuantityWiseClicked = (selectedValue == "By Quantity");
+      isUserWiseClicked = (selectedValue == "By User");
+
+      emtyMethod(); 
+    });
+  }
+
+  String data = '';
+  bool selectArea = false;
+  bool isCategorySelect = false;
+  bool isQuantitySelect = false;
+
+  bool isWithoutDetailsClicked = true;
+  bool isWithDetailsClicked = false;
+  bool _isRecordDropdownOpen = false;
 
   String? _selectedRecordTypes = 'Without Details';
   final List<String> _recordType = [
     'Without Details',
     'With Details',
   ];
-  void _recordTypeDropdown(BuildContext context) async {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final RelativeRect position = RelativeRect.fromLTRB(
-      button.localToGlobal(Offset.zero, ancestor: overlay).dx + button.size.width,
-      button.localToGlobal(Offset.zero, ancestor: overlay).dy + 190.h,
-      overlay.size.width - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
-      overlay.size.height - button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dy,
-    );
 
-    final String? selectedValue = await showMenu<String>(
-      context: context,
-      position: position,
-      color: Colors.teal.shade900,
-      items: _recordType.asMap().entries.map((entry) {
-        final index = entry.key;
-        final type = entry.value;
-        return PopupMenuItem<String>(
-          value: type,
-          height: 22.0.h,
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.0.w),
-                child: Text(type, style: AllTextStyle.saveButtonTextStyle),
-              ),
-              if (index != _recordType.length - 1)
-                Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
-            ],
-          ),
-        );
-      }).toList(),
-    );
+  final LayerLink _recordLayerLink = LayerLink();
+  OverlayEntry? _recordOverlayEntry;
+  final GlobalKey _recordKey = GlobalKey();
+  Size _recordDropdownSize = Size.zero;
 
-    if (selectedValue != null) {
-      setState(() {
-        _selectedRecordTypes = selectedValue;
-        _selectedRecordTypes == "Without Details"
-            ? isWithoutDetailsClicked = true
-            : isWithoutDetailsClicked = false;
-        _selectedRecordTypes == "With Details"
-            ? isWithDetailsClicked = true
-            : isWithDetailsClicked = false;
-      });
+  void _getRecordDropdownSize() {
+    final RenderBox? renderBox = _recordKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      _recordDropdownSize = renderBox.size;
     }
   }
+
+  void _toggleRecordDropdown() {
+    if (_isRecordDropdownOpen) {
+      _removeRecordDropdown();
+    } else {
+      _getRecordDropdownSize();
+      _showRecordDropdown();
+    }
+  }
+
+  void _showRecordDropdown() {
+    _recordOverlayEntry = _createRecordOverlayEntry();
+    Overlay.of(context).insert(_recordOverlayEntry!);
+    setState(() {
+      _isRecordDropdownOpen = true;
+    });
+  }
+
+  void _removeRecordDropdown() {
+    _recordOverlayEntry?.remove();
+    _recordOverlayEntry = null;
+    setState(() {
+      _isRecordDropdownOpen = false;
+    });
+  }
+
+  OverlayEntry _createRecordOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _removeRecordDropdown,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              width: _recordDropdownSize.width,
+              child: CompositedTransformFollower(
+                link: _recordLayerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0.0, _recordDropdownSize.height + 5),
+                child: Material(
+                  elevation: 9.0,
+                  color: Colors.teal.shade50,
+                  borderRadius: BorderRadius.circular(5.r),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _recordType.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final type = entry.value;
+                      return InkWell(
+                        onTap: () {
+                          _onRecordTypeSelected(type);
+                          _removeRecordDropdown();
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                              child: Text(
+                                type,
+                                style: AllTextStyle.dateFormatStyle,
+                              ),
+                            ),
+                            if (index != _recordType.length - 1)
+                              Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onRecordTypeSelected(String selectedValue) {
+    setState(() {
+      _selectedRecordTypes = selectedValue;
+      isWithoutDetailsClicked = (selectedValue == "Without Details");
+      isWithDetailsClicked = (selectedValue == "With Details");
+    });
+  }
+
   ///Sub total
   double? subTotal;
   double? vatTotal;
@@ -375,24 +462,33 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 3,
-                        child: GestureDetector(
-                          onTap: () => _searchTypeDropdown(context),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w),
-                            height: 25.0.h,
-                            decoration: ContDecoration.contDecoration,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedSearchTypes ?? 'Please select a type',
-                                  style: TextStyle(fontSize: 13.sp),
-                                ),
-                                Icon(Icons.arrow_drop_down,color: Colors.grey.shade700),
-                              ],
+                        child: CompositedTransformTarget(
+                          link: _searchLayerLink,
+                          child: InkWell(
+                            key: _searchKey,
+                            onTap: _toggleSearchDropdown,
+                            child: Container(
+                              height: 25.0.h,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey.shade300, width: 0.5.w),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _selectedSearchTypes ?? 'All',
+                                    style: AllTextStyle.dateFormatStyle,
+                                  ),
+                                  Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        )
                       ),
                     ],
                   ),
@@ -742,25 +838,35 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 3,
-                        child: GestureDetector(
-                          onTap: () => _recordTypeDropdown(context),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w),
-                            margin: EdgeInsets.only(top: 4.h),
-                            height: 25.0.h,
-                            decoration: ContDecoration.contDecoration,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedRecordTypes ?? 'Please select a type',
-                                  style: TextStyle(fontSize: 13.sp),
-                                ),
-                                Icon(Icons.arrow_drop_down,color: Colors.grey.shade700),
-                              ],
+                        child: CompositedTransformTarget(
+                          link: _recordLayerLink,
+                          child: InkWell(
+                            key: _recordKey,
+                            onTap: _toggleRecordDropdown,
+                            child: Container(
+                              height: 25.0.h,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                              margin: EdgeInsets.only(top: 4.h),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey.shade300, width: 0.5.w),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _selectedRecordTypes ?? 'Select',
+                                    style: AllTextStyle.dateFormatStyle,
+                                  ),
+                                  SizedBox(width: 5.w),
+                                  Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        )
                       ),
                     ],
                   )

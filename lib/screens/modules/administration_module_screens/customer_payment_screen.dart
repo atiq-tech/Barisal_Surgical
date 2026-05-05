@@ -1,6 +1,8 @@
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/common_widget/commontype_aheadfield.dart';
 import 'package:barishal_surgical/common_widget/custom_appbar.dart';
+import 'package:barishal_surgical/common_widget/hidden_items_loading.dart';
+import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/bank_account_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/customer_list_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/bank_account_provider.dart';
@@ -12,6 +14,7 @@ import 'package:barishal_surgical/utils/utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,37 +25,6 @@ class CustomerPaymentScreen extends StatefulWidget {
 }
 
 class _CustomerPaymentScreenState extends State<CustomerPaymentScreen> {
- SharedPreferences? sharedPreferences;
-  Future<void> _initializeData() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    userName = "${sharedPreferences?.getString('userName')}";
-    userImage = "${sharedPreferences?.getString('userImage')}";
-    userType = "${sharedPreferences?.getString('userType')}";
-    territorieId = "${sharedPreferences?.getString('territorieId')}";
-    territoryName = "${sharedPreferences?.getString('territoryName')}";
-    unitAreaId = "${sharedPreferences?.getString('unitAreaId')}";
-    unitAreaName = "${sharedPreferences?.getString('unitAreaName')}";
-    print("profile userName====$userName");
-    print("profile userImage====$userImage");
-    print("profile userType====$userType");
-    print("unitAreaId=user===============$unitAreaId");
-    print("territorieId===user=============$territorieId");
-    // if(userType =="m" || userType == "a"){
-    //   Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("", "", "");
-    // }else{
-    //   Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("", unitAreaId??"", territorieId??"");
-    // }
-    setState(() {
-    });
-  }
-  String? userName = "";
-  String? userImage = "";
-  String? userType = "";
-  String? territorieId = "";
-  String? territoryName = "";
-  String? unitAreaId = "";
-  String? unitAreaName = "";
-
   Color getColor(Set<WidgetState> states) {
     return Colors.blue.shade100;
   }
@@ -65,45 +37,20 @@ class _CustomerPaymentScreenState extends State<CustomerPaymentScreen> {
   final TextEditingController customerController = TextEditingController();
   final TextEditingController customerDueController = TextEditingController();
   final TextEditingController previousDueController = TextEditingController();
+
   final TextEditingController bankAccountController = TextEditingController();
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController territoriesController = TextEditingController();
+  final TextEditingController _transportController = TextEditingController();
 
-   final TextEditingController _paymentController = TextEditingController();
+  final TextEditingController _vatController = TextEditingController();
+  final TextEditingController _taxController = TextEditingController();
   final TextEditingController _discountController = TextEditingController();
   final TextEditingController _percentageAmountController = TextEditingController();
   final TextEditingController _totalController = TextEditingController();
 
-//   void calculateTotal({String? changed}) {
-//   double payment = double.tryParse(_paymentController.text) ?? 0;
-//   double percentAmount = double.tryParse(_percentageAmountController.text) ?? 0;
-//   double discount = double.tryParse(_discountController.text) ?? 0;
-
-//   /// Percent changed → discount + total
-//   if (changed == "percent") {
-//     discount = percentAmount / 2;
-
-//     _discountController.text = discount.toStringAsFixed(2);
-//     _totalController.text = (payment + percentAmount).toStringAsFixed(2);
-//   }
-
-//   /// Discount changed → percent + total
-//   if (changed == "discount") {
-//     percentAmount = discount * 2;
-
-//     _percentageAmountController.text =
-//         percentAmount.toStringAsFixed(2);
-//     _totalController.text = (payment + percentAmount).toStringAsFixed(2);
-//   }
-
-//   /// Payment changed → total update
-//   if (changed == "payment") {
-//     _totalController.text = (payment + percentAmount).toStringAsFixed(2);
-//   }
-// }
-
 void calculateTotal({String? changed}) {
-  double payment = double.tryParse(_paymentController.text) ?? 0;
+  double payment = double.tryParse(_vatController.text) ?? 0;
   double discount = double.tryParse(_discountController.text) ?? 0;
   double percent = double.tryParse(_percentageAmountController.text) ?? 0;
 
@@ -370,7 +317,7 @@ void calculateTotal({String? changed}) {
     });
   }
 
-  String? customerId;
+  String? _selectCustomerId;
   String? invoiceId;
   String customerTypes = "";
   String? bankAccountId;
@@ -378,7 +325,7 @@ void calculateTotal({String? changed}) {
   String? territoriesId;
   bool customerEntryBtnClk = false;
 
-  String? customerDueAmount="0";
+String? customerDueAmount="0";
  Response? result;
   void customerDue(String? customerId) async {
     SharedPreferences? sharedPreferences;
@@ -412,6 +359,33 @@ void calculateTotal({String? changed}) {
     }
   }
 
+  String userName = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
+  String? userType = "";
+  SharedPreferences? sharedPreferences;
+  Future<void> _initializeData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      userName = sharedPreferences?.getString('userName') ?? "";
+      userEmployeeID = sharedPreferences?.getString('employeeId') ?? "";
+      userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
+      userType = sharedPreferences?.getString('userType') ?? "";
+    });
+    print("userType======$userType");
+    _loadCustomerData();
+  }
+
+  void _loadCustomerData() {
+    String employeeIdToPass = (userType == "a" || userType == "m") ? "" : (userEmployeeID ?? "");
+    CustomerListProvider.isCustomerListloading = true;
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(
+      context, 
+      "", 
+      employeeIdToPass
+    );
+  }
+
   @override
   void initState() {
     _initLocation();
@@ -422,12 +396,7 @@ void calculateTotal({String? changed}) {
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     getTransactionType = "CR";
     getPaymentType = "cash";
-    // CustomerListProvider.isCustomerLoading = true;
-    // Provider.of<CustomerListProvider>(context, listen: false).customerList = [];
-    // //Provider.of<RegionProvider>(context, listen: false).getRegion();
-    // TerritoriesProvider.isTerritoriesloading = true;
-    // Provider.of<TerritoriesProvider>(context, listen: false).territoriesList = [];
-    // Provider.of<BankAccountProvider>(context, listen: false).getBankAccount();
+    Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     // Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments("","","",backEndFirstDate,backEndFirstDate);
     super.initState();
   }
@@ -440,6 +409,7 @@ void calculateTotal({String? changed}) {
     print("Customer length==============${allCustomerData.length}");
     // final allCustomerPaymentData = Provider.of<CustomerPaymentsProvider>(context).customerPaymentsList;
     final allBankAccountList = Provider.of<BankAccountProvider>(context).bankAccountList;
+    
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: const CustomAppBar(title: "Customer Payment"),
@@ -450,7 +420,7 @@ void calculateTotal({String? changed}) {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(10.r),
+              padding: EdgeInsets.all(5.r),
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(4.r),
@@ -475,10 +445,10 @@ void calculateTotal({String? changed}) {
                   children: [
                     Row(
                       children: [
-                        Expanded(flex: 6,child: Text("Payment Date",style: AllTextStyle.textFieldHeadStyle)),
+                        Expanded(flex: 4,child: Text("Pay. Date",style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 12,
                           child: userType == "m" || userType =="a"? Container(
                             margin: EdgeInsets.only(bottom: 4.h),
                             height:25.h,
@@ -509,7 +479,7 @@ void calculateTotal({String? changed}) {
                             ),
                           ):Container(
                             margin: EdgeInsets.only(bottom: 4.h),
-                            height:25.h,
+                            height: 25.h,
                             decoration: ContDecoration.contDecoration,
                             child: GestureDetector(
                               onTap: (() {
@@ -542,15 +512,15 @@ void calculateTotal({String? changed}) {
                     Row(
                       children: [
                         Expanded(
-                          flex: 6,
+                          flex: 4,
                           child: Text(
-                            "Trans. Type",
+                            "Trans.Type",
                             style: AllTextStyle.textFieldHeadStyle,
                           ),
                         ),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 12,
                           child: CompositedTransformTarget(
                             link: _trTypeLayerLink,
                             child: GestureDetector(
@@ -586,15 +556,15 @@ void calculateTotal({String? changed}) {
                     Row(
                       children: [
                         Expanded(
-                          flex: 6,
+                          flex: 4,
                           child: Text(
-                            "Payment Type",
+                            "Pay. Type",
                             style: AllTextStyle.textFieldHeadStyle,
                           ),
                         ),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 12,
                           child: CompositedTransformTarget(
                             link: _pTypeLayerLink,
                             child: GestureDetector(
@@ -630,10 +600,10 @@ void calculateTotal({String? changed}) {
                     isBankListClicked == true
                     ? Row(
                       children: [
-                        Expanded(flex: 6,child: Text("Bank account",style: AllTextStyle.textFieldHeadStyle)),
+                        Expanded(flex: 4,child: Text("Bank",style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 12,
                           child: Container(
                             height: 25.h,
                             width:MediaQuery.of(context).size.width / 2,
@@ -648,7 +618,7 @@ void calculateTotal({String? changed}) {
                                   bankAccountId = id;
                                 });
                               },
-                              displayText:(ba) =>"${ba.accountNumber} - ${ba.accountName} (${ba.bankName})",
+                              displayText:(ba) =>"${ba.accountName} - ${ba.accountNumber} (${ba.bankName})",
                               valueId:(ba) => ba.accountId.toString(),
                             ),
                           ),
@@ -658,10 +628,77 @@ void calculateTotal({String? changed}) {
                     : Container(),
                   Row(
                     children: [
-                      Expanded(flex: 6, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
+                      Expanded(flex: 4, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
                       const Expanded(flex: 1, child: Text(":")),
                       Expanded(
-                        flex: 11,
+                        flex: 12,
+                        child: Container(
+                            height: 25.h,
+                            decoration: ContDecoration.contDecoration,
+                            child: TypeAheadField<CustomerListModel>(
+                            controller: customerController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+                                  isDense: true,
+                                  hintText: 'Select Customer',
+                                  hintStyle: TextStyle(fontSize: 13.sp),
+                                  suffixIcon: _selectCustomerId == '' || _selectCustomerId == 'null' || _selectCustomerId == null || controller.text == '' ? null
+                                      : GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        customerController.clear();
+                                        controller.clear();
+                                        _selectCustomerId = null;
+                                      });
+                                    },
+                                    child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+                                  ),
+                                  suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: InputBorder.none,
+                                  focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                  enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                ),
+                              );
+                            },
+                            suggestionsCallback: (pattern) async {
+                              return Future.delayed(const Duration(seconds: 1), () {
+                                return allCustomerData.where((element) =>
+                                    element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                              });
+                            },
+                            itemBuilder: (context, CustomerListModel suggestion) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                                child: Text(suggestion.displayName!,
+                                  style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                            onSelected: (CustomerListModel suggestion) {
+                              setState(() {
+                                customerController.text = suggestion.displayName!;
+                                _selectCustomerId = suggestion.customerSlNo.toString();
+                              });
+                              customerDue(_selectCustomerId); 
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  Row(
+                    children: [
+                      Expanded(flex: 4, child: Text("Invoice",style:AllTextStyle.textFieldHeadStyle)),
+                      const Expanded(flex: 1, child: Text(":")),
+                      Expanded(
+                        flex: 12,
                         child: Container(
                             height: 25.h,
                             decoration: ContDecoration.contDecoration,
@@ -763,15 +800,15 @@ void calculateTotal({String? changed}) {
                     Row(
                       children: [
                         Expanded(
-                          flex: 6,
+                          flex: 4,
                           child: Text(
-                            "Due Amount",
+                            "Due",
                             style: AllTextStyle.textFieldHeadStyle,
                           ),
                         ),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 4,
                           child: Container(
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
@@ -782,15 +819,39 @@ void calculateTotal({String? changed}) {
                             ),
                           ),
                         ),
+                        Expanded(
+                          flex: 4,
+                          child: Container(
+                            height: 25.h,
+                            width: MediaQuery.of(context).size.width / 2,
+                            decoration: ContDecoration.contDecoration,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5.w,vertical: 3.h),
+                              child: Text("$customerDueAmount",style: AllTextStyle.dateFormatStyle),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Container(
+                            height: 25.h,
+                            width: MediaQuery.of(context).size.width / 2,
+                            decoration: ContDecoration.contDecoration,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 2.w,vertical: 3.h),
+                              child: Text("1200200",style: AllTextStyle.dateFormatStyle),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 4.h),
                     Row(
                       children: [
-                        Expanded(flex: 6,child: Text("Description",style: AllTextStyle.textFieldHeadStyle)),
+                        Expanded(flex: 4,child: Text("Description",style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 12,
                           child: SizedBox(
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
@@ -814,16 +875,16 @@ void calculateTotal({String? changed}) {
                     SizedBox(height: 4.h),
                     Row(
                       children: [
-                        Expanded(flex: 6, child: Text("Payment", style: AllTextStyle.textFieldHeadStyle)),
+                        Expanded(flex: 4, child: Text("Vat", style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 12,
                           child: SizedBox(
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextField(
                               style: TextStyle(fontSize: 13.sp),
-                              controller: _paymentController,
+                              controller: _vatController,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
@@ -843,7 +904,36 @@ void calculateTotal({String? changed}) {
                     SizedBox(height: 4.h),
                     Row(
                       children: [
-                        Expanded(flex: 6, child: Text("Discount", style: AllTextStyle.textFieldHeadStyle)),
+                        Expanded(flex: 4, child: Text("Tax", style: AllTextStyle.textFieldHeadStyle)),
+                        const Expanded(flex: 1, child: Text(":")),
+                        Expanded(
+                          flex: 12,
+                          child: SizedBox(
+                            height: 25.h,
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: TextField(
+                              style: TextStyle(fontSize: 13.sp),
+                              controller: _taxController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
+                                filled: true,
+                                hintText: "0",
+                                fillColor: Colors.white,
+                                border: InputBorder.none,
+                                focusedBorder:TextFieldInputBorder.focusEnabledBorder,
+                                enabledBorder:TextFieldInputBorder.focusEnabledBorder,
+                              ),
+                              onChanged: (_) => calculateTotal(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
+                    Row(
+                      children: [
+                        Expanded(flex: 4, child: Text("Discount", style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
                           flex: 6,
@@ -909,10 +999,39 @@ void calculateTotal({String? changed}) {
                     SizedBox(height: 4.h),
                     Row(
                       children: [
-                        Expanded(flex: 6, child: Text("Total", style: AllTextStyle.textFieldHeadStyle)),
+                        Expanded(flex: 4, child: Text("Transport", style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 11,
+                          flex: 12,
+                          child: SizedBox(
+                            height: 25.h,
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: TextField(
+                              style: TextStyle(fontSize: 13.sp),
+                              controller: _transportController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
+                                filled: true,
+                                hintText: "0",
+                                fillColor: Colors.white,
+                                border: InputBorder.none,
+                                focusedBorder:TextFieldInputBorder.focusEnabledBorder,
+                                enabledBorder:TextFieldInputBorder.focusEnabledBorder,
+                              ),
+                              onChanged: (_) => calculateTotal(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
+                    Row(
+                      children: [
+                        Expanded(flex: 4, child: Text("Amount", style: AllTextStyle.textFieldHeadStyle)),
+                        const Expanded(flex: 1, child: Text(":")),
+                        Expanded(
+                          flex: 12,
                           child: SizedBox(
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
@@ -935,7 +1054,7 @@ void calculateTotal({String? changed}) {
                       ],
                     ),
                     ///=====customer loading hide
-                    //HiddenItemsLoading(controller: quantityController,focusNode: quantityFocusNode),
+                    HiddenItemsLoading(controller: quantityController,focusNode: quantityFocusNode),
                     SizedBox(height: 4.h),
                     Align(
                     alignment: Alignment.centerRight,
@@ -961,8 +1080,8 @@ void calculateTotal({String? changed}) {
                       //   FocusScope.of(context).requestFocus(quantityFocusNode);
                       // }
 
-                      // FocusScope.of(context).requestFocus(quantityFocusNode);
-                      // FocusScope.of(context).unfocus();
+                      FocusScope.of(context).requestFocus(quantityFocusNode);
+                      FocusScope.of(context).unfocus();
                     },
                     child: Container(
                       height: 28.h,
@@ -1109,8 +1228,8 @@ void calculateTotal({String? changed}) {
         data: {
             "CPayment_Paymentby": getPaymentType.toString(),
             "CPayment_TransactionType": getTransactionType.toString(),
-            "CPayment_amount": _paymentController.text.toString().trim(),
-            "CPayment_customerID": customerId.toString(),
+            "CPayment_amount": _vatController.text.toString().trim(),
+            "CPayment_customerID": _selectCustomerId.toString(),
             "CPayment_date": backEndFirstDate,
             "CPayment_id": 0,
             "discount": _discountController.text.toString().trim(),

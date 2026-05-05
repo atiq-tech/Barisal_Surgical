@@ -1,10 +1,17 @@
 
 import 'package:barishal_surgical/common_widget/common_location.dart';
+import 'package:barishal_surgical/common_widget/commontype_aheadfield.dart';
 import 'package:barishal_surgical/common_widget/custom_appbar.dart';
+import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/invoice_due_model.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/customer_list_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerDueListScreen extends StatefulWidget {
@@ -24,17 +31,6 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
   }
   Color getColorTotal(Set<MaterialState> states) {
     return Colors.blue.shade900;
-  }
-
-  String? userEmployeeId = "";
-  String userName = "";
-  String userType = "";
-  SharedPreferences? sharedPreferences;
-  Future<void> _initializeData() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    userEmployeeId = "${sharedPreferences?.getString('employeeId')}";
-    userName = "${sharedPreferences?.getString('userName')}";
-    userType = "${sharedPreferences?.getString('userType')}";
   }
 
   //main dropdowns logic
@@ -147,6 +143,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
 
   String? customerId;
   String? areaId;
+  String? invoiceId;
   String myAddress = "Loading...";
   double? myLat, myLong;
   Future<void> _initLocation() async {
@@ -160,6 +157,33 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
   }
 }
 
+  String userName = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
+  String? userType = "";
+  SharedPreferences? sharedPreferences;
+  Future<void> _initializeData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      userName = sharedPreferences?.getString('userName') ?? "";
+      userEmployeeID = sharedPreferences?.getString('employeeId') ?? "";
+      userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
+      userType = sharedPreferences?.getString('userType') ?? "";
+    });
+    print("userType======$userType");
+    _loadCustomerData();
+  }
+
+  void _loadCustomerData() {
+    String employeeIdToPass = (userType == "a" || userType == "m") ? "" : (userEmployeeID ?? "");
+    CustomerListProvider.isCustomerListloading = true;
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(
+      context, 
+      "", 
+      employeeIdToPass
+    );
+  }
+
   @override
   void initState() {
     _initLocation();
@@ -168,22 +192,31 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
     // Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("","","");
     // Provider.of<AreasProvider>(context, listen: false).getAreas();
     // Provider.of<CustomerDueProvider>(context, listen: false).customerDuelist = [];
+    Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context, "");
+    _loadCustomerData();
     super.initState();
     print("myAddress=======$myAddress");
   }
   var customerController = TextEditingController();
   var areaController = TextEditingController();
+  var invoiceController = TextEditingController();
   emtyMethod() {
     setState(() {
       customerController.text= "";
       areaController.text= "";
+      invoiceController.text= "";
       customerId = "";
       areaId = "";
+      invoiceId = "";
     });
   }
   
   @override
   Widget build(BuildContext context) {
+    final allCustomersData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo!=0).toList();
+    print("Customer length==============${allCustomersData.length}");
+    final allInvoiceDueData = Provider.of<InvoiceDueProvider>(context).invoiceDueList;
+    print("allInvoiceDueData========${allInvoiceDueData.length}");
     // final allCustomersData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo != 0).toList();
     // final allAreasData = Provider.of<AreasProvider>(context).areasList;
     // final providerCDueData = Provider.of<CustomerDueProvider>(context).customerDuelist;
@@ -291,19 +324,19 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                         margin: EdgeInsets.only(bottom: 3.h),
                         height: 25.0.h,
                         decoration: ContDecoration.contDecoration,
-                          //   child: CommonTypeAheadField<CustomersModel>(
-                          //   controller: customerController,
-                          //   suggestionList: allCustomersData,
-                          //   hintText: 'Select Customer',
-                          //   selectedValueId: customerId,
-                          //   onValueIdChanged: (id) {
-                          //     setState(() {
-                          //       customerId = id;
-                          //     });
-                          //   },
-                          //   displayText: (c) => c.displayName,
-                          //   valueId: (c) => c.customerSlNo.toString(),
-                          // ),
+                          child: CommonTypeAheadField<CustomerListModel>(
+                          controller: customerController,
+                          suggestionList: allCustomersData,
+                          hintText: 'Select Customer',
+                          selectedValueId: customerId,
+                          onValueIdChanged: (id) {
+                            setState(() {
+                              customerId = id;
+                            });
+                          },
+                          displayText: (c) => c.displayName,
+                          valueId: (c) => c.customerSlNo.toString(),
+                        ),
                       )
                     )
                     ],
@@ -321,49 +354,91 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                         margin: EdgeInsets.only(bottom: 3.h),
                         height: 25.0.h,
                         decoration: ContDecoration.contDecoration,
-                          //   child: CommonTypeAheadField<CustomersModel>(
-                          //   controller: customerController,
-                          //   suggestionList: allCustomersData,
-                          //   hintText: 'Select Customer',
-                          //   selectedValueId: customerId,
-                          //   onValueIdChanged: (id) {
-                          //     setState(() {
-                          //       customerId = id;
-                          //     });
-                          //   },
-                          //   displayText: (c) => c.displayName,
-                          //   valueId: (c) => c.customerSlNo.toString(),
-                          // ),
+                          child:  TypeAheadField<CustomerListModel>(
+                            controller: customerController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+                                  isDense: true,
+                                  hintText: 'Select Customer',
+                                  hintStyle: TextStyle(fontSize: 13.sp),
+                                  suffixIcon: customerId == '' || customerId == 'null' || customerId == null || controller.text == '' ? null
+                                      : GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        customerController.clear();
+                                        controller.clear();
+                                        customerId = null;
+                                      });
+                                    },
+                                    child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+                                  ),
+                                  suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: InputBorder.none,
+                                  focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                  enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                ),
+                              );
+                            },
+                            suggestionsCallback: (pattern) async {
+                              return Future.delayed(const Duration(seconds: 1), () {
+                                return allCustomersData.where((element) =>
+                                    element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                              });
+                              
+                            },
+                            itemBuilder: (context, CustomerListModel suggestion) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                                child: Text(suggestion.displayName!,
+                                  style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                            onSelected: (CustomerListModel suggestion) {
+                              setState(() {
+                                customerController.text = suggestion.displayName!;
+                                customerId = suggestion.customerSlNo.toString();
+                              }); 
+                             InvoiceDueProvider().on();
+                             Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context, customerId); 
+                            },
+                          ),
                       )
                     )
                     ],
                   ): SizedBox(),
                   isInvoices == true? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(flex: 1, child: Text("Invoice",style:AllTextStyle.textFieldHeadStyle)),
-                          Text(":   ",style:AllTextStyle.textFieldHeadStyle),
-                          Expanded(
-                          flex: 3,
-                          child: Container(
-                            margin: EdgeInsets.only(bottom: 3.h),
-                            height: 25.0.h,
-                            decoration: ContDecoration.contDecoration,
-                              //   child: CommonTypeAheadField<CustomersModel>(
-                              //   controller: customerController,
-                              //   suggestionList: allCustomersData,
-                              //   hintText: 'Select Customer',
-                              //   selectedValueId: customerId,
-                              //   onValueIdChanged: (id) {
-                              //     setState(() {
-                              //       customerId = id;
-                              //     });
-                              //   },
-                              //   displayText: (c) => c.displayName,
-                              //   valueId: (c) => c.customerSlNo.toString(),
-                              // ),
-                          )
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(flex: 1, child: Text("Invoice",style:AllTextStyle.textFieldHeadStyle)),
+                        Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+                        Expanded(
+                        flex: 3,
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 3.h),
+                          height: 25.0.h,
+                          decoration: ContDecoration.contDecoration,
+                            child: CommonTypeAheadField<InvoiceDueModel>(
+                            controller: invoiceController,
+                            suggestionList: allInvoiceDueData,
+                            hintText: 'Select Invoice',
+                            selectedValueId: invoiceId,
+                            onValueIdChanged: (id) {
+                              setState(() {
+                                invoiceId = id;
+                              });
+                            },
+                            displayText: (c) => c.saleMasterInvoiceNo,
+                            valueId: (c) => c.saleMasterSlNo.toString(),
+                          ),
                         )
+                      )
                     ],
                   ): SizedBox(),]),
                   
