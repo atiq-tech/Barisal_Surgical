@@ -5,6 +5,9 @@ import 'package:barishal_surgical/providers/order_module_providers/orders_detail
 import 'package:barishal_surgical/providers/order_module_providers/orders_invoice_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/customer_due_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/due_sale_invoice_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/emp_wise_cus_pay_due_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
 import 'package:barishal_surgical/splash_seccen/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -78,9 +81,12 @@ class MyApp extends StatelessWidget {
       designSize: const Size(360, 690),
       builder: (context, child) => MultiProvider(
         providers: [
+         ChangeNotifierProvider<EmpWiseCusPayDueProvider>(create: (_) => EmpWiseCusPayDueProvider()),
+         ChangeNotifierProvider<DueSaleInvoiceProvider>(create: (_) => DueSaleInvoiceProvider()),
          ChangeNotifierProvider<OrdersDetailsProvider>(create: (_) => OrdersDetailsProvider()),
          ChangeNotifierProvider<OrdersRecordProvider>(create: (_) => OrdersRecordProvider()),
          ChangeNotifierProvider<CustomerListProvider>(create: (_) => CustomerListProvider()),
+         ChangeNotifierProvider<CustomerDueProvider>(create: (_) => CustomerDueProvider()),
          ChangeNotifierProvider<ProductListProvider>(create: (_) => ProductListProvider()),
          ChangeNotifierProvider<TotalStockProvider>(create: (_) => TotalStockProvider()),
          ChangeNotifierProvider<EmployeesProvider>(create: (_) => EmployeesProvider()),

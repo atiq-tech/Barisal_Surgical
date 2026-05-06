@@ -4,8 +4,10 @@ import 'package:barishal_surgical/common_widget/custom_appbar.dart';
 import 'package:barishal_surgical/common_widget/hidden_items_loading.dart';
 import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/bank_account_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/due_sale_invoice_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/customer_list_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/bank_account_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/due_sale_invoice_provider.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
 import 'package:barishal_surgical/utils/animation_snackbar.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
@@ -41,13 +43,13 @@ class _CustomerPaymentScreenState extends State<CustomerPaymentScreen> {
   final TextEditingController bankAccountController = TextEditingController();
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController territoriesController = TextEditingController();
-  final TextEditingController _transportController = TextEditingController();
 
   final TextEditingController _vatController = TextEditingController();
   final TextEditingController _taxController = TextEditingController();
   final TextEditingController _discountController = TextEditingController();
   final TextEditingController _percentageAmountController = TextEditingController();
   final TextEditingController _totalController = TextEditingController();
+  final TextEditingController invoiceController = TextEditingController();
 
 void calculateTotal({String? changed}) {
   double payment = double.tryParse(_vatController.text) ?? 0;
@@ -323,6 +325,7 @@ void calculateTotal({String? changed}) {
   String? bankAccountId;
   String? areaId;
   String? territoriesId;
+  String? invoiceDue = "0.0";
   bool customerEntryBtnClk = false;
 
 String? customerDueAmount="0";
@@ -345,6 +348,37 @@ String? customerDueAmount="0";
     }
     print("previousDue======previousDue==========$customerDueAmount");
   }
+
+String? saleVat="0";
+String? saleTax="0";
+String? saleDiscount="0";
+String? saleTransport="0";
+ Response? salesResult;
+  void getSalesData(String? salesId) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    salesResult = await Dio().post("${baseUrl}get_sales",
+        data: {"salesId": "$salesId"},
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
+    var data = salesResult?.data;
+    if (data != null) {
+      setState(() {
+        _vatController.text = "${data['sales'][0]['SaleMaster_TaxAmount']}";
+        _taxController.text = "${data['sales'][0]['tax_amount']}";
+        saleDiscount = "${data['sales'][0]['SaleMaster_TotalDiscountAmount']}";
+        saleTransport = "${data['sales'][0]['SaleMaster_Freight']}";
+      });
+    }
+    print("saleVat======saleVat==========$saleVat");
+    print("saleTax======saleTax==========$saleTax");
+    print("saleDiscount======saleDiscount==========$saleDiscount");
+    print("saleTransport======saleTransport==========$saleTransport");
+  }
+
 
   String myAddress = "Loading...";
     double? myLat, myLong;
@@ -397,6 +431,8 @@ String? customerDueAmount="0";
     getTransactionType = "CR";
     getPaymentType = "cash";
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
+    Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, "");
+    Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     // Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments("","","",backEndFirstDate,backEndFirstDate);
     super.initState();
   }
@@ -404,7 +440,7 @@ String? customerDueAmount="0";
   @override
   Widget build(BuildContext context) {
     //final allAreaData = Provider.of<RegionProvider>(context).regionList;
-    //final allTerritoriesData = Provider.of<TerritoriesProvider>(context).territoriesList;
+    final allDueSaleInvoiceData = Provider.of<DueSaleInvoiceProvider>(context).dueSaleInvoicelist;
     final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo!=0).toList();
     print("Customer length==============${allCustomerData.length}");
     // final allCustomerPaymentData = Provider.of<CustomerPaymentsProvider>(context).customerPaymentsList;
@@ -686,6 +722,8 @@ String? customerDueAmount="0";
                                 _selectCustomerId = suggestion.customerSlNo.toString();
                               });
                               customerDue(_selectCustomerId); 
+                             DueSaleInvoiceProvider().on();
+                             Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, _selectCustomerId);
                             },
                           ),
                         ),
@@ -700,112 +738,70 @@ String? customerDueAmount="0";
                       Expanded(
                         flex: 12,
                         child: Container(
-                            height: 25.h,
-                            decoration: ContDecoration.contDecoration,
-                          //   child: TypeAheadField<CustomersModel>(
-                          //   controller: customerController,
-                          //   builder: (context, controller, focusNode) {
-                          //     return TextField(
-                          //       controller: controller,
-                          //       focusNode: focusNode,
-                          //       style: AllTextStyle.textValueStyle,
-                          //       decoration: InputDecoration(
-                          //         contentPadding: EdgeInsets.only(left: 5.w, top: 2.5.h),
-                          //         isDense: true,
-                          //         hintText: 'Select Customer',
-                          //         hintStyle: AllTextStyle.textValueStyle,
-                          //         suffixIcon: customerId == '' || customerId == 'null' || customerId == null || controller.text == ''
-                          //             ? null
-                          //             : GestureDetector(
-                          //                 onTap: () {
-                          //                   setState(() {
-                          //                     customerController.clear();
-                          //                     controller.clear();
-                          //                     customerId = null;
-                          //                   });
-                          //                   // Clear করার পর নতুনভাবে customer লোড
-                          //                   // Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("",areaId??"", territoriesId??"");
-                          //                   if(userType =="m" || userType == "a"){
-                          //                       Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("",areaId??"", territoriesId??"");
-                          //                     }else{
-                          //                       Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("", unitAreaId??"", territorieId??"");
-                          //                     }
-                          //                 },
-                          //                 child: Padding(
-                          //                   padding: EdgeInsets.all(5.r),
-                          //                   child: Icon(Icons.close, size: 16.r),
-                          //                 ),
-                          //               ),
-                          //         suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                          //         filled: false,
-                          //         fillColor: Colors.white,
-                          //         border: InputBorder.none,
-                          //       ),
-                          //       onTap: () {
-                          //         // কার্সর রাখলেই নতুনভাবে লোড হবে
-                          //         // Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("",areaId??"", territoriesId??"");
-                          //         if(userType =="m" || userType == "a"){
-                          //             Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("",areaId??"", territoriesId??"");
-                          //           }else{
-                          //             Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("", unitAreaId??"", territorieId??"");
-                          //           }
-                          //         // আগের সিলেকশন থাকলে clear হবে
-                          //         if (customerId != null &&
-                          //             customerId != '' &&
-                          //             customerId != 'null') {
-                          //           setState(() {
-                          //             customerController.clear();
-                          //             controller.clear();
-                          //             customerId = null;
-                          //           });
-                          //         }
-                          //       },
-                          //     );
-                          //   },
-                          //   suggestionsCallback: (pattern) async {
-                          //     return Future.delayed(const Duration(seconds: 1), () {
-                          //       return allCustomerData
-                          //           .where((element) => element.displayName
-                          //               .toLowerCase()
-                          //               .contains(pattern.toLowerCase()))
-                          //           .toList()
-                          //           .cast<CustomersModel>();
-                          //     });
-                          //   },
-                          //   itemBuilder: (context, CustomersModel suggestion) {
-                          //     return Padding(
-                          //       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                          //       child: Text(
-                          //         "${suggestion.displayName}",
-                          //         style: TextStyle(fontSize: 12.sp),
-                          //         maxLines: 1,
-                          //         overflow: TextOverflow.ellipsis,
-                          //       ),
-                          //     );
-                          //   },
-                          //   onSelected: (CustomersModel suggestion) {
-                          //     customerController.text = "${suggestion.displayName}";
-                          //     setState(() {
-                          //       customerId = suggestion.customerSlNo.toString();
-                          //     });
-                          //     print("customerId==select======$customerId");
-                          //     customerDue(customerId??"");
-                          //   },
-                          // ),
-                        ),
+                          height: 25.0.h,
+                          decoration: ContDecoration.contDecoration,
+                          child: TypeAheadField<DueSaleInvoiceModel>(
+                            controller: invoiceController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 6.h, left: 5.0.w),
+                                  isDense: true,
+                                  hintText: 'Select Invoice',
+                                  hintStyle: TextStyle(fontSize: 13.sp),
+                                  suffixIcon: invoiceId == '' || invoiceId == 'null' || invoiceId == null || controller.text == '' ? null
+                                      : GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        invoiceController.clear();
+                                        controller.clear();
+                                        invoiceId = null;
+                                      });
+                                    },
+                                    child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+                                  ),
+                                  suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: InputBorder.none,
+                                  focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                  enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                ),
+                              );
+                            },
+                            suggestionsCallback: (pattern) async {
+                              return Future.delayed(const Duration(seconds: 1), () {
+                                return allDueSaleInvoiceData.where((element) =>
+                                    element.saleMasterInvoiceNo!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                              });
+                            },
+                            itemBuilder: (context, DueSaleInvoiceModel suggestion) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                                child: Text(suggestion.saleMasterInvoiceNo!,
+                                  style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                            onSelected: (DueSaleInvoiceModel suggestion) {
+                              setState(() {
+                                invoiceController.text = suggestion.saleMasterInvoiceNo!;
+                                invoiceId = suggestion.saleMasterSlNo.toString();
+                                invoiceDue = suggestion.saleMasterDueAmount.toString();
+                              });
+                              getSalesData(invoiceId);
+                            } 
+                          ),
+                        )
                       ),
                     ],
                   ),
                     SizedBox(height: 4.h),
                     Row(
                       children: [
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            "Due",
-                            style: AllTextStyle.textFieldHeadStyle,
-                          ),
-                        ),
+                        Expanded(flex: 4, child: Text("Due",style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
                           flex: 4,
@@ -827,7 +823,7 @@ String? customerDueAmount="0";
                             decoration: ContDecoration.contDecoration,
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5.w,vertical: 3.h),
-                              child: Text("$customerDueAmount",style: AllTextStyle.dateFormatStyle),
+                              child: Text("$invoiceDue",style: AllTextStyle.dateFormatStyle),
                             ),
                           ),
                         ),
@@ -839,7 +835,7 @@ String? customerDueAmount="0";
                             decoration: ContDecoration.contDecoration,
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 2.w,vertical: 3.h),
-                              child: Text("1200200",style: AllTextStyle.dateFormatStyle),
+                              child: Text("0",style: AllTextStyle.dateFormatStyle),
                             ),
                           ),
                         ),
@@ -924,7 +920,6 @@ String? customerDueAmount="0";
                                 focusedBorder:TextFieldInputBorder.focusEnabledBorder,
                                 enabledBorder:TextFieldInputBorder.focusEnabledBorder,
                               ),
-                              onChanged: (_) => calculateTotal(),
                             ),
                           ),
                         ),
@@ -936,61 +931,14 @@ String? customerDueAmount="0";
                         Expanded(flex: 4, child: Text("Discount", style: AllTextStyle.textFieldHeadStyle)),
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
-                          flex: 6,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 4,
-                                child: SizedBox(
-                                  height: 25.h,
-                                  width: MediaQuery.of(context).size.width / 2,
-                                  child: TextField(
-                                    style: TextStyle(fontSize: 13.sp),
-                                    controller: _percentageAmountController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
-                                      filled: true,
-                                      hintText: "0",
-                                      fillColor: Colors.white,
-                                      border: InputBorder.none,
-                                      focusedBorder:TextFieldInputBorder.focusEnabledBorder,
-                                      enabledBorder:TextFieldInputBorder.focusEnabledBorder,
-                                    ),
-                                    onChanged: (_) => calculateTotal(changed: "percent"),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Container(
-                                height: 25.h,
-                                decoration: ContDecoration.contDecoration,
-                                child: Center(child: Text("%", style: AllTextStyle.textFieldHeadStyle))),
-                              )
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 4.h),
-                        Expanded(
-                          flex: 5,
-                          child: SizedBox(
+                          flex: 12,
+                          child: Container(
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
-                            child: TextField(
-                              style: TextStyle(fontSize: 13.sp),
-                              controller: _discountController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
-                                filled: true,
-                                hintText: "0",
-                                fillColor: Colors.white,
-                                border: InputBorder.none,
-                                focusedBorder:TextFieldInputBorder.focusEnabledBorder,
-                                enabledBorder:TextFieldInputBorder.focusEnabledBorder,
-                              ),
-                              onChanged: (_) => calculateTotal(changed: "discount"),
+                            decoration: ContDecoration.contDecoration,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                              child: Text("$saleDiscount",style: AllTextStyle.dateFormatStyle),
                             ),
                           ),
                         ),
@@ -1003,23 +951,13 @@ String? customerDueAmount="0";
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
                           flex: 12,
-                          child: SizedBox(
+                          child: Container(
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
-                            child: TextField(
-                              style: TextStyle(fontSize: 13.sp),
-                              controller: _transportController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
-                                filled: true,
-                                hintText: "0",
-                                fillColor: Colors.white,
-                                border: InputBorder.none,
-                                focusedBorder:TextFieldInputBorder.focusEnabledBorder,
-                                enabledBorder:TextFieldInputBorder.focusEnabledBorder,
-                              ),
-                              onChanged: (_) => calculateTotal(),
+                            decoration: ContDecoration.contDecoration,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                              child: Text("$saleTransport",style: AllTextStyle.dateFormatStyle),
                             ),
                           ),
                         ),

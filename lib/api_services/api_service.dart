@@ -5,6 +5,9 @@ import 'package:barishal_surgical/models/order_module_models/orders_details_mode
 import 'package:barishal_surgical/models/order_module_models/orders_invoice_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_record_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/customer_due_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/due_sale_invoice_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/emp_wise_cus_pay_due_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/invoice_due_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/sales_details_model.dart';
 import 'package:dio/dio.dart';
@@ -686,641 +689,108 @@ class ApiService{
   return [];
 }
 
-  // //==================All Employee List=======================
-  // static fetchAllEmployee() async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   String link = "${baseUrl}api/v1/getEmployees";
-  //   try {
-  //     Response response = await Dio().post(link,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var item = jsonDecode(response.data);
-  //     return List.from(item).map((e) => EmployeeModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
+//==================get_customer_due =======================
+  static fetchCustomerDueApi(BuildContext context,String? customerId,String? districtId,String? salesId) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_customer_due";
+    try {
+      Response response = await Dio().post(link,
+        data: {
+          "customerId": customerId,
+          "districtId": districtId,
+          "salesId": salesId
+        },
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
+      var item = response.data;
+      print("CustomerDue===$item");
+      if(item is! List){
+        if(item['status'] == 401 && item['success'] == false) {
+          ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+          LogoutService.fetchLogout(context);
+        }
+      }
+      return List.from(item).map((e) => CustomerDueModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
 
-  //==================Product List =======================
-  // static fetchAllProduct(String? catId, String? isService) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   List<ProductListModel> allProductList = [];
-  //   String link = "${baseUrl}api/v1/getAllProducts";
-  //   try {
-  //     Response response = await Dio().post(link,
-  //         data: {
-  //           "catId": "$catId",
-  //           "isService": "$isService",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var item = jsonDecode(response.data);
-  //     return List.from(item).map((e) => ProductListModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  // //==================Customer List=======================
-  // static fetchCustomerList(String? customerType,String? employeeId,String? routeId) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   print("Api from employeeId=======${sharedPreferences.getString('employeeId')}");
-  //   try {
-  //     String url = "${baseUrl}api/v1/getCustomers";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "customerType": "$customerType",
-  //           "employeeId": "${sharedPreferences.getString('employeeId')=="0"||sharedPreferences.getString('employeeId')==0||sharedPreferences.getString('employeeId')=="null"||sharedPreferences.getString('employeeId')==null?"":sharedPreferences.getString('employeeId')}",
-  //           "routeId": "$routeId",
-  //           "forSearch": "yes",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => CustomerListModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // //==================District List=======================
-  // static fetchAllArea() async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getDistricts";
-  //     Response response = await Dio().post(url,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => AreaModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // //==================Zone List=======================
-  // static fetchAllZone() async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getZones";
-  //     Response response = await Dio().post(url,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => ZoneModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // //==================Category List=======================
-  // static fetchAllCategory() async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getCategories";
-  //     Response response = await Dio().post(url,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => CategoryModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  // ///getCurrentStock api
-  // //
-  // // static Future<List<Stock>?> fetchCurrentStock(BuildContext context,String catId) async {
-  // //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  // //   print("catId======$catId");
-  // //   try {
-  // //     String url = "${baseUrl}api/v1/getCurrentStock";
-  // //     Response response = await Dio().post(
-  // //       data: {
-  // //         "catId":catId
-  // //       },
-  // //       url,
-  // //       options: Options(headers: {
-  // //         "Content-Type": "application/json",
-  // //         'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  // //         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  // //       }),
-  // //     );
-  // //
-  // //     if (response.statusCode == 200) {
-  // //       var data = jsonDecode(response.data);
-  // //       List<Stock> stockList = List.from(data["stock"])
-  // //           .map((e) => Stock.fromJson(e))
-  // //           .toList();
-  // //
-  // //       await sharedPreferences.setString('data', jsonEncode(stockList));
-  // //       return stockList;
-  // //     }
-  // //   } catch (e) {
-  // //     print("API Errorrrrr: $e");
-  // //   }
-  // //   return null;
-  // // }
-  //
-  // static Future<List<Stock>?> fetchCurrentStock(BuildContext context, String catId) async {
-  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   print("catId======$catId");
-  //
-  //   try {
-  //     String url = "${baseUrl}api/v1/getCurrentStock";
-  //     Response response = await Dio().post(
-  //       url,
-  //       data: {
-  //         "catId": catId
-  //       },
-  //       options: Options(headers: {
-  //         "Content-Type": "application/json",
-  //         'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //       }),
-  //     );
-  //     print("API Response: ${response.data}");
-  //     if (response.statusCode == 200) {
-  //       var data = response.data;
-  //       if (data is String) {
-  //         data = jsonDecode(data);
-  //       }
-  //
-  //       if (data is Map && data.containsKey("stock")) {
-  //         List<Stock> stockList = List.from(data["stock"])
-  //             .map((e) => Stock.fromJson(e))
-  //             .toList();
-  //
-  //         await sharedPreferences.setString('data', jsonEncode(data["stock"]));
-  //         return stockList;
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print("API Errorrrrr: $e");
-  //   }
-  //   return null;
-  // }
-  //
-  //
-  // ///getCurrentStock api
-  // static fetchAllUser(BuildContext context) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getUsers";
-  //     Response response = await Dio().post(url,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data["data"]).map((e) => AllUserModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // static fetchCustomerDue(String? customerId) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getCustomerDue";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "customerId": "$customerId",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => CustomerDueModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  // //==================GetSales List=======================
-  // static fetchGetSales(
-  //     String? customerId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     String? employeeId,
-  //     String? userId
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getSales";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "customerId": "$customerId",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //           "employeeId": "$employeeId",
-  //           "userId": "$userId"
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data["sales"]).map((e) => GetSalesModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  // //==================SalesRecord List=======================
-  // static fetchSalesRecord(
-  //     String? customerId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     String? employeeId,
-  //     String? userId,
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getSalesRecord";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "customerId": "$customerId",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //           "employeeId": "$employeeId",
-  //           "userId": "$userId"
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => SalesRecordModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  // //==================SaleDetails List=======================
-  // static fetchSaleDetails(
-  //     String? categoryId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     String? employeeId,
-  //     String? productId,
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getSaleDetails";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "categoryId": "$categoryId",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //           "employeeId":"$employeeId",
-  //           "productId": "$productId",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => SaleDetailsModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  // //==================Get_user_data==================
-  // static fetchGetUserData(context) async {
-  //   String Link = "${baseUrl}api/v1/get_user_data";
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     Response response = await Dio().get(Link,
-  //       data: {
-  //         "employeeId": "${sharedPreferences.getString('employee_id')}",
-  //       },
-  //       options: Options(headers: {
-  //         "Content-Type": "application/json",
-  //         'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //       }),
-  //     );
-  //     print('UserDataModel data: ${response.data}');
-  //     return UserDataModel.fromMap(jsonDecode(response.data));
-  //   } catch (e) {
-  //     print("Something is wrong get_user_data=======:$e");
-  //   }
-  //   return UserDataModel;
-  // }
-  //
-  // ///==================getOrders List=======================
-  // static fetchGetOrder(
-  //     String? customerId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     String? status,
-  //     String? employeeId,
-  //     String? userId,
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getOrders";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "customerId": "$customerId",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //           "process_status": "$status",
-  //           //"status": "$status",
-  //           "employeeId": "$employeeId",
-  //           "userId": "$userId",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data["sales"]).map((e) => GetOrderModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // //==================SalesRecord List=======================
-  // static fetchOrderRecord(
-  //     String? customerId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     String? status,
-  //     String? employeeId,
-  //     String? userId,
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getOrderRecords";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "customerId": "$customerId",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //           "status": "$status",
-  //           "employeeId": "$employeeId",
-  //           "userId": "$userId"
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data["sales"]).map((e) => OrderRecordModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // ///==================getOrderDetails List=======================
-  // static fetchOrderDetails(
-  //     String? categoryId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     String? status,
-  //     String? productId,
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getOrderDetails";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "categoryId": "$categoryId",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //           "status": "$status",
-  //           "productId": "$productId",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data["sales"]).map((e) => OrderDetailsModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // ///==================Invoice=======================
-  // static fatchOrdersInvoice(String? salesId) async {
-  //   String Link = "${baseUrl}api/v1/getOrders";
-  //   OrderInvoiceModel? orderInvoiceModel;
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     var body = {
-  //       "salesId": "$salesId",
-  //     };
-  //     Response response = await Dio().post(Link,
-  //         data: body,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     return OrderInvoiceModel.fromMap(jsonDecode(response.data));
-  //   } catch (e) {
-  //     print("Something is wrong getOrderslist=======:$e");
-  //   }
-  //   return orderInvoiceModel;
-  // }
-  //
-  // ///==================Invoice=======================
-  // static GetSalesInvoice(String? salesId) async {
-  //   String Link = "${baseUrl}api/v1/getSales";
-  //   SalesInvoiceModel? salesInvoiceModel;
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     var body = {
-  //       "salesId": "$salesId",
-  //     };
-  //     Response response = await Dio().post(Link,
-  //         data: body,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     return SalesInvoiceModel.fromMap(jsonDecode(response.data));
-  //   } catch (e) {
-  //     print("Something is wrong getSaleslist=======:$e");
-  //   }
-  //   return salesInvoiceModel;
-  // }
-  //
-  // //==================Product List =======================
-  // static fetchAllRoute() async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   String link = "${baseUrl}api/v1/getCustomerRoutes";
-  //   try {
-  //     Response response = await Dio().post(link,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var item = jsonDecode(response.data);
-  //     return List.from(item).map((e) => RouteModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // ///==================Visits List=======================
-  // static fetchVisitsApi(
-  //     String? customerId,
-  //     String? employeeId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getVisits";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "customerId": "$customerId",
-  //           "employeeId": "$employeeId",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => VisitsModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // ///==================Visits List=======================
-  // static fetchAttendanceApi(
-  //     String? userId,
-  //     String? dateFrom,
-  //     String? dateTo,
-  //     ) async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getAttendanceRecord";
-  //     Response response = await Dio().post(url,
-  //         data: {
-  //           "userId": "$userId",
-  //           "employeeId": "${sharedPreferences.getString('employeeId')=="0"||sharedPreferences.getString('employeeId')==0||sharedPreferences.getString('employeeId')=="null"||sharedPreferences.getString('employeeId')==null?"":sharedPreferences.getString('employeeId')}",
-  //           "dateFrom": "$dateFrom",
-  //           "dateTo": "$dateTo",
-  //         },
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => AttendanceModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // ///==================getOutlets List=======================
-  // static fetchOutletsApi() async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getOutlets";
-  //     Response response = await Dio().post(url,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => OutletsModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-  //
-  // //==================Outlets List=======================
-  // static fetchOutletsCutomer() async {
-  //   SharedPreferences? sharedPreferences;
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   try {
-  //     String url = "${baseUrl}api/v1/getCustomers";
-  //     Response response = await Dio().post(url,
-  //         options: Options(headers: {
-  //           "Content-Type": "application/json",
-  //           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-  //           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-  //         }));
-  //     var data = jsonDecode(response.data);
-  //     return List.from(data).map((e) => OutletsCustomerModel.fromMap(e)).toList();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
+//==================get_due_sale_invoice =======================
+  static fetchDueSaleInvoiceApi(BuildContext context,String? customerId) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_due_sale_invoice";
+    try {
+      Response response = await Dio().post(link,
+        data: {
+          "customerId": customerId,
+          "isEdit": "yes"
+        },
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
+      var item = response.data;
+      print("DueSaleInvoice===$item");
+      if(item is! List){
+        if(item['status'] == 401 && item['success'] == false) {
+          ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+          LogoutService.fetchLogout(context);
+        }
+      }
+      return List.from(item).map((e) => DueSaleInvoiceModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+//==================get_emp_wise_cus_pay_due=======================
+  static fetchEmpWiseCusPayDueApi(BuildContext context, 
+    String? customerId,
+    String? employeeId,
+    String? searchType,
+    String? paymentType,
+    String? dateFrom,
+    String? dateTo
+    ) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_emp_wise_cus_pay_due";
+    try {
+      Response response = await Dio().post(link,
+        data: {
+          "customerId": customerId,
+          "employeeId": employeeId,
+          "searchType": searchType,
+          "paymentType": paymentType,
+          "dateFrom": dateFrom,
+          "dateTo": dateTo,
+        },
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
+      var item = response.data;
+      print("EmpWiseCusPayDue===$item");
+      if(item is! List){
+        if(item['status'] == 401 && item['success'] == false) {
+          ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+          LogoutService.fetchLogout(context);
+        }
+      }
+      return List.from(item["payments"]).map((e) => EmpWiseCusPayDueModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
 }

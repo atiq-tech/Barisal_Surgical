@@ -1,4 +1,5 @@
 import 'package:barishal_surgical/common_widget/common_location.dart';
+import 'package:barishal_surgical/models/administration_module_models/product_list_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_details_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
@@ -26,16 +27,6 @@ class ECPSalesReportScreen extends StatefulWidget {
 }
 
 class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
-  String isColor = "";
-  String isSize = "";
-  int? decimal = 0;
-  SharedPreferences? sharedPreferences;
-  Future<void> _initializeData() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    isColor= "${sharedPreferences?.getString('is_color')}";
-    isSize= "${sharedPreferences?.getString('is_size')}";
-  }
-
   Color getColor(Set<MaterialState> states) {
     return Colors.blue.shade100;
   }
@@ -96,6 +87,7 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
   // dropdown value
   String? _selectCustomerId;
   String? _selectEmployeeId;
+  String? _selectProductId;
 
   String myAddress = "Loading...";
     double? myLat, myLong;
@@ -110,6 +102,33 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
     }
   }
 
+  String userName = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
+  String? userType = "";
+  SharedPreferences? sharedPreferences;
+  Future<void> _initializeData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      userName = sharedPreferences?.getString('userName') ?? "";
+      userEmployeeID = sharedPreferences?.getString('employeeId') ?? "";
+      userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
+      userType = sharedPreferences?.getString('userType') ?? "";
+    });
+    print("userType======$userType");
+    _loadCustomerData();
+  }
+
+  void _loadCustomerData() {
+    String employeeIdToPass = (userType == "a" || userType == "m") ? "" : (userEmployeeID ?? "");
+    CustomerListProvider.isCustomerListloading = true;
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(
+      context, 
+      "", 
+      employeeIdToPass
+    );
+  }
+
   @override
   void initState() {
     _initLocation();
@@ -121,7 +140,7 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
     Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
     Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
-    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
+    //Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
     Provider.of<UsersProvider>(context,listen: false).getUsers(context);
     Provider.of<OrdersProvider>(context, listen: false).getOrders(context,"","","",backEndFirstDate,backEndSecondtDate);
     Provider.of<OrdersRecordProvider>(context,listen: false).getOrdersRecord(context,"", "", "", "", "");
@@ -131,6 +150,7 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
 
   var customerController = TextEditingController();
   var employeeController = TextEditingController();
+  var productController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +158,8 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
      final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
     /// Get Employee
      final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
+    /// Get Product
+     final allProductData = Provider.of<ProductListProvider>(context).productsList;
     return Scaffold(
       appBar: CustomAppBar(title: " ECP Sales Report"),
       body: Container(
@@ -167,62 +189,70 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                         child: Container(
                           height: 25.0.h,
                           margin: EdgeInsets.only(top: 4.h),
-                          child: TypeAheadField<EmployeesModel>(
-                            controller: employeeController,
-                            builder: (context, controller, focusNode) {
-                              return TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
-                                  isDense: true,
-                                  hintText: 'Select Employee',
-                                  hintStyle: TextStyle(fontSize: 13.sp),
-                                  suffixIcon: _selectEmployeeId == '' || _selectEmployeeId == 'null' || _selectEmployeeId == null || controller.text == '' ? null
-                                      : GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        employeeController.clear();
-                                        controller.clear();
-                                        _selectEmployeeId = null;
-                                      });
-                                    },
-                                    child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                  ),
-                                  suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: InputBorder.none,
-                                  focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                  enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                          child: userType == "a" || userType == "m"
+                            ? TypeAheadField<EmployeesModel>(
+                                controller: employeeController,
+                                builder: (context, controller, focusNode) {
+                                  return TextField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                              decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+                                isDense: true,
+                                hintText: 'Select Employee',
+                                hintStyle: TextStyle(fontSize: 13.sp),
+                                suffixIcon: _selectEmployeeId == '' || _selectEmployeeId == 'null' || _selectEmployeeId == null || controller.text == '' ? null
+                                    : GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      employeeController.clear();
+                                      controller.clear();
+                                      _selectEmployeeId = null;
+                                    });
+                                  },
+                                  child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
                                 ),
-                              );
-                            },
-                            suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allGetEmployeesData.where((element) =>
-                                    element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
-                            },
-                            itemBuilder: (context, EmployeesModel suggestion) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                child: Text(suggestion.displayName!,
-                                  style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
-                                ),
-                              );
-                            },
-                            onSelected: (EmployeesModel suggestion) {
-                              setState(() {
-                                employeeController.text = suggestion.displayName!;
-                                _selectEmployeeId = suggestion.employeeSlNo.toString();
-                              });
-                            },
-                          ),
+                                suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: InputBorder.none,
+                                focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                              ),
+                            );
+                          },
+                          suggestionsCallback: (pattern) async {
+                            return Future.delayed(const Duration(seconds: 1), () {
+                              return allGetEmployeesData.where((element) =>
+                                  element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                            });
+                          },
+                          itemBuilder: (context, EmployeesModel suggestion) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                              child: Text(suggestion.displayName!,
+                                style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          },
+                          onSelected: (EmployeesModel suggestion) {
+                            setState(() {
+                              employeeController.text = suggestion.displayName!;
+                              _selectEmployeeId = suggestion.employeeSlNo.toString();
+                            });
+                          },
+                        ):Container(
+                          height: 25.h,
+                          decoration:ContDecoration.contDecoration,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 3.h),
+                            child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
+                          )
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
                 employeeController.text.isEmpty ? SizedBox() : Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -282,6 +312,72 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                               setState(() {
                                 customerController.text = suggestion.displayName!;
                                 _selectCustomerId = suggestion.customerSlNo.toString();
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  customerController.text.isEmpty ? SizedBox() : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(flex: 1, child: Text("Product",style:AllTextStyle.textFieldHeadStyle)),
+                      Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          height: 25.0.h,
+                          margin: EdgeInsets.only(top: 4.h),
+                          child: TypeAheadField<ProductListModel>(
+                            controller: productController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+                                  isDense: true,
+                                  hintText: 'Select Product',
+                                  hintStyle: TextStyle(fontSize: 13.sp),
+                                  suffixIcon: _selectProductId == '' || _selectProductId == 'null' || _selectProductId == null || controller.text == '' ? null
+                                      : GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        productController.clear();
+                                        controller.clear();
+                                        _selectProductId = null;
+                                      });
+                                    },
+                                    child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+                                  ),
+                                  suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: InputBorder.none,
+                                  focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                  enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                ),
+                              );
+                            },
+                            suggestionsCallback: (pattern) async {
+                              return Future.delayed(const Duration(seconds: 1), () {
+                                return allProductData.where((element) =>
+                                    element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                              });
+                            },
+                            itemBuilder: (context, ProductListModel suggestion) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                                child: Text(suggestion.displayText!,
+                                  style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                            onSelected: (ProductListModel suggestion) {
+                              setState(() {
+                                productController.text = suggestion.displayText!;
+                                _selectProductId = suggestion.productSlNo.toString();
                               });
                             },
                           ),
