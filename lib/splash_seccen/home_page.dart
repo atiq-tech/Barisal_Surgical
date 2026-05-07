@@ -366,7 +366,7 @@ class _HomePageState extends State<HomePage> {
                         }
                         else if (index == 9) {
                           //if (customerList == "true" || userType=="m"|| userType== "a") {
-                          Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerPaymentScreen()));
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerPaymentEntryScreen()));
                           // } else {
                           //   showWarningDialog(context);
                           // }

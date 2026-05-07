@@ -39,7 +39,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     _initLocation();
     super.initState();
     ProductListProvider.isProductsListLoading = true;
-    Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
+    Provider.of<ProductListProvider>(context, listen: false).getProductList(context,"");
   }
 
   @override

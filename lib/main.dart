@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/providers/administration_module_providers/customer_payments_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/employee_attendance_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/visits_provider.dart';
@@ -7,6 +8,7 @@ import 'package:barishal_surgical/providers/order_module_providers/orders_provid
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/customer_due_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/due_sale_invoice_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/ecp_wise_sale_report_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/emp_wise_cus_pay_due_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
 import 'package:barishal_surgical/splash_seccen/splash_screen.dart';
@@ -105,6 +107,8 @@ class MyApp extends StatelessWidget {
          ChangeNotifierProvider<SalesDetailsProvider>(create: (_) => SalesDetailsProvider()),
          ChangeNotifierProvider<SalesInvoiceProvider>(create: (_) => SalesInvoiceProvider()),
          ChangeNotifierProvider<OrdersInvoiceProvider>(create: (_) => OrdersInvoiceProvider()),
+         ChangeNotifierProvider<CustomerPaymentsProvider>(create: (_) => CustomerPaymentsProvider()),
+         ChangeNotifierProvider<EcpWiseSaleReportProvider>(create: (_) => EcpWiseSaleReportProvider()),
          ChangeNotifierProvider<EmployeeAttendanceProvider>(create: (_) => EmployeeAttendanceProvider()),
         ],
         child: MaterialApp(

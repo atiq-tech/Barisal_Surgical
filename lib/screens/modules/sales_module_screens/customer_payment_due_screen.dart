@@ -109,7 +109,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
   bool isAllTypeClicked = true;
   bool isEmployeeWiseClicked = false;
   bool _isSearchDropdownOpen = false;
-
+  String searchStatus = "";
   String? _selectedSearchTypes = 'All';
   final List<String> _searchTypes = ['All', 'By Employee'];
 
@@ -206,11 +206,13 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
   void _onSearchTypeSelected(String selectedValue) {
     setState(() {
       _selectedSearchTypes = selectedValue;
-      
-      // বুলিওন ফ্ল্যাগ আপডেট
       isAllTypeClicked = (selectedValue == "All");
       isEmployeeWiseClicked = (selectedValue == "By Employee");
-
+      if (selectedValue == "All") {
+        searchStatus = ""; 
+      } else if (selectedValue == "By Employee") {
+        searchStatus = "employee";
+      }
       emtyMethod(); // আপনার প্র্য়োজনীয় মেথড কল
     });
   }
@@ -220,7 +222,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
   bool isPaidClicked = false;
   bool isDueClicked = false;
   bool _isPaymentDropdownOpen = false;
-  
+  String paymentStatus = "";
   String? _selectedPaymentTypes = 'All';
   final List<String> _paymentTypes = ['All', 'Paid', 'Due'];
 
@@ -318,8 +320,14 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
       isAllPaymentClicked = selectedValue == "All";
       isPaidClicked = selectedValue == "Paid";
       isDueClicked = selectedValue == "Due";
-      
-      emtyMethod(); // আপনার মেথড কল
+      if (selectedValue == "All") {
+        paymentStatus = ""; 
+      } else if (selectedValue == "Paid") {
+        paymentStatus = "paid";
+      } else if (selectedValue == "Due") {
+        paymentStatus = "due";
+      }
+      emtyMethod(); 
     });
   }
 
@@ -370,214 +378,21 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
     /// Get Employee
      final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
      final allEmpWiseCusPayDueData = Provider.of<EmpWiseCusPayDueProvider>(context).empWiseCusPayDuelist;
-//      List<DataRow> _buildRows() {
-//   List<DataRow> rows = [];
 
-//   String currentEmployee = "";
-//   double grandInvoiceAmount = 0;
-//   double grandDiscount = 0;
-//   double grandVat = 0;
-//   double grandTrCost = 0;
-//   double grandReturnedAmount = 0;
-//   double grandNetPayable = 0;
-//   double grandPaidAmount = 0;
-//   double grandInvoiceDue = 0;
-//   double grandPreviousDue = 0;
-//   double grandTotalDue = 0;
+allEmpWiseCusPayDueData.sort((a, b) {
+  int emp = (a.employeeName ?? "").compareTo(b.employeeName ?? "");
+  if (emp != 0) return emp;
 
-//   for (int i = 0; i < allEmpWiseCusPayDueData.length; i++) {
-//     var data = allEmpWiseCusPayDueData[i];
+  int cus = (a.customerName ?? "").compareTo(b.customerName ?? "");
+  if (cus != 0) return cus;
 
-//     if (currentEmployee != data.employeeName) {
-//   currentEmployee = data.employeeName ?? "";
-
-//   /// 🔥 Employee wise total calculate
-//   double empInvoiceAmount = 0;
-//   double empDiscount = 0;
-//   double empVat = 0;
-//   double empTrCost = 0;
-//   double empReturned = 0;
-//   double empNetPayable = 0;
-//   double empPaid = 0;
-//   double empInvoiceDue = 0;
-//   double empPreviousDue = 0;
-//   double empTotalDue = 0;
-
-//   for (var e in allEmpWiseCusPayDueData) {
-//     if ((e.employeeName ?? "") == currentEmployee) {
-//       empInvoiceAmount += double.tryParse(e.subTotal ?? "0") ?? 0;
-//       empDiscount += double.tryParse(e.discount ?? "0") ?? 0;
-//       empVat += double.tryParse(e.vat ?? "0") ?? 0;
-//       empTrCost += double.tryParse(e.transport ?? "0") ?? 0;
-//       empReturned += double.tryParse(e.returned ?? "0") ?? 0;
-//       empNetPayable += double.tryParse(e.bill ?? "0") ?? 0;
-//       empPaid += double.tryParse(e.paid ?? "0") ?? 0;
-//       empInvoiceDue += double.tryParse(e.invoiceDue ?? "0") ?? 0;
-//       empPreviousDue += double.tryParse(e.previousDue ?? "0") ?? 0;
-//       empTotalDue += double.tryParse(e.due ?? "0") ?? 0;
-//     }
-//   }
-
-//   rows.add(
-//     DataRow(
-//       color: WidgetStateProperty.all(Colors.grey.shade300),
-//       cells: [
-
-//         /// 1-4 empty
-//         const DataCell(Text("")),
-//         const DataCell(Text("")),
-//         const DataCell(Text("")),
-//         const DataCell(Text("")),
-
-//         /// 5 = Employee Name
-//         DataCell(Text(
-//           "Employee Name : $currentEmployee",
-//           style: const TextStyle(
-//               fontWeight: FontWeight.bold, color: Colors.green),
-//         )),
-
-//         /// 6-15 = totals
-//         DataCell(Text(empInvoiceAmount.toStringAsFixed(2))),
-//         DataCell(Text(empDiscount.toStringAsFixed(2))),
-//         DataCell(Text(empVat.toStringAsFixed(2))),
-//         DataCell(Text(empTrCost.toStringAsFixed(2))),
-//         DataCell(Text(empReturned.toStringAsFixed(2))),
-//         DataCell(Text(empNetPayable.toStringAsFixed(2))),
-//         DataCell(Text(empPaid.toStringAsFixed(2))),
-//         DataCell(Text(empInvoiceDue.toStringAsFixed(2))),
-//         DataCell(Text(empPreviousDue.toStringAsFixed(2))),
-//         DataCell(Text(empTotalDue.toStringAsFixed(2))),
-//       ],
-//     ),
-//   );
-// }
-
-//     /// ✅ Employee Header
-//     // if (currentEmployee != data.employeeName) {
-//     //   currentEmployee = data.employeeName ?? "";
-
-//     //   rows.add(
-//     //     DataRow(
-//     //       color: WidgetStateProperty.all(Colors.grey.shade300),
-//     //       cells: [
-//     //         DataCell(Text("")),
-//     //         DataCell(Text("")),
-//     //         DataCell(Text("")),
-//     //         DataCell(Text("")),
-//     //         DataCell(Text(
-//     //           "Employee Name : $currentEmployee",
-//     //           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
-//     //         )),
-//     //         ...List.generate(10, (index) => DataCell(Text(""))),
-//     //       ],
-//     //     ),
-//     //   );
-//     // }
-
-//     /// ✅ Normal Row
-//     rows.add(
-//       DataRow(
-//         color: i % 2 == 0
-//             ? WidgetStateProperty.all(Colors.grey.shade100)
-//             : WidgetStateProperty.all(Colors.white),
-//         cells: [
-//           DataCell(Text("${i + 1}")),
-//           DataCell(Text(data.date ?? "")),
-//           DataCell(Text(data.invoiceNo ?? "")),
-//           DataCell(Text(data.comment ?? "")),
-//           DataCell(Text(data.customerName ?? "")),
-//           DataCell(Text(data.subTotal ?? "0")),
-//           DataCell(Text(data.discount ?? "0")),
-//           DataCell(Text(data.vat ?? "0")),
-//           DataCell(Text(data.transport ?? "0")),
-//           DataCell(Text(data.returned ?? "0")),
-//           DataCell(Text(data.bill ?? "0")),
-//           DataCell(Text(data.paid ?? "0")),
-//           DataCell(Text(data.invoiceDue ?? "0")),
-//           DataCell(Text(data.previousDue ?? "0")),
-//           DataCell(Text(data.due ?? "0")),
-//         ],
-//       ),
-//     );
-//     grandInvoiceAmount += double.tryParse(data.subTotal ?? "0") ?? 0;
-//     grandDiscount += double.tryParse(data.discount ?? "0") ?? 0;
-//     grandVat += double.tryParse(data.vat ?? "0") ?? 0;
-//     grandTrCost += double.tryParse(data.transport ?? "0") ?? 0;
-//     grandReturnedAmount += double.tryParse(data.returned ?? "0") ?? 0;
-//     grandNetPayable += double.tryParse(data.bill ?? "0") ?? 0;
-//     grandPaidAmount += double.tryParse(data.paid ?? "0") ?? 0;
-//     grandInvoiceDue += double.tryParse(data.invoiceDue ?? "0") ?? 0;
-//     grandPreviousDue += double.tryParse(data.previousDue ?? "0") ?? 0;
-//     grandTotalDue += double.tryParse(data.due ?? "0") ?? 0;
-//   }
-
-//   /// ✅ GRAND TOTAL ROW
-//   rows.add(
-//     DataRow(
-//       color: WidgetStateProperty.all(Colors.green.shade700),
-//       cells: [
-//         const DataCell(Text("")),
-//         const DataCell(Text("")),
-//         const DataCell(Text("")),
-//         const DataCell(Text("")),
-//         const DataCell(Text(
-//           "GRAND TOTAL",
-//           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-        
-//     DataCell(Text(
-//           grandInvoiceAmount.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//         DataCell(Text(
-//           grandDiscount.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//         DataCell(Text(
-//           grandVat.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//         DataCell(Text(
-//           grandTrCost.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//         DataCell(Text(
-//           grandReturnedAmount.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-
-//          DataCell(Text(
-//           grandNetPayable.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//         DataCell(Text(
-//           grandPaidAmount.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//         DataCell(Text(
-//           grandInvoiceDue.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-
-//         DataCell(Text(
-//           grandPreviousDue.toStringAsFixed(2),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//         DataCell(Text(
-//           grandTotalDue.toStringAsFixed(3),
-//           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         )),
-//       ],
-//     ),
-//   );
-
-//   return rows;
-// }
-
+  return (a.invoiceNo ?? "").compareTo(b.invoiceNo ?? "");
+});
 
 List<DataRow> _buildRows() {
   List<DataRow> rows = [];
- //grand totals
+
+  /// 🔥 GRAND TOTALS
   double grandInvoiceAmount = 0;
   double grandDiscount = 0;
   double grandVat = 0;
@@ -589,27 +404,44 @@ List<DataRow> _buildRows() {
   double grandPreviousDue = 0;
   double grandTotalDue = 0;
 
-
   String currentEmployee = "";
+  String currentCustomer = "";
 
-  double empInvoiceAmount = 0;
-  double empDiscount = 0;
-  double empVat = 0;
-  double empTrCost = 0;
-  double empReturned = 0;
-  double empNetPayable = 0;
-  double empPaid = 0;
-  double empInvoiceDue = 0;
-  double empPreviousDue = 0;
-  double empTotalDue = 0;
+  /// 🔥 SERIAL (NEW)
+  int serial = 0;
+
+  /// Employee totals
+  double empInvoiceAmount = 0, empDiscount = 0, empVat = 0, empTrCost = 0;
+  double empReturned = 0, empNetPayable = 0, empPaid = 0;
+  double empInvoiceDue = 0, empPreviousDue = 0, empTotalDue = 0;
+
+  /// Customer totals
+  double cusInvoiceAmount = 0, cusDiscount = 0, cusVat = 0, cusTrCost = 0;
+  double cusReturned = 0, cusNetPayable = 0, cusPaid = 0;
+  double cusInvoiceDue = 0, cusPreviousDue = 0, cusTotalDue = 0;
 
   for (int i = 0; i < allEmpWiseCusPayDueData.length; i++) {
     var data = allEmpWiseCusPayDueData[i];
 
-    /// 🔴 Employee Change
+    /// ================= EMPLOYEE CHANGE =================
     if (currentEmployee != (data.employeeName ?? "")) {
 
-      /// 👉 Previous Employee subtotal row
+      if (currentCustomer.isNotEmpty) {
+        rows.add(_customerSubtotalRow(
+          currentCustomer,
+          cusInvoiceAmount,
+          cusDiscount,
+          cusVat,
+          cusTrCost,
+          cusReturned,
+          cusNetPayable,
+          cusPaid,
+          cusInvoiceDue,
+          cusPreviousDue,
+          cusTotalDue,
+        ));
+      }
+
       if (currentEmployee.isNotEmpty) {
         rows.add(_employeeSubtotalRow(
           currentEmployee,
@@ -624,23 +456,18 @@ List<DataRow> _buildRows() {
           empPreviousDue,
           empTotalDue,
         ));
-
-        /// reset
-        empInvoiceAmount = 0;
-        empDiscount = 0;
-        empVat = 0;
-        empTrCost = 0;
-        empReturned = 0;
-        empNetPayable = 0;
-        empPaid = 0;
-        empInvoiceDue = 0;
-        empPreviousDue = 0;
-        empTotalDue = 0;
       }
 
       currentEmployee = data.employeeName ?? "";
+      currentCustomer = "";
 
-      /// 👉 Employee Header
+      empInvoiceAmount = empDiscount = empVat = empTrCost = 0;
+      empReturned = empNetPayable = empPaid = 0;
+      empInvoiceDue = empPreviousDue = empTotalDue = 0;
+
+      /// 🔴 SERIAL reset optional (not needed but safe)
+      serial = 0;
+
       rows.add(
         DataRow(
           color: WidgetStateProperty.all(Colors.grey.shade300),
@@ -660,12 +487,46 @@ List<DataRow> _buildRows() {
       );
     }
 
-    /// 🔹 Normal Row
+    /// ================= CUSTOMER CHANGE =================
+    if (currentCustomer != (data.customerName ?? "")) {
+
+      if (currentCustomer.isNotEmpty) {
+        rows.add(_customerSubtotalRow(
+          currentCustomer,
+          cusInvoiceAmount,
+          cusDiscount,
+          cusVat,
+          cusTrCost,
+          cusReturned,
+          cusNetPayable,
+          cusPaid,
+          cusInvoiceDue,
+          cusPreviousDue,
+          cusTotalDue,
+        ));
+      }
+
+      currentCustomer = data.customerName ?? "";
+
+      /// 🔥 SERIAL RESET HERE (IMPORTANT)
+      serial = 0;
+
+      cusInvoiceAmount = cusDiscount = cusVat = cusTrCost = 0;
+      cusReturned = cusNetPayable = cusPaid = 0;
+      cusInvoiceDue = cusPreviousDue = cusTotalDue = 0;
+    }
+
+    /// 🔥 SERIAL INCREMENT
+    serial++;
+
+    /// ================= NORMAL ROW =================
     rows.add(
       DataRow(
-        color: i % 2 == 0? WidgetStateProperty.all(Colors.grey.shade100): WidgetStateProperty.all(Colors.white),
+        color: i % 2 == 0
+            ? WidgetStateProperty.all(Colors.grey.shade100)
+            : WidgetStateProperty.all(Colors.white),
         cells: [
-          DataCell(Text("${i + 1}")),
+          DataCell(Text("$serial")), // 🔥 FIXED
           DataCell(Text(data.date ?? "")),
           DataCell(Text(data.invoiceNo ?? "")),
           DataCell(Text(data.comment ?? "")),
@@ -684,32 +545,70 @@ List<DataRow> _buildRows() {
       ),
     );
 
-    ///grand totals calculate
-    grandInvoiceAmount += double.tryParse(data.subTotal ?? "0") ?? 0;
-    grandDiscount += double.tryParse(data.discount ?? "0") ?? 0;
-    grandVat += double.tryParse(data.vat ?? "0") ?? 0;
-    grandTrCost += double.tryParse(data.transport ?? "0") ?? 0;
-    grandReturnedAmount += double.tryParse(data.returned ?? "0") ?? 0;
-    grandNetPayable += double.tryParse(data.bill ?? "0") ?? 0;
-    grandPaidAmount += double.tryParse(data.paid ?? "0") ?? 0;
-    grandInvoiceDue += double.tryParse(data.invoiceDue ?? "0") ?? 0;
-    grandPreviousDue += double.tryParse(data.previousDue ?? "0") ?? 0;
-    grandTotalDue += double.tryParse(data.due ?? "0") ?? 0;
+    /// ================= TOTAL ADD =================
+    double sub = double.tryParse(data.subTotal ?? "0") ?? 0;
+    double dis = double.tryParse(data.discount ?? "0") ?? 0;
+    double vat = double.tryParse(data.vat ?? "0") ?? 0;
+    double tr = double.tryParse(data.transport ?? "0") ?? 0;
+    double ret = double.tryParse(data.returned ?? "0") ?? 0;
+    double net = double.tryParse(data.bill ?? "0") ?? 0;
+    double paid = double.tryParse(data.paid ?? "0") ?? 0;
+    double invDue = double.tryParse(data.invoiceDue ?? "0") ?? 0;
+    double prev = double.tryParse(data.previousDue ?? "0") ?? 0;
+    double due = double.tryParse(data.due ?? "0") ?? 0;
 
-    /// 🔹 Add totals
-    empInvoiceAmount += double.tryParse(data.subTotal ?? "0") ?? 0;
-    empDiscount += double.tryParse(data.discount ?? "0") ?? 0;
-    empVat += double.tryParse(data.vat ?? "0") ?? 0;
-    empTrCost += double.tryParse(data.transport ?? "0") ?? 0;
-    empReturned += double.tryParse(data.returned ?? "0") ?? 0;
-    empNetPayable += double.tryParse(data.bill ?? "0") ?? 0;
-    empPaid += double.tryParse(data.paid ?? "0") ?? 0;
-    empInvoiceDue += double.tryParse(data.invoiceDue ?? "0") ?? 0;
-    empPreviousDue += double.tryParse(data.previousDue ?? "0") ?? 0;
-    empTotalDue += double.tryParse(data.due ?? "0") ?? 0;
+    cusInvoiceAmount += sub;
+    cusDiscount += dis;
+    cusVat += vat;
+    cusTrCost += tr;
+    cusReturned += ret;
+    cusNetPayable += net;
+    cusPaid += paid;
+    cusInvoiceDue += invDue;
+    cusPreviousDue += prev;
+    cusTotalDue += due;
+
+    empInvoiceAmount += sub;
+    empDiscount += dis;
+    empVat += vat;
+    empTrCost += tr;
+    empReturned += ret;
+    empNetPayable += net;
+    empPaid += paid;
+    empInvoiceDue += invDue;
+    empPreviousDue += prev;
+    empTotalDue += due;
+
+    grandInvoiceAmount += sub;
+    grandDiscount += dis;
+    grandVat += vat;
+    grandTrCost += tr;
+    grandReturnedAmount += ret;
+    grandNetPayable += net;
+    grandPaidAmount += paid;
+    grandInvoiceDue += invDue;
+    grandPreviousDue += prev;
+    grandTotalDue += due;
   }
 
-  /// 👉 Last Employee subtotal
+  /// LAST CUSTOMER
+  if (currentCustomer.isNotEmpty) {
+    rows.add(_customerSubtotalRow(
+      currentCustomer,
+      cusInvoiceAmount,
+      cusDiscount,
+      cusVat,
+      cusTrCost,
+      cusReturned,
+      cusNetPayable,
+      cusPaid,
+      cusInvoiceDue,
+      cusPreviousDue,
+      cusTotalDue,
+    ));
+  }
+
+  /// LAST EMPLOYEE
   if (currentEmployee.isNotEmpty) {
     rows.add(_employeeSubtotalRow(
       currentEmployee,
@@ -725,7 +624,9 @@ List<DataRow> _buildRows() {
       empTotalDue,
     ));
   }
-rows.add(
+
+  /// ✅ GRAND TOTAL ROW
+  rows.add(
     DataRow(
       color: WidgetStateProperty.all(Colors.green.shade700),
       cells: [
@@ -783,7 +684,7 @@ rows.add(
       ],
     ),
   );
-  return rows;
+    return rows;
 }
 
     return Scaffold(
@@ -903,6 +804,11 @@ rows.add(
                                 employeeController.text = suggestion.displayName!;
                                 _selectEmployeeId = suggestion.employeeSlNo.toString();
                               });
+                               Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(
+                                context, 
+                                "", 
+                                "$_selectEmployeeId"
+                              );
                             },
                           ):Container(
                           height: 25.h,
@@ -1104,17 +1010,23 @@ rows.add(
                       padding: EdgeInsets.all(1.0.r),
                       child: InkWell(
                         onTap: () async {
+                          EmpWiseCusPayDueProvider().on();
                           String employeeIdToPass = (userType == "a" || userType == "m") ? "$_selectEmployeeId" : (userEmployeeID ?? "");
                           await Provider.of<EmpWiseCusPayDueProvider>(context, listen: false).getEmpWiseCusPayDue(
                             context,
-                            // _selectCustomerId ?? "",
-                            // employeeIdToPass,
-                            // _selectedSearchTypes,
-                            // "${_selectedPaymentTypes ?? ""}",
-                            "","","","",
+                            _selectCustomerId??"",
+                            employeeIdToPass=="null" ? "" : employeeIdToPass,
+                            searchStatus,
+                            paymentStatus,
                             backEndFirstDate,
                             backEndSecondtDate
                           );
+                          print("customerIdToPass====${_selectCustomerId??""}");
+                          print("employeeIdToPass====$employeeIdToPass");
+                          print("searchStatus====$searchStatus");
+                          print("paymentStatus====$paymentStatus");
+                          print("backEndFirstDate====$backEndFirstDate");
+                          print("backEndSecondtDate====$backEndSecondtDate");
                         },
                         child: Container(
                           height: 28.0.h,
@@ -1180,6 +1092,7 @@ rows.add(
 
               rows: _buildRows(),
             ),
+            SizedBox(height: 100.h)
           ],
         ),
       ),
@@ -1232,6 +1145,46 @@ rows.add(
       DataCell(Text(invoiceDue.toStringAsFixed(2),style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)),
       DataCell(Text(prevDue.toStringAsFixed(2),style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)),
       DataCell(Text(totalDue.toStringAsFixed(2),style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)),
+    ],
+  );
+}
+
+DataRow _customerSubtotalRow(
+  String name,
+  double invoice,
+  double discount,
+  double vat,
+  double trCost,
+  double returned,
+  double net,
+  double paid,
+  double invoiceDue,
+  double prevDue,
+  double totalDue,
+) {
+  return DataRow(
+    color: WidgetStateProperty.all(Colors.grey.shade300),
+    cells: [
+      const DataCell(Text("")),
+      const DataCell(Text("")),
+      const DataCell(Text("")),
+      const DataCell(Text("")),
+
+      DataCell(Text(
+        "Sub Total ($name):",
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      )),
+
+      DataCell(Text(invoice.toStringAsFixed(2))),
+      DataCell(Text(discount.toStringAsFixed(2))),
+      DataCell(Text(vat.toStringAsFixed(2))),
+      DataCell(Text(trCost.toStringAsFixed(2))),
+      DataCell(Text(returned.toStringAsFixed(2))),
+      DataCell(Text(net.toStringAsFixed(2))),
+      DataCell(Text(paid.toStringAsFixed(2))),
+      DataCell(Text(invoiceDue.toStringAsFixed(2))),
+      DataCell(Text(prevDue.toStringAsFixed(2))),
+      DataCell(Text(totalDue.toStringAsFixed(2))),
     ],
   );
 }

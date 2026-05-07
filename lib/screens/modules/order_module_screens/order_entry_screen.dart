@@ -263,7 +263,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
      Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     ProductListProvider.isProductsListLoading = true;
-    Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
+    Provider.of<ProductListProvider>(context, listen: false).getProductList(context,"");
     CustomerListProvider.isCustomerListloading = true;
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,level,"");
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);

@@ -1,3 +1,4 @@
+import 'package:barishal_surgical/models/administration_module_models/customer_payments_model.dart';
 import 'package:barishal_surgical/models/administration_module_models/employee_attendance_model.dart';
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
 import 'package:barishal_surgical/models/administration_module_models/visits_model.dart';
@@ -7,6 +8,7 @@ import 'package:barishal_surgical/models/order_module_models/orders_model.dart';
 import 'package:barishal_surgical/models/order_module_models/orders_record_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/customer_due_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/due_sale_invoice_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/ecp_wise_sales_report_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/emp_wise_cus_pay_due_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/invoice_due_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/sales_details_model.dart';
@@ -57,17 +59,20 @@ class ApiService{
   }
   
   ///==================Product List =======================
-  static fetchProductListApi(BuildContext context) async {
+  static fetchProductListApi(BuildContext context,String? customerId) async {
     SharedPreferences? sharedPreferences;
     sharedPreferences = await SharedPreferences.getInstance();
     String link = "${baseUrl}get_products";
     try {
       Response response = await Dio().post(link,
-          options: Options(headers: {
-            "Content-Type": "application/json",
-            'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
-            "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-          }));
+        data: {
+           "customerId": customerId,
+        },
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
       var item = response.data;
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
@@ -788,6 +793,84 @@ class ApiService{
         }
       }
       return List.from(item["payments"]).map((e) => EmpWiseCusPayDueModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  
+  //==================get_due_sale_invoice =======================
+  static fetchEcpWiseSalesReportApi(BuildContext context,
+    String? employeeId,
+    String? customerId,
+    String? productId, 
+    String? dateFrom,
+    String? dateTo
+    ) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_ecp_wise_sales_report";
+    try {
+      Response response = await Dio().post(link,
+        data: {
+          "employeeId": employeeId,
+          "customerId": customerId,
+          "productId": productId,
+          "dateFrom": dateFrom,
+          "dateTo": dateTo  
+        },
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
+      var item = response.data;
+      print("DueSaleInvoice===$item");
+      if(item is! List){
+        if(item['status'] == 401 && item['success'] == false) {
+          ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+          LogoutService.fetchLogout(context);
+        }
+      }
+      return List.from(item).map((e) => EcpWiseSalesReportModel.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  
+  //==================get_due_sale_invoice =======================
+  static fetchCustomerPayments(BuildContext context,
+    String? employeeId,
+    String? dateFrom,
+    String? dateTo
+    ) async {
+    SharedPreferences? sharedPreferences;
+    sharedPreferences = await SharedPreferences.getInstance();
+    String link = "${baseUrl}get_customer_payments";
+    try {
+      Response response = await Dio().post(link,
+        data: {
+          "employeeId": employeeId,
+          "dateFrom": dateFrom,
+          "dateTo": dateTo  
+        },
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }));
+      var item = response.data;
+      print("get_customer_payments===$item");
+      if(item is! List){
+        if(item['status'] == 401 && item['success'] == false) {
+          ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
+          LogoutService.fetchLogout(context);
+        }
+      }
+      return List.from(item).map((e) => CustomerPaymentsModel.fromMap(e)).toList();
     } catch (e) {
       print(e);
     }

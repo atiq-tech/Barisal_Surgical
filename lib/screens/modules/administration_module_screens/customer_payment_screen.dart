@@ -6,6 +6,7 @@ import 'package:barishal_surgical/models/administration_module_models/customer_l
 import 'package:barishal_surgical/models/sales_module_models/bank_account_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/due_sale_invoice_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/customer_list_provider.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/customer_payments_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/bank_account_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/due_sale_invoice_provider.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
@@ -20,13 +21,13 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CustomerPaymentScreen extends StatefulWidget {
-  const CustomerPaymentScreen({super.key});
+class CustomerPaymentEntryScreen extends StatefulWidget {
+  const CustomerPaymentEntryScreen({super.key});
   @override
-  State<CustomerPaymentScreen> createState() => _CustomerPaymentScreenState();
+  State<CustomerPaymentEntryScreen> createState() => _CustomerPaymentEntryScreenState();
 }
 
-class _CustomerPaymentScreenState extends State<CustomerPaymentScreen> {
+class _CustomerPaymentEntryScreenState extends State<CustomerPaymentEntryScreen> {
   Color getColor(Set<WidgetState> states) {
     return Colors.blue.shade100;
   }
@@ -48,7 +49,7 @@ class _CustomerPaymentScreenState extends State<CustomerPaymentScreen> {
   final TextEditingController _taxController = TextEditingController();
   final TextEditingController _discountController = TextEditingController();
   final TextEditingController _percentageAmountController = TextEditingController();
-  final TextEditingController _totalController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
   final TextEditingController invoiceController = TextEditingController();
 
 void calculateTotal({String? changed}) {
@@ -70,7 +71,7 @@ void calculateTotal({String? changed}) {
 
   /// Total
   double total = payment + discount;
-  _totalController.text = total.toStringAsFixed(2);
+  _amountController.text = total.toStringAsFixed(2);
 
 }
 
@@ -433,7 +434,7 @@ String? saleTransport="0";
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, "");
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
-    // Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments("","","",backEndFirstDate,backEndFirstDate);
+    Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments(context,"",backEndFirstDate,backEndFirstDate);
     super.initState();
   }
 
@@ -443,7 +444,7 @@ String? saleTransport="0";
     final allDueSaleInvoiceData = Provider.of<DueSaleInvoiceProvider>(context).dueSaleInvoicelist;
     final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo!=0).toList();
     print("Customer length==============${allCustomerData.length}");
-    // final allCustomerPaymentData = Provider.of<CustomerPaymentsProvider>(context).customerPaymentsList;
+    final allCustomerPaymentData = Provider.of<CustomerPaymentsProvider>(context).customerPaymentsList;
     final allBankAccountList = Provider.of<BankAccountProvider>(context).bankAccountList;
     
     return Scaffold(
@@ -975,7 +976,7 @@ String? saleTransport="0";
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextField(
                               style: TextStyle(fontSize: 13.sp),
-                              controller: _totalController,
+                              controller: _amountController,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
@@ -998,25 +999,25 @@ String? saleTransport="0";
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
                     onTap: () {
-                      // if (customerController.text == '') {
-                      //   Utils.showTopSnackBar(context, "Customer is required");
-                      // } else if (_paymentType == "Bank" && bankAccountController.text == '') {
-                      //   Utils.showTopSnackBar(context, "Bank account is required");
-                      // }  else if (_paymentController.text == '') {
-                      //   Utils.showTopSnackBar(context, "Payment Amount is required");
-                      // }
-                      // else {
-                      //   setState(() {
-                      //     customerEntryBtnClk = true;
-                      //   });
-                      //   Utils.closeKeyBoard(context);
-                      //   addCustomerPayment(context).then((value) {
-                      //     Provider.of<CustomerPaymentsProvider>(context, listen: false)
-                      //         .getCustomerPayments("", "", "", backEndFirstDate, backEndFirstDate);
-                      //     setState(() {});
-                      //   });
-                      //   FocusScope.of(context).requestFocus(quantityFocusNode);
-                      // }
+                      if (customerController.text == '') {
+                        Utils.showTopSnackBar(context, "Customer is required");
+                      } else if (_paymentType == "Bank" && bankAccountController.text == '') {
+                        Utils.showTopSnackBar(context, "Bank account is required");
+                      }  else if (_amountController.text == '') {
+                        Utils.showTopSnackBar(context, "Amount is required");
+                      }
+                      else {
+                        setState(() {
+                          customerEntryBtnClk = true;
+                        });
+                        Utils.closeKeyBoard(context);
+                        addCustomerPayment(context).then((value) {
+                          Provider.of<CustomerPaymentsProvider>(context, listen: false)
+                              .getCustomerPayments(context,"", backEndFirstDate, backEndFirstDate);
+                          setState(() {});
+                        });
+                        FocusScope.of(context).requestFocus(quantityFocusNode);
+                      }
 
                       FocusScope.of(context).requestFocus(quantityFocusNode);
                       FocusScope.of(context).unfocus();
@@ -1053,85 +1054,87 @@ String? saleTransport="0";
               ),
             ),
             SizedBox(height: 10.h),
-            // Expanded(
-            //   flex: 3,
-            //   child: CustomerPaymentsProvider.isCustomerPaymentsLoading
-            //   ? const Center(child: CircularProgressIndicator())
-            //   : allCustomerPaymentData.isNotEmpty
-            //   ? Expanded(
-            //     child: SizedBox(
-            //       height: MediaQuery.of(context).size.height / 1.31,
-            //       width: double.infinity,
-            //       child: Container(
-            //         width: double.infinity,
-            //         height: double.infinity,
-            //         padding: EdgeInsets.only(left: 10.w,right: 10.w,bottom: 10.h),
-            //         child: SingleChildScrollView(
-            //           scrollDirection: Axis.vertical,
-            //           child: SingleChildScrollView(
-            //             scrollDirection: Axis.horizontal,
-            //             child: Container(
-            //               padding: EdgeInsets.only(bottom: 16.h),
-            //               child: Column(
-            //                 crossAxisAlignment:CrossAxisAlignment.start,
-            //                 children: [
-            //                   DataTable(
-            //                     headingRowHeight: 20.h,
-            //                     // ignore: deprecated_member_use
-            //                     dataRowHeight: 20.h,
-            //                     headingRowColor:WidgetStateColor.resolveWith((states) => AppColors.appColor),
-            //                     showCheckboxColumn: true,
-            //                     border: TableBorder.all(color: Colors.black54,width: 1.w),
-            //                     columns: [
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Transaction Id',style: AllTextStyle.tableHeadTextStyle)))),
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Customer',style:AllTextStyle.tableHeadTextStyle)))),
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Transaction Type',style:AllTextStyle.tableHeadTextStyle)))),
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Payment by',style:AllTextStyle.tableHeadTextStyle)))),
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Description',style:AllTextStyle.tableHeadTextStyle)))),
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
-            //                       DataColumn(label: Expanded(child: Center(child: Text('Amount',style:AllTextStyle.tableHeadTextStyle)))),
-            //                       //DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+            Expanded(
+              flex: 3,
+              child: CustomerPaymentsProvider.isCustomerPaymentsLoading
+              ? const Center(child: CircularProgressIndicator())
+              : allCustomerPaymentData.isNotEmpty
+              ? Expanded(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 1.31,
+                  width: double.infinity,
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    padding: EdgeInsets.only(left: 10.w,right: 10.w,bottom: 10.h),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Container(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child: Column(
+                            crossAxisAlignment:CrossAxisAlignment.start,
+                            children: [
+                              DataTable(
+                                headingRowHeight: 20.h,
+                                // ignore: deprecated_member_use
+                                dataRowHeight: 20.h,
+                                headingRowColor:WidgetStateColor.resolveWith((states) => AppColors.appColor),
+                                showCheckboxColumn: true,
+                                border: TableBorder.all(color: Colors.black54,width: 1.w),
+                                columns: [
+                                  DataColumn(label: Expanded(child: Center(child: Text('Transaction Id',style: AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style: AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Customer',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Transaction Type',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Payment by',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Description',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Amount',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+                                  //DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
                              
-            //                     ],
-            //                     rows: List.generate(
-            //                       allCustomerPaymentData.length,
-            //                       (int index) => DataRow(
-            //                         color:index % 2 == 0? WidgetStateProperty.resolveWith(AppColors.getColors): WidgetStateProperty.resolveWith(AppColors.getAll),
-            //                         cells: <DataCell>[
-            //                           DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentInvoice.toString()))),
-            //                           DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentDate.toString()))),
-            //                           DataCell(Center(child: Text(allCustomerPaymentData[index].customerName.toString()))),
-            //                           DataCell(Center(child: Text(allCustomerPaymentData[index].transactionType.toString()))),
-            //                           DataCell(Center(child: Text(allCustomerPaymentData[index].paymentBy.toString()))),
-            //                           DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentNotes.toString()))),
-            //                           DataCell(Center(child: Text((allCustomerPaymentData[index].discount ?? 0).toString()))),
-            //                           DataCell(Center(child: Text(double.parse(allCustomerPaymentData[index].cPaymentAmount.toString()).toStringAsFixed(2)))),
-            //                         //   DataCell(
-            //                         //   Center(
-            //                         //     child:GestureDetector(
-            //                         //       child: Icon(Icons.collections_bookmark,size: 18.r),
-            //                         //       onTap: () {
-            //                         //         Navigator.push(context, MaterialPageRoute(builder: (context) => CustomerPaymentInvoice(paymentId: allCustomerPaymentData[index].cPaymentId),
-            //                         //         ));
-            //                         //       },
-            //                         //     ),
-            //                         //   ),
-            //                         // ),
-            //                         ],
-            //                       ),
-            //                     ),
-            //                   ),
-            //                   SizedBox(height: 10.h),
-            //                 ],
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style: AllTextStyle.nofoundTextStyle))),
-            // ),
+                                ],
+                                rows: List.generate(
+                                  allCustomerPaymentData.length,
+                                  (int index) => DataRow(
+                                    color:index % 2 == 0? WidgetStateProperty.resolveWith(AppColors.getColors): WidgetStateProperty.resolveWith(AppColors.getAll),
+                                    cells: <DataCell>[
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentInvoice.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].saleMasterInvoiceNo??""))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentDate.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].customerName.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].transactionType.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].paymentBy.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentNotes.toString()))),
+                                      DataCell(Center(child: Text(double.parse(allCustomerPaymentData[index].cPaymentAmount.toString()).toStringAsFixed(2)))),
+                                      DataCell(Center(child: Text((allCustomerPaymentData[index].addedBy).toString()))),
+                                    //   DataCell(
+                                    //   Center(
+                                    //     child:GestureDetector(
+                                    //       child: Icon(Icons.collections_bookmark,size: 18.r),
+                                    //       onTap: () {
+                                    //         Navigator.push(context, MaterialPageRoute(builder: (context) => CustomerPaymentInvoice(paymentId: allCustomerPaymentData[index].cPaymentId),
+                                    //         ));
+                                    //       },
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style: AllTextStyle.nofoundTextStyle))),
+            ),
           
           ],
         ),
@@ -1146,7 +1149,7 @@ String? saleTransport="0";
       _areaController.text = '';
       _discountController.text = '';
       _percentageAmountController.text = '';
-      _totalController.text = '';
+      _amountController.text = '';
       territoriesController.text = '';
       previousDueController.text = "";
       bankAccountController.text = "";
@@ -1164,18 +1167,21 @@ String? saleTransport="0";
     try {
       Response response = await Dio().post(Link,
         data: {
-            "CPayment_Paymentby": getPaymentType.toString(),
-            "CPayment_TransactionType": getTransactionType.toString(),
-            "CPayment_amount": _vatController.text.toString().trim(),
-            "CPayment_customerID": _selectCustomerId.toString(),
-            "CPayment_date": backEndFirstDate,
             "CPayment_id": 0,
-            "discount": _discountController.text.toString().trim(),
+            "CPayment_customerID": _selectCustomerId.toString(),
+            "CPayment_TransactionType": getTransactionType.toString(),
+            "CPayment_Paymentby": getPaymentType.toString(),
+            "account_id": bankAccountId.toString(),
+            "CPayment_date": backEndFirstDate,
+            "CPayment_amount": _amountController.text.trim(),
             "CPayment_notes": _descriptionController.text.trim(),
             "CPayment_previous_due": customerDueAmount.toString(),
-            "account_id": bankAccountId.toString(),
+            "saleId": invoiceId.toString(),
+            "SaleMaster_TaxAmount": _vatController.text.trim(),
+            "tax_amount": _taxController.text.trim(),
+            "SaleMaster_TotalDiscountAmount": saleDiscount.toString(),
+            "SaleMaster_Freight": saleTransport.toString()
         },
-
         options: Options(
           headers: {
             "Content-Type": "application/json",
@@ -1200,7 +1206,7 @@ String? saleTransport="0";
       //   ),
       // );
       Navigator.push(context,
-        MaterialPageRoute(builder: (context) =>CustomerPaymentScreen(),
+        MaterialPageRoute(builder: (context) =>CustomerPaymentEntryScreen(),
         ),
       );
         return "true";

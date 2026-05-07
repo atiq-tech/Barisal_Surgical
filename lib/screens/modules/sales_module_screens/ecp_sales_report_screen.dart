@@ -1,9 +1,7 @@
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/product_list_model.dart';
-import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
-import 'package:barishal_surgical/providers/order_module_providers/orders_details_provider.dart';
-import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
-import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
+import 'package:barishal_surgical/providers/sales_module_providers/ecp_wise_sale_report_provider.dart';
+import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -14,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common_widget/custom_appbar.dart';
 import '../../../models/administration_module_models/customer_list_model.dart';
 import '../../../models/administration_module_models/employees_model.dart';
-import '../../../providers/administration_module_providers/categories_provider.dart';
 import '../../../providers/administration_module_providers/customer_list_provider.dart';
 import '../../../providers/administration_module_providers/employees_provider.dart';
 import '../../../providers/administration_module_providers/products_list_provider.dart';
@@ -137,14 +134,9 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     secondPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndSecondtDate = Utils.formatBackEndDate(DateTime.now());
-    Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
-    Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);
+    Provider.of<ProductListProvider>(context, listen: false).getProductList(context,"");
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
-    //Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
-    Provider.of<UsersProvider>(context,listen: false).getUsers(context);
-    Provider.of<OrdersProvider>(context, listen: false).getOrders(context,"","","",backEndFirstDate,backEndSecondtDate);
-    Provider.of<OrdersRecordProvider>(context,listen: false).getOrdersRecord(context,"", "", "", "", "");
-    Provider.of<OrdersDetailsProvider>(context,listen: false).getOrdersDetails(context,"", "", "", "");
+    Provider.of<EcpWiseSaleReportProvider>(context,listen: false).ecpWiseSalesReportlist = [];
     super.initState();
   }
 
@@ -160,6 +152,84 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
      final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
     /// Get Product
      final allProductData = Provider.of<ProductListProvider>(context).productsList;
+    /// Get Product
+     final allEcpWiseSalesReportData = Provider.of<EcpWiseSaleReportProvider>(context).ecpWiseSalesReportlist;
+     allEcpWiseSalesReportData.sort((a, b) {
+      int cus = (a.customerName ?? "").compareTo(b.customerName ?? "");
+      if (cus != 0) return cus;
+      return (a.productName ?? "").compareTo(b.productName ?? "");
+    });
+
+    List<DataRow> _buildSalesRows() {
+    List<DataRow> rows = [];
+    String currentCustomer = "";
+
+    int serial = 0;
+    double cusQty = 0;
+    double cusAmount = 0;
+    double grandQty = 0;
+    double grandAmount = 0;
+
+    for (int i = 0; i < allEcpWiseSalesReportData.length; i++) {
+      var data = allEcpWiseSalesReportData[i];
+      double qty = double.tryParse(data.quantity ?? "0") ?? 0;
+      double amt = double.tryParse(data.amount ?? "0") ?? 0;
+
+      /// 🔴 Customer Change
+      if (currentCustomer != (data.customerName ?? "")) {
+        /// last customer subtotal
+        if (currentCustomer.isNotEmpty) {
+          rows.add(_customerSubtotalRow(currentCustomer, cusQty, cusAmount));
+        }
+        currentCustomer = data.customerName ?? "";
+        /// reset
+        serial = 0;
+        cusQty = 0;
+        cusAmount = 0;
+      }
+      /// serial
+      serial++;
+      /// 🔹 normal row
+      rows.add(
+        DataRow(
+          cells: [
+            DataCell(Center(child: Text("$serial"))),
+            DataCell(Center(child: Text(data.employeeName ?? ""))),
+            DataCell(Center(child: Text(data.customerName ?? ""))),
+            DataCell(Center(child: Text(data.productName ?? ""))),
+            DataCell(Center(child: Text(data.quantity ?? ""))),
+            DataCell(Center(child: Text(data.amount ?? ""))),
+          ],
+        ),
+      );
+      /// totals
+      cusQty += qty;
+      cusAmount += amt;
+      grandQty += qty;
+      grandAmount += amt;
+    }
+
+    /// last customer subtotal
+    if (currentCustomer.isNotEmpty) {
+      rows.add(_customerSubtotalRow(currentCustomer, cusQty, cusAmount));
+    }
+    /// 🔥 GRAND TOTAL
+    rows.add(
+      DataRow(
+        color: WidgetStateProperty.all(AppColors.appColor),
+        cells: [
+          const DataCell(Text("")),
+          const DataCell(Text("")),
+          const DataCell(Text("")),
+          DataCell(Center(child: Text("Grand Total",style: AllTextStyle.tableHeadTextStyle))),
+          DataCell(Center(child: Text(grandQty.toStringAsFixed(0),style: AllTextStyle.tableHeadTextStyle))),
+          DataCell(Center(child: Text(grandAmount.toStringAsFixed(2),style: AllTextStyle.tableHeadTextStyle))),
+        ],
+      ),
+    );
+    return rows;
+  }
+
     return Scaffold(
       appBar: CustomAppBar(title: " ECP Sales Report"),
       body: Container(
@@ -240,6 +310,11 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                               employeeController.text = suggestion.displayName!;
                               _selectEmployeeId = suggestion.employeeSlNo.toString();
                             });
+                            Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(
+                              context, 
+                              "", 
+                              "$_selectEmployeeId"
+                            );
                           },
                         ):Container(
                           height: 25.h,
@@ -313,6 +388,10 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                                 customerController.text = suggestion.displayName!;
                                 _selectCustomerId = suggestion.customerSlNo.toString();
                               });
+                               Provider.of<ProductListProvider>(context, listen: false).getProductList(
+                                context, 
+                                _selectCustomerId??"", 
+                              );
                             },
                           ),
                         ),
@@ -466,6 +545,16 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                       padding: EdgeInsets.all(1.0.r),
                       child: InkWell(
                         onTap: () async {
+                          String employeeIdToPass = (userType == "a" || userType == "m") ? "$_selectEmployeeId" : (userEmployeeID ?? "");
+                          EcpWiseSaleReportProvider().on();
+                          Provider.of<EcpWiseSaleReportProvider>(context,listen: false).
+                          getEcpWiseSalesReport(context,
+                            employeeIdToPass=="null" ? "" : employeeIdToPass,
+                            _selectCustomerId??"",
+                            _selectProductId??"",
+                            backEndFirstDate,
+                            backEndSecondtDate
+                         );
                         },
                         child: Container(
                           height: 28.0.h,
@@ -490,9 +579,66 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                 ],
               ),
             ),
+            SizedBox(height: 15.h),
+            EcpWiseSaleReportProvider.isEcpWiseSalesReportLoading ?
+            const Center(child: CircularProgressIndicator(),)
+           :allEcpWiseSalesReportData.isNotEmpty? Expanded(child: Container(
+           padding: EdgeInsets.only(bottom: 10.h),
+             child: SingleChildScrollView(
+               scrollDirection: Axis.vertical,
+               child: SingleChildScrollView(
+                 scrollDirection: Axis.horizontal,
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     DataTable(
+                       headingRowHeight: 20.h,
+                       // ignore: deprecated_member_use
+                       dataRowHeight: 20.h,
+                       headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.appColor),
+                       showCheckboxColumn: true,
+                       border: TableBorder.all(color: Colors.white30, width: 1.w),
+                       columns: [
+                         DataColumn(label: Expanded(child: Center(child: Text('SL No',style:AllTextStyle.tableHeadTextStyle)))),
+                         DataColumn(label: Expanded(child: Center(child: Text('Employee',style:AllTextStyle.tableHeadTextStyle)))),
+                         DataColumn(label: Expanded(child: Center(child: Text('Customer',style:AllTextStyle.tableHeadTextStyle)))),
+                         DataColumn(label: Expanded(child: Center(child: Text('Product',style:AllTextStyle.tableHeadTextStyle)))),
+                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
+                         DataColumn(label: Expanded(child: Center(child: Text('Amount',style:AllTextStyle.tableHeadTextStyle)))),
+                        ],
+
+                       rows: _buildSalesRows(),
+
+                     ),
+                     SizedBox(height: 100.h)
+                   ],
+                 ),
+               ),
+             ),
+           ),
+          ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))), 
+         
           ],
         ),
       ),
     );
   }
+  DataRow _customerSubtotalRow(String name, double qty, double amount) {
+  return DataRow(
+    color: WidgetStateProperty.all(Colors.blue.shade100),
+    cells: [
+      const DataCell(Text("")),
+      const DataCell(Text("")),
+      const DataCell(Text("")),
+      DataCell(Center(
+        child: Text(
+          "Sub Total For ($name) :",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      )),
+      DataCell(Center(child: Text(qty.toStringAsFixed(0),style: TextStyle(fontWeight: FontWeight.bold)))),
+      DataCell(Center(child: Text(amount.toStringAsFixed(2),style: TextStyle(fontWeight: FontWeight.bold)))),
+    ],
+  );
+}
 }

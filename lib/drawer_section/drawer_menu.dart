@@ -318,7 +318,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           InkWell(
               onTap: (){
                 //if(customerList == "true"|| userType=="m"|| userType== "a"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentEntryScreen()));
                 // }
                 // else{
                 //   showWarningDialog(context);

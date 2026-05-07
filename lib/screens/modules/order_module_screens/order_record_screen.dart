@@ -379,7 +379,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     secondPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndSecondtDate = Utils.formatBackEndDate(DateTime.now());
-    Provider.of<ProductListProvider>(context, listen: false).getProductList(context);
+    Provider.of<ProductListProvider>(context, listen: false).getProductList(context,"");
     Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");

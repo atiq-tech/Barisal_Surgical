@@ -6,8 +6,8 @@ class ProductListProvider extends ChangeNotifier {
   static bool isProductsListLoading = false;
 
   List<ProductListModel> productsList = [];
-  getProductList(BuildContext context) async {
-    productsList = await ApiService.fetchProductListApi(context);
+  getProductList(BuildContext context,String? customerId) async {
+    productsList = await ApiService.fetchProductListApi(context,customerId);
     off();
     notifyListeners();
   }

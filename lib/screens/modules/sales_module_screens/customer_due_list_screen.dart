@@ -2,8 +2,10 @@
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/common_widget/commontype_aheadfield.dart';
 import 'package:barishal_surgical/common_widget/custom_appbar.dart';
+import 'package:barishal_surgical/models/administration_module_models/areas_model.dart';
 import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
 import 'package:barishal_surgical/models/sales_module_models/invoice_due_model.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/areas_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/customer_list_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/customer_due_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
@@ -192,7 +194,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
     WidgetsBinding.instance.addPostFrameCallback(_getDropdownSize);
     _initializeData();
     // Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("","","");
-    // Provider.of<AreasProvider>(context, listen: false).getAreas();
+    Provider.of<AreasProvider>(context, listen: false).getAreas(context);
     Provider.of<CustomerDueProvider>(context, listen: false).customerDuelist = [];
     //Provider.of<CustomerDueProvider>(context, listen: false).getCustomerDue(context, "", "", "");
     Provider.of<InvoiceDueProvider>(context, listen: false).invoiceDueList = [];
@@ -221,7 +223,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
     final allInvoiceDueData = Provider.of<InvoiceDueProvider>(context).invoiceDueList;
     print("allInvoiceDueData========${allInvoiceDueData.length}");
     // final allCustomersData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo != 0).toList();
-    // final allAreasData = Provider.of<AreasProvider>(context).areasList;
+    final allAreasData = Provider.of<AreasProvider>(context).areasList;
     final providerCDueData = Provider.of<CustomerDueProvider>(context).customerDuelist;
     final allCustomerDueData = providerCDueData.where((item) {
       final due = double.tryParse(item.dueAmount ?? "0") ?? 0.0;
@@ -298,19 +300,19 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                         margin: EdgeInsets.only(bottom: 3.h),
                         height: 25.0.h,
                         decoration: ContDecoration.contDecoration,
-                          //   child: CommonTypeAheadField<AreasModel>(
-                          //   controller: areaController,
-                          //   suggestionList: allAreasData,
-                          //   hintText: 'Select Area',
-                          //   selectedValueId: areaId,
-                          //   onValueIdChanged: (id) {
-                          //     setState(() {
-                          //       areaId = id;
-                          //     });
-                          //   },
-                          //   displayText: (a) => a.districtName,
-                          //   valueId: (a) => a.districtSlNo.toString(),
-                          // ),
+                          child: CommonTypeAheadField<AreasModel>(
+                          controller: areaController,
+                          suggestionList: allAreasData,
+                          hintText: 'Select Area',
+                          selectedValueId: areaId,
+                          onValueIdChanged: (id) {
+                            setState(() {
+                              areaId = id;
+                            });
+                          },
+                          displayText: (a) => a.districtName,
+                          valueId: (a) => a.districtSlNo.toString(),
+                        ),
                       )
                     )
                     ],
@@ -570,8 +572,9 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                           ],
                         ),
                       ],
-
+                  
                      ),
+                     SizedBox(height: 100.h)
                    ],
                  ),
                ),
