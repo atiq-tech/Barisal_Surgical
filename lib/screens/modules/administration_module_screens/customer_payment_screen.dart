@@ -434,6 +434,7 @@ String? saleTransport="0";
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, "");
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
+    CustomerPaymentsProvider().on();
     Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments(context,"",backEndFirstDate,backEndFirstDate);
     super.initState();
   }
