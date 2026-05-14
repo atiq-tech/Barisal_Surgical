@@ -55,11 +55,13 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     userType = "${sharedPreferences?.getString('userType')}";
     userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
     userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
+    customerList = '${sharedPreferences?.getString("customerlist")}';
     print("profile hoome userType====  $userType");
     print("userEmployeeID====  $userEmployeeID");
     print("userEmployeeName====  $userEmployeeName");
   }
   String? userType = "";
+  String? customerList="";
   String? userEmployeeID = "";
   String? userEmployeeName = "";
 
@@ -270,17 +272,18 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     // print("allCustomerTypeData====${allCustomerTypeData.length}");
     final allEmployeeData = Provider.of<EmployeesProvider>(context).employeesList;
     return Scaffold(
-        appBar: AppBar(centerTitle: true,
+      appBar: AppBar(centerTitle: true,
       scrolledUnderElevation: 0,
       leading: InkWell(
-          onTap: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNavigationBarView()));
-          },
-          child: Icon(Icons.arrow_back, size: 22.0.sp,color: Colors.white)),
+        onTap: () {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNavigationBarView()));
+        },
+        child: Icon(Icons.arrow_back, size: 22.0.sp,color: Colors.white)),
       elevation: 0.0,
       backgroundColor: AppColors.appColor,
       title: const Text("Customer List",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500))),
-        body: Column(
+        body: customerList == "true" || userType == "m" || userType == "a" ?
+         Column(
           children: [
             Container(
               padding: EdgeInsets.only(left: 8.0.w, right: 8.0.w, top: 8.0.h),
@@ -637,7 +640,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   ):Center(child: Padding(padding: const EdgeInsets.all(10),child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
            SizedBox(height: 20.0.h),
           ],
-        ));
+         ): Center(child: Text("You are not authorized to access this page!", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)))
+        );
   }
   Widget _buildShimmerEffect(int length) {
     return Padding(

@@ -40,6 +40,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   String? userEmployeeID = "";
   String? userEmployeeName = "";
   String? userType = "";
+  String? salesEntry = "";
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -47,6 +48,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
     userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
     userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
     userType = "${sharedPreferences?.getString('userType')}";
+    salesEntry = '${sharedPreferences?.getString("sales")}';
     print("userName======$userName");
   }
 
@@ -369,7 +371,7 @@ String myAddress = "Loading...";
     
     return Scaffold(
         appBar: CustomAppBar(title: 'Sales Entry'),
-        body:ModalProgressHUD(
+        body: salesEntry =="true" || userType=="m" || userType=="a"?ModalProgressHUD(
           blur: 2,
           inAsyncCall: CustomerListProvider.isCustomerListloading,
           progressIndicator: Utils.showSpinKitLoad(),
@@ -2347,7 +2349,7 @@ String myAddress = "Loading...";
               ),
             ),
           ),
-        )
+        ): Center(child: Text("You are not authorized to access this page!", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)))
     );
   }
 

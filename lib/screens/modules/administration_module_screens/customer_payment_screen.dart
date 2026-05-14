@@ -438,11 +438,12 @@ String? saleTransport="0";
     Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments(context,"",backEndFirstDate,backEndFirstDate);
     super.initState();
   }
-
+  double? totalRemainingDue;
   @override
   Widget build(BuildContext context) {
     //final allAreaData = Provider.of<RegionProvider>(context).regionList;
     final allDueSaleInvoiceData = Provider.of<DueSaleInvoiceProvider>(context).dueSaleInvoicelist;
+    totalRemainingDue = allDueSaleInvoiceData.map((e) => e.remainingDue).fold(0.0, (p, element) => p!+double.parse(element));
     final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo!=0).toList();
     print("Customer length==============${allCustomerData.length}");
     final allCustomerPaymentData = Provider.of<CustomerPaymentsProvider>(context).customerPaymentsList;
@@ -664,78 +665,87 @@ String? saleTransport="0";
                       ],
                     )
                     : Container(),
-                  Row(
-                    children: [
-                      Expanded(flex: 4, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
-                      const Expanded(flex: 1, child: Text(":")),
-                      Expanded(
-                        flex: 12,
-                        child: Container(
+                      Row(
+                      children: [
+                        Expanded(flex: 4, child: Text("Customer", style: AllTextStyle.textFieldHeadStyle)),
+                        const Expanded(flex: 1, child: Text(":")),
+                        Expanded(
+                          flex: 12,
+                          child: Container(
                             height: 25.h,
                             decoration: ContDecoration.contDecoration,
                             child: TypeAheadField<CustomerListModel>(
-                            controller: customerController,
-                            builder: (context, controller, focusNode) {
-                              return TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
-                                  isDense: true,
-                                  hintText: 'Select Customer',
-                                  hintStyle: TextStyle(fontSize: 13.sp),
-                                  suffixIcon: _selectCustomerId == '' || _selectCustomerId == 'null' || _selectCustomerId == null || controller.text == '' ? null
-                                      : GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        customerController.clear();
-                                        controller.clear();
-                                        _selectCustomerId = null;
-                                      });
-                                    },
-                                    child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                  ),
-                                  suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: InputBorder.none,
-                                  focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                  enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                                ),
-                              );
-                            },
-                            suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
+                              controller: customerController,
+                              // এই লাইনটি যোগ করা হয়েছে: যাতে ১টি অক্ষর লেখার আগেই সাজেশন দেখায়
+                              suggestionsCallback: (pattern) async {
+                                // যদি pattern খালি থাকে তবুও আমরা লিস্ট রিটার্ন করব
                                 return allCustomerData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
-                            },
-                            itemBuilder: (context, CustomerListModel suggestion) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                child: Text(suggestion.displayName!,
-                                  style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
-                                ),
-                              );
-                            },
-                            onSelected: (CustomerListModel suggestion) {
-                              setState(() {
-                                customerController.text = suggestion.displayName!;
-                                _selectCustomerId = suggestion.customerSlNo.toString();
-                              });
-                              customerDue(_selectCustomerId); 
-                             DueSaleInvoiceProvider().on();
-                             Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, _selectCustomerId);
-                            },
+                              },
+                              // এটি কারসর রাখা মাত্র ড্রপডাউন ওপেন করবে
+                              builder: (context, controller, focusNode) {
+                                return TextField(
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(bottom: 10.h, left: 3.0.w),
+                                    isDense: true,
+                                    hintText: 'Select Customer',
+                                    hintStyle: TextStyle(fontSize: 11.sp),
+                                    suffixIcon: _selectCustomerId == '' || _selectCustomerId == 'null' || _selectCustomerId == null || controller.text == '' ? null
+                                        : GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          customerController.clear();
+                                          controller.clear();
+                                          _selectCustomerId = null;
+                                          //invoiceController.clear();
+                                          invoiceDue = "";
+                                          totalRemainingDue = 0;
+                                        });
+                                      },
+                                      child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+                                    ),
+                                    suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: InputBorder.none,
+                                    focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                    enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                  ),
+                                );
+                              },
+                              itemBuilder: (context, CustomerListModel suggestion) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                                  child: Text(
+                                    suggestion.displayName!,
+                                    style: TextStyle(fontSize: 11.sp),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              },
+                              onSelected: (CustomerListModel suggestion) {
+                                setState(() {
+                                  customerController.text = suggestion.displayName!;
+                                  _selectCustomerId = suggestion.customerSlNo.toString();
+                                });
+                                customerDue(_selectCustomerId);
+                                DueSaleInvoiceProvider().on();
+                                Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, _selectCustomerId);
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 4.h),
-                  Row(
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
+                    Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(flex: 4, child: Text("Invoice",style:AllTextStyle.textFieldHeadStyle)),
+                      Expanded(flex: 4, child: Text("Invoice", style: AllTextStyle.textFieldHeadStyle)),
                       const Expanded(flex: 1, child: Text(":")),
                       Expanded(
                         flex: 12,
@@ -748,55 +758,82 @@ String? saleTransport="0";
                               return TextField(
                                 controller: controller,
                                 focusNode: focusNode,
-                                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 6.h, left: 5.0.w),
+                                style: TextStyle(fontSize: 11.sp),
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.only(left: 5.w, top: 4.h),
                                   isDense: true,
                                   hintText: 'Select Invoice',
-                                  hintStyle: TextStyle(fontSize: 13.sp),
-                                  suffixIcon: invoiceId == '' || invoiceId == 'null' || invoiceId == null || controller.text == '' ? null
-                                      : GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        invoiceController.clear();
-                                        controller.clear();
-                                        invoiceId = null;
-                                      });
-                                    },
-                                    child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                  ),
+                                  hintStyle: TextStyle(fontSize: 11.sp),
+                                  suffixIcon: invoiceId == '' || invoiceId == 'null' || invoiceId == null || controller.text == ''
+                                    ? null
+                                    : GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            invoiceController.clear();
+                                            controller.clear();
+                                            invoiceId = null;
+                                            invoiceDue = "";
+                                          });
+                                          // Clear করার পর প্রয়োজনে আবার লিস্ট রিফ্রেশ করতে পারেন
+                                          Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, _selectCustomerId);
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.all(5.r),
+                                          child: Icon(Icons.close, size: 16.r),
+                                        ),
+                                      ),
                                   suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                  filled: true,
+                                  filled: false,
                                   fillColor: Colors.white,
                                   border: InputBorder.none,
-                                  focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                  enabledBorder: TextFieldInputBorder.focusEnabledBorder,
                                 ),
+                                onTap: () {
+                                  // কার্সর রাখলেই নতুনভাবে ইনভয়েস লিস্ট লোড হবে
+                                  if (invoiceId != null && invoiceId != '') {
+                                    Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, _selectCustomerId);
+                                  }
+                                  
+                                  // আগের সিলেকশন থাকলে clear হবে
+                                  if (invoiceId != null && invoiceId != '' && invoiceId != 'null') {
+                                    setState(() {
+                                      invoiceController.clear();
+                                      controller.clear();
+                                      invoiceId = null;
+                                    });
+                                  }
+                                },
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allDueSaleInvoiceData.where((element) =>
-                                    element.saleMasterInvoiceNo!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
+                              // instant loading এর জন্য delay কমিয়ে সরাসরি ফিল্টার করা হয়েছে
+                              return allDueSaleInvoiceData
+                                  .where((element) => element.saleMasterInvoiceNo!
+                                      .toLowerCase()
+                                      .contains(pattern.toLowerCase()))
+                                  .toList()
+                                  .cast<DueSaleInvoiceModel>();
                             },
                             itemBuilder: (context, DueSaleInvoiceModel suggestion) {
                               return Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                child: Text(suggestion.saleMasterInvoiceNo!,
-                                  style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                                child: Text(
+                                  "${suggestion.saleMasterInvoiceNo}",
+                                  style: TextStyle(fontSize: 11.sp),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               );
                             },
                             onSelected: (DueSaleInvoiceModel suggestion) {
+                              invoiceController.text = "${suggestion.saleMasterInvoiceNo}";
                               setState(() {
-                                invoiceController.text = suggestion.saleMasterInvoiceNo!;
                                 invoiceId = suggestion.saleMasterSlNo.toString();
-                                invoiceDue = suggestion.saleMasterDueAmount.toString();
+                                invoiceDue = suggestion.remainingDue.toString();
                               });
                               getSalesData(invoiceId);
-                            } 
+                            },
                           ),
-                        )
+                        ),
                       ),
                     ],
                   ),
@@ -807,13 +844,43 @@ String? saleTransport="0";
                         const Expanded(flex: 1, child: Text(":")),
                         Expanded(
                           flex: 4,
-                          child: Container(
+                          child:Container(
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
                             decoration: ContDecoration.contDecoration,
                             child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5.w,vertical: 3.h),
-                              child: Text("$customerDueAmount",style: AllTextStyle.dateFormatStyle),
+                              padding: EdgeInsets.symmetric(horizontal: 5.w,vertical: 5.h),
+                              child: Text(double.parse("$customerDueAmount").toStringAsFixed(2),style:TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold,color: Colors.grey.shade600)),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: invoiceController.text.isEmpty ? Container(
+                            height: 25.h,
+                            width: MediaQuery.of(context).size.width / 2,
+                            decoration: ContDecoration.contDecoration,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5.w,vertical: 5.h),
+                              child: Text(double.parse("$totalRemainingDue").toStringAsFixed(2),style:TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold,color: Colors.grey.shade600)),
+                            ),
+                          ):Container(
+                            height: 25.h,
+                            width: MediaQuery.of(context).size.width / 2,
+                            decoration: ContDecoration.contDecoration,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+                              child: Text(
+                                // এখানে চেক করা হচ্ছে: যদি invoiceDue খালি বা null হয় তবে '0' বসাবে
+                                double.parse((invoiceDue == null || invoiceDue.toString().isEmpty || invoiceDue.toString() == "null") 
+                                    ? "0" 
+                                    : invoiceDue.toString()).toStringAsFixed(2),
+                                style: TextStyle(
+                                  fontSize: 10.sp, 
+                                  fontWeight: FontWeight.bold, 
+                                  color: Colors.grey.shade600
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -824,20 +891,13 @@ String? saleTransport="0";
                             width: MediaQuery.of(context).size.width / 2,
                             decoration: ContDecoration.contDecoration,
                             child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5.w,vertical: 3.h),
-                              child: Text("$invoiceDue",style: AllTextStyle.dateFormatStyle),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Container(
-                            height: 25.h,
-                            width: MediaQuery.of(context).size.width / 2,
-                            decoration: ContDecoration.contDecoration,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 2.w,vertical: 3.h),
-                              child: Text("0",style: AllTextStyle.dateFormatStyle),
+                              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 5.h),
+                              child: Text(
+                                (
+                                  (double.tryParse(customerDueAmount ?? "0") ?? 0.0) -
+                                  (totalRemainingDue ?? 0.0)
+                                ).toStringAsFixed(2),style:TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold,color: Colors.grey.shade600)
+                              ),
                             ),
                           ),
                         ),
@@ -854,7 +914,7 @@ String? saleTransport="0";
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextField(
-                              style: TextStyle(fontSize: 13.sp),
+                              style: TextStyle(fontSize: 11.sp),
                               controller: _descriptionController,
                               decoration: InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(vertical: 5.h,horizontal: 5.w),
@@ -881,7 +941,7 @@ String? saleTransport="0";
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextField(
-                              style: TextStyle(fontSize: 13.sp),
+                              style: TextStyle(fontSize: 11.sp),
                               controller: _vatController,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
@@ -910,7 +970,7 @@ String? saleTransport="0";
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextField(
-                              style: TextStyle(fontSize: 13.sp),
+                              style: TextStyle(fontSize: 11.sp),
                               controller: _taxController,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
@@ -940,7 +1000,7 @@ String? saleTransport="0";
                             decoration: ContDecoration.contDecoration,
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                              child: Text("$saleDiscount",style: AllTextStyle.dateFormatStyle),
+                              child: Text("$saleDiscount",style: TextStyle(fontSize: 11.sp)),
                             ),
                           ),
                         ),
@@ -959,7 +1019,7 @@ String? saleTransport="0";
                             decoration: ContDecoration.contDecoration,
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                              child: Text("$saleTransport",style: AllTextStyle.dateFormatStyle),
+                              child: Text("$saleTransport",style: TextStyle(fontSize: 11.sp)),
                             ),
                           ),
                         ),
@@ -976,7 +1036,7 @@ String? saleTransport="0";
                             height: 25.h,
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextField(
-                              style: TextStyle(fontSize: 13.sp),
+                              style: TextStyle(fontSize: 11.sp),
                               controller: _amountController,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(

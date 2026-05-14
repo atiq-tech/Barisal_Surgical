@@ -43,6 +43,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   String? userEmployeeID = "";
   String? userEmployeeName = "";
   String? userType = "";
+  String? orderEntry = "";
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -50,6 +51,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
     userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
     userType = "${sharedPreferences?.getString('userType')}";
+    orderEntry = '${sharedPreferences?.getString("order_entry")}';
     print("userName======$userName");
   }
 
@@ -386,7 +388,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
           },
         ),
        ),
-        body:ModalProgressHUD(
+        body:orderEntry == "true" || userType == "m" || userType == "a" ? ModalProgressHUD(
           blur: 2,
           inAsyncCall: CustomerListProvider.isCustomerListloading,
           progressIndicator: Utils.showSpinKitLoad(),
@@ -1922,7 +1924,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
               ),
             ),
           ),
-        )
+        ): Center(child: Text("You are not authorized to access this page!", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)))
     );
   }
 

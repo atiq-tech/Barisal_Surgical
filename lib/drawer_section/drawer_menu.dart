@@ -59,8 +59,6 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
   String? orderRecord;
   String? pendingOrder;
   String? deliveryOrder;
-  String? customerPayment;
-  String? supplierPayment;
   String? cashTrReport;
   String? bankTrReport;
   String? customerEntry;
@@ -71,9 +69,12 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
   String? categoryList;
   String? currentStock;
   String? attendanceEntry;
-  String? attendanceRecord;
+  String? customerPaymentPage;
   String? visitEntry;
   String? visitList;
+  String? saveAttendance;
+  String? ecpWiseSalesReport;
+  String? empWiseCusPayDue;
 
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
@@ -88,7 +89,6 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
     setState(() {
       isImage = "${sharedPreferences?.getString('image')}";
     });
-
    ///sales
     userType = "${sharedPreferences?.getString('userType')}";
     salesEntry = '${sharedPreferences?.getString("sales")}';
@@ -98,13 +98,18 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
     orderEntry = '${sharedPreferences?.getString("order_entry")}';
     orderRecord = '${sharedPreferences?.getString("orderRecord")}';
     customerEntry = '${sharedPreferences?.getString("customer")}';
+    customerDue = '${sharedPreferences?.getString("customerDue")}';
     productList = '${sharedPreferences?.getString("productlist")}';
     categoryList = '${sharedPreferences?.getString("category")}';
     currentStock = '${sharedPreferences?.getString("currentStock")}';
     attendanceEntry = '${sharedPreferences?.getString("attendanceEntry")}';
-    attendanceRecord = '${sharedPreferences?.getString("attendanceRecord")}';
+    customerPaymentPage = '${sharedPreferences?.getString("customerPaymentPage")}';
     visitEntry = '${sharedPreferences?.getString("visitEntry")}';
     visitList = '${sharedPreferences?.getString("visitList")}';
+    saveAttendance = '${sharedPreferences?.getString("saveAttendance")}';
+    ecpWiseSalesReport = '${sharedPreferences?.getString("ecpWiseSalesReport")}';
+    empWiseCusPayDue = '${sharedPreferences?.getString("empWiseCusPayDue")}';
+
     print("userType===$userType");
     print("salesEntry===$salesEntry");
     print("salesRecord===$salesRecord");
@@ -240,7 +245,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
               const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                if(saleInvoice == "true"|| userType=="m"|| userType== "a"){
+                if(orderRecord == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderInvoiceListScreen()));
                 }
                 else{
@@ -284,12 +289,12 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
               const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                //if(saleInvoice == "true"|| userType=="m"|| userType== "a"){
+                if(ecpWiseSalesReport == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ECPSalesReportScreen()));
-                //}
-                // else{
-                //   showWarningDialog(context);
-                // }
+                }
+                else{
+                  showWarningDialog(context);
+                }
               },
               child: Custom_List_Tile(imagePath:"images/empsreport.png", icon_name: "ECP Sales Report")),
           const Divider(height: 1.0,thickness: 1.0,),
@@ -306,45 +311,34 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                 if(categoryList == "true"|| userType=="m"|| userType== "a"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryListScreen()));
+                if(customerPaymentPage == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentEntryScreen()));
                 }
                 else{
                   showWarningDialog(context);
                 }
               },
-              child: Custom_List_Tile(imagePath: "images/catelist.png", icon_name: "Category List")),
-          const Divider(height: 1.0,thickness: 1.0,),
-          InkWell(
-              onTap: (){
-                //if(customerList == "true"|| userType=="m"|| userType== "a"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentEntryScreen()));
-                // }
-                // else{
-                //   showWarningDialog(context);
-                // }
-              },
               child: Custom_List_Tile(imagePath: "images/cpay.png", icon_name: "Customer Payment Entry")),
                const Divider(height: 1.0,thickness: 1.0,),
                InkWell(
               onTap: (){
-                //if(customerList == "true"|| userType=="m"|| userType== "a"){
+                if(empWiseCusPayDue == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentDueScreen()));
-                // }
-                // else{
-                //   showWarningDialog(context);
-                // }
+                }
+                else{
+                  showWarningDialog(context);
+                }
               },
               child: Custom_List_Tile(imagePath: "images/cpdue.png", icon_name: "Customer Payment Due")),
                const Divider(height: 1.0,thickness: 1.0,),
                InkWell(
               onTap: (){
-                //if(customerList == "true"|| userType=="m"|| userType== "a"){
+                if(customerDue == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerDueListScreen()));
-                // }
-                // else{
-                //   showWarningDialog(context);
-                // }
+                }
+                else{
+                  showWarningDialog(context);
+                }
               },
               child: Custom_List_Tile(imagePath: "images/cdue.png", icon_name: "Customer Due List")),
                const Divider(height: 1.0,thickness: 1.0,),
@@ -358,18 +352,6 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                 }
               },
               child: Custom_List_Tile(imagePath: "images/customerlist.png", icon_name: "Customer List")),
-               const Divider(height: 1.0,thickness: 1.0,),
-          const Divider(height: 1.0,thickness: 1.0,),
-          InkWell(
-              onTap: (){
-                // if(pendingOrder == "true"|| userType=="m"|| userType== "a"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyProfileScreen()));
-                // }
-                // else{
-                //   showWarningDialog(context);
-                // }
-              },
-              child: Custom_List_Tile(imagePath: "images/mpofile.png", icon_name: "My Profile")),
                const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
@@ -395,14 +377,20 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
           const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
-                //if(visitList == "true"|| userType=="m"|| userType== "a"){
+                if(saveAttendance == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => AttendanceEntryScreen(employeeCode: employeeCode!)));
-                // }
-                // else{
-                //   showWarningDialog(context);
-                // }
+                }
+                else{
+                  showWarningDialog(context);
+                }
               },
               child: Custom_List_Tile(imagePath: "images/attend.png", icon_name: "Attendance")),
+              const Divider(height: 1.0,thickness: 1.0,),
+          InkWell(
+              onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyProfileScreen()));
+              },
+              child: Custom_List_Tile(imagePath: "images/mpofile.png", icon_name: "My Profile")),
           const Divider(height: 1.0,thickness: 1.0,),
           
           InkWell(

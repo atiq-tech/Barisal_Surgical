@@ -14,16 +14,15 @@ List dashboardItems = [
 
     {"name": "ECP Sales Report", "image": "images/empsreport.png"},
     {"name": "Product List", "image": "images/productlist.png"},
-    {"name": "Category List", "image": "images/catelist.png"},
     {"name": "Customer Payment Entry", "image": "images/cpay.png"},
     {"name": "Customer Payment Due", "image": "images/cpdue.png"},
 
     {"name": "Customer Due List", "image": "images/cdue.png"},
     {"name": "Customer List", "image": "images/customerlist.png"},
-    {"name": "Logout", "image": "images/logout.png"},
     {"name": "Visit Entry", "image": "images/visite.png"},
     {"name": "Visit List", "image": "images/vhistory.png"},
     {"name": "Attendance", "image": "images/attend.png"},
+    {"name": "Logout", "image": "images/logout.png"},
   ];
 
 
