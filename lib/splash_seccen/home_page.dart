@@ -8,6 +8,7 @@ import 'package:barishal_surgical/screens/modules/order_module_screens/order_inv
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_record_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_due_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_payment_due_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_payment_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/ecp_sales_report_screen.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -372,41 +373,48 @@ class _HomePageState extends State<HomePage> {
                           }
                         }
                         else if (index == 9) {
+                         if (customerPaymentPage == "true" || userType=="m"|| userType== "a") {
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerPaymentHistoryScreen()));
+                          } else {
+                            showWarningDialog(context);
+                          }
+                        }
+                        else if (index == 10) {
                          if (empWiseCusPayDue == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerPaymentDueScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        else if (index == 10) {
+                        else if (index == 11) {
                           if (customerDue == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerDueListScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        else if (index == 11) {
+                        else if (index == 12) {
                           if (customerList == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerListScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        else if(index == 12) {
+                        else if(index == 13) {
                            if (visitEntry == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitEntryScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                         else if(index == 13) {
+                         else if(index == 14) {
                            if (visitList == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => const VisitHistoryScreen()));
                           } else {
                             showWarningDialog(context);
                           }
                         }
-                        else if(index == 14) {
+                        else if(index == 15) {
                            if (saveAttendance == "true" || userType=="m"|| userType== "a") {
                            Navigator.push(context,MaterialPageRoute(builder: (context) => AttendanceEntryScreen(employeeCode: employeeCode!)));
                           } else {

@@ -15,6 +15,7 @@ List dashboardItems = [
     {"name": "ECP Sales Report", "image": "images/empsreport.png"},
     {"name": "Product List", "image": "images/productlist.png"},
     {"name": "Customer Payment Entry", "image": "images/cpay.png"},
+    {"name": "Customer Payment History", "image": "images/cph.png"},
     {"name": "Customer Payment Due", "image": "images/cpdue.png"},
 
     {"name": "Customer Due List", "image": "images/cdue.png"},

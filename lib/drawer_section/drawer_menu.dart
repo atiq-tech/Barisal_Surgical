@@ -8,11 +8,11 @@ import 'package:barishal_surgical/screens/modules/order_module_screens/order_inv
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_record_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_due_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_payment_due_screen.dart';
+import 'package:barishal_surgical/screens/modules/sales_module_screens/customer_payment_history_screen.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/ecp_sales_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barishal_surgical/auth/global_logout.dart';
-import 'package:barishal_surgical/screens/modules/administration_module_screens/category_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/customer_list_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/my_profile_screen.dart';
 import 'package:barishal_surgical/screens/modules/administration_module_screens/product_list_screen.dart';
@@ -319,6 +319,17 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                 }
               },
               child: Custom_List_Tile(imagePath: "images/cpay.png", icon_name: "Customer Payment Entry")),
+               const Divider(height: 1.0,thickness: 1.0,),
+               InkWell(
+              onTap: (){
+                if(customerPaymentPage == "true"|| userType=="m"|| userType== "a"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentHistoryScreen()));
+                }
+                else{
+                  showWarningDialog(context);
+                }
+              },
+              child: Custom_List_Tile(imagePath: "images/cph.png", icon_name: "Customer Payment History")),
                const Divider(height: 1.0,thickness: 1.0,),
                InkWell(
               onTap: (){

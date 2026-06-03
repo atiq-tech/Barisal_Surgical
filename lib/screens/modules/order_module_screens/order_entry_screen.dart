@@ -1077,7 +1077,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                 Expanded(flex: 3,child: Text("Amount", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(
-                                  flex: 4,
+                                  flex: 9,
                                   child: Container(
                                     height: 25.h,
                                     padding: EdgeInsets.only(left: 8.w, right: 5.w, top: 5.h),
@@ -1085,30 +1085,30 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     child: Text("$Total", style: AllTextStyle.textValueStyle),
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 5,
-                                  child: Card(
-                                    elevation: 0,
-                                    color: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5.0.r),
-                                    ),
-                                    child: SizedBox(
-                                      height: 25.h,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                           availableStock != 0 ? Text("Stock,", style: TextStyle(color: Colors.green.shade700,fontSize: 11.sp,fontWeight: FontWeight.bold)): Text("Stock,", style: TextStyle(color: Colors.red,fontSize: 11.sp,fontWeight: FontWeight.bold)),
-                                          Text("$availableStock ${productUnit ?? ""}",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(fontSize: 11.sp,color:availableStock != 0 ? Colors.green.shade700 : Colors.red,fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                // Expanded(
+                                //   flex: 5,
+                                //   child: Card(
+                                //     elevation: 0,
+                                //     color: Colors.white,
+                                //     shape: RoundedRectangleBorder(
+                                //       borderRadius: BorderRadius.circular(5.0.r),
+                                //     ),
+                                //     child: SizedBox(
+                                //       height: 25.h,
+                                //       child: Row(
+                                //         mainAxisAlignment: MainAxisAlignment.center,
+                                //         children: [
+                                //            availableStock != 0 ? Text("Stock,", style: TextStyle(color: Colors.green.shade700,fontSize: 11.sp,fontWeight: FontWeight.bold)): Text("Stock,", style: TextStyle(color: Colors.red,fontSize: 11.sp,fontWeight: FontWeight.bold)),
+                                //           Text("$availableStock ${productUnit ?? ""}",
+                                //             maxLines: 1,
+                                //             overflow: TextOverflow.ellipsis,
+                                //             style: TextStyle(fontSize: 11.sp,color:availableStock != 0 ? Colors.green.shade700 : Colors.red,fontWeight: FontWeight.bold),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
                               ],
                             ),
                             Row(
