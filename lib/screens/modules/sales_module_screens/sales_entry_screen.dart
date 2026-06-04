@@ -58,6 +58,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   Color getColors(Set<MaterialState> states) {
     return Colors.blue.shade100;
   }
+  final FocusNode quantityFocusNode = FocusNode();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _paidController = TextEditingController();
   final TextEditingController _bankPaidController = TextEditingController();
@@ -76,7 +77,7 @@ class _SalesEntryScreenState extends State<SalesEntryScreen> {
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _lotNoController = TextEditingController();
   var customerController = TextEditingController();
-  var empluyeeNameController = TextEditingController();
+  var employeeNameController = TextEditingController();
   var categoryController = TextEditingController();
   var productController = TextEditingController();
   var expDateController = TextEditingController();
@@ -503,7 +504,7 @@ String myAddress = "Loading...";
                                 height: 25.0.h,
                                 margin: EdgeInsets.only(top: 4.h,bottom: 4.h),
                                 child: TypeAheadField<EmployeesModel>(
-                                  controller: empluyeeNameController,
+                                  controller: employeeNameController,
                                   builder: (context, controller, focusNode) {
                                     return TextField(
                                       controller: controller,
@@ -517,7 +518,7 @@ String myAddress = "Loading...";
                                             : GestureDetector(
                                           onTap: () {
                                             setState(() {
-                                              empluyeeNameController.clear();
+                                              employeeNameController.clear();
                                               controller.clear();
                                               employeeSlNo = null;
                                             });
@@ -549,9 +550,10 @@ String myAddress = "Loading...";
                                   },
                                   onSelected: (EmployeesModel suggestion) {
                                     setState(() {
-                                      empluyeeNameController.text = suggestion.displayName!;
+                                      employeeNameController.text = suggestion.displayName!;
                                       employeeSlNo = suggestion.employeeSlNo.toString();
                                     });
+                                    print("employeeSlNo========$employeeSlNo");
                                   },
                                 ),
                               ):Container(
@@ -729,6 +731,8 @@ String myAddress = "Loading...";
                                               _selectedCustomer = suggestion.customerSlNo.toString();
                                               customerSlNo = suggestion.customerSlNo.toString();
                                               customerType = suggestion.customerType.toString();
+                                              employeeNameController.text = suggestion.employeeName.toString();
+                                              employeeSlNo = suggestion.employeeId.toString();
                                               if (_selectedCustomer == "0") {
                                                 isVisible = true;
                                                 isEnabled = true;
@@ -750,6 +754,7 @@ String myAddress = "Loading...";
                                             previousDueAmount(_selectedCustomer);
                                             print("CustomerId========$_selectedCustomer");
                                             print("customerType========$customerType");
+                                            print("employeeSlNo========$employeeSlNo");
                                             InvoiceDueProvider().on();
                                             Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,_selectedCustomer);
                                       },
@@ -1115,6 +1120,9 @@ String myAddress = "Loading...";
                                           mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
                                           expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
                                         });
+                                        Future.delayed(Duration(milliseconds: 100), () {
+                                          quantityFocusNode.requestFocus();
+                                        });
                                       },
                                     ),
                                   ),
@@ -1139,13 +1147,13 @@ String myAddress = "Loading...";
                                       },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 6.w),
-                                          hintText: "0",
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: InputBorder.none,
-                                          focusedBorder:TextFieldInputBorder.focusEnabledBorder,
-                                          enabledBorder:TextFieldInputBorder.focusEnabledBorder
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 6.w),
+                                        hintText: "0",
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: InputBorder.none,
+                                        focusedBorder:TextFieldInputBorder.focusEnabledBorder,
+                                        enabledBorder:TextFieldInputBorder.focusEnabledBorder
                                       ),
                                     ),
                                   ),
@@ -1157,6 +1165,7 @@ String myAddress = "Loading...";
                                     height: 25.0.h,
                                     margin: EdgeInsets.only(left: 5.w),
                                     child: TextField(
+                                      focusNode: quantityFocusNode,
                                       style: AllTextStyle.textValueStyle,
                                       controller: _quantityController,
                                       onChanged: (value) {
@@ -1325,7 +1334,6 @@ String myAddress = "Loading...";
                               ),
                             ],
                           ),
-                          
                           ]),
                         ),
                         

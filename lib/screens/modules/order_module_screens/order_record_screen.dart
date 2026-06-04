@@ -5,6 +5,7 @@ import 'package:barishal_surgical/providers/order_module_providers/orders_detail
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_screen.dart';
+import 'package:barishal_surgical/utils/excel_export_funtion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -1100,6 +1101,22 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                   ),
                 ],
               ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.download),
+              onPressed: () async {
+                await exportSalesExcel(
+                  allOrdersData: allOrdersData,
+                  subTotal: subTotal!,
+                  vatTotal: vatTotal!,
+                  discountTotal: discountTotal!,
+                  transferCost: transferCost!,
+                  totalAmount: totalAmount!,
+                  paidTotal: paidTotal!,
+                  dueTotal: dueTotal!,
+                );
+                print("Excel Exported");
+              }
             ),
             SizedBox(height: 10.h),
             data == 'showAllWithoutDetails'

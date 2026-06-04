@@ -843,6 +843,8 @@ class ApiService{
   
   //==================get_due_sale_invoice =======================
   static fetchCustomerPayments(BuildContext context,
+    String? customerId,
+    String? paymentType,
     String? employeeId,
     String? dateFrom,
     String? dateTo
@@ -853,6 +855,8 @@ class ApiService{
     try {
       Response response = await Dio().post(link,
         data: {
+          "customerId": customerId,
+          "paymentType": paymentType,
           "employeeId": employeeId,
           "dateFrom": dateFrom,
           "dateTo": dateTo  

@@ -1,6 +1,8 @@
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
+import 'package:barishal_surgical/providers/administration_module_providers/customer_payments_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/emp_wise_cus_pay_due_provider.dart';
+import 'package:barishal_surgical/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
@@ -23,7 +25,7 @@ class _CustomerPaymentHistoryScreenState extends State<CustomerPaymentHistoryScr
   var customerController = TextEditingController();
   var employeeController = TextEditingController();
   String? _selectCustomerId;
-  String? _selectEmployeeId;
+  //String? _selectEmployeeId;
 
   Color getColor(Set<MaterialState> states) {return Colors.blue.shade100;}
   Color getColors(Set<MaterialState> states) {return Colors.white;}
@@ -243,13 +245,15 @@ class _CustomerPaymentHistoryScreenState extends State<CustomerPaymentHistoryScr
     backEndSecondtDate = Utils.formatBackEndDate(DateTime.now());
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     Provider.of<EmpWiseCusPayDueProvider>(context,listen: false).empWiseCusPayDuelist = [];
+    Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments(context,"","","",backEndFirstDate,backEndFirstDate);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-     ///get Customer
-     final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
+    ///get Customer
+    final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
+    final allCustomerPaymentData = Provider.of<CustomerPaymentsProvider>(context).customerPaymentsList;
     return Scaffold(
       appBar: CustomAppBar(title: "Customer Payment History"),
       body: Container(
@@ -455,23 +459,21 @@ class _CustomerPaymentHistoryScreenState extends State<CustomerPaymentHistoryScr
                       padding: EdgeInsets.all(1.0.r),
                       child: InkWell(
                         onTap: () async {
-                          EmpWiseCusPayDueProvider().on();
-                          String employeeIdToPass = (userType == "a" || userType == "m") ? "$_selectEmployeeId" : (userEmployeeID ?? "");
-                          await Provider.of<EmpWiseCusPayDueProvider>(context, listen: false).getEmpWiseCusPayDue(
+                          CustomerPaymentsProvider().on();
+                          //String employeeIdToPass = (userType == "a" || userType == "m") ? "$_selectEmployeeId" : (userEmployeeID ?? "");
+                          await Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments(
                             context,
                             _selectCustomerId??"",
-                            employeeIdToPass=="null" ? "" : employeeIdToPass,
-                            "",
                             paymentStatus,
+                            "",
                             backEndFirstDate,
                             backEndSecondtDate
                           );
                           print("customerIdToPass====${_selectCustomerId??""}");
-                          print("employeeIdToPass====$employeeIdToPass");
                           print("paymentStatus====$paymentStatus");
                           print("backEndFirstDate====$backEndFirstDate");
                           print("backEndSecondtDate====$backEndSecondtDate");
-                        },
+                        }, 
                         child: Container(
                           height: 28.0.h,
                           width: 80.0.w,
@@ -494,7 +496,89 @@ class _CustomerPaymentHistoryScreenState extends State<CustomerPaymentHistoryScr
                   ),
                 ],
               ),
-            ),  
+            ), 
+            SizedBox(height: 10.h),
+            Expanded(
+              flex: 3,
+              child: CustomerPaymentsProvider.isCustomerPaymentsLoading
+              ? const Center(child: CircularProgressIndicator())
+              : allCustomerPaymentData.isNotEmpty
+              ? Expanded(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 1.31,
+                  width: double.infinity,
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    padding: EdgeInsets.only(left: 10.w,right: 10.w,bottom: 10.h),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Container(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child: Column(
+                            crossAxisAlignment:CrossAxisAlignment.start,
+                            children: [
+                              DataTable(
+                                headingRowHeight: 20.h,
+                                // ignore: deprecated_member_use
+                                dataRowHeight: 20.h,
+                                headingRowColor:WidgetStateColor.resolveWith((states) => AppColors.appColor),
+                                showCheckboxColumn: true,
+                                border: TableBorder.all(color: Colors.black54,width: 1.w),
+                                columns: [
+                                  DataColumn(label: Expanded(child: Center(child: Text('Transaction Id',style: AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style: AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Customer',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Transaction Type',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Payment by',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Description',style:AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Amount',style:AllTextStyle.tableHeadTextStyle)))),
+                                  //DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+                                  //DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                             
+                                ],
+                                rows: List.generate(
+                                  allCustomerPaymentData.length,
+                                  (int index) => DataRow(
+                                    color:index % 2 == 0? WidgetStateProperty.resolveWith(AppColors.getColors): WidgetStateProperty.resolveWith(AppColors.getAll),
+                                    cells: <DataCell>[
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentInvoice.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].saleMasterInvoiceNo??""))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentDate.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].customerName.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].transactionType.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].paymentBy.toString()))),
+                                      DataCell(Center(child: Text(allCustomerPaymentData[index].cPaymentNotes.toString()))),
+                                      DataCell(Center(child: Text(double.parse(allCustomerPaymentData[index].cPaymentAmount.toString()).toStringAsFixed(2)))),
+                                    //DataCell(Center(child: Text((allCustomerPaymentData[index].addedBy).toString()))),
+                                    //   DataCell(
+                                    //   Center(
+                                    //     child:GestureDetector(
+                                    //       child: Icon(Icons.collections_bookmark,size: 18.r),
+                                    //       onTap: () {
+                                    //         Navigator.push(context, MaterialPageRoute(builder: (context) => CustomerPaymentInvoice(paymentId: allCustomerPaymentData[index].cPaymentId),
+                                    //         ));
+                                    //       },
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style: AllTextStyle.nofoundTextStyle))),
+            ), 
           ],
         ),
       ),

@@ -39,6 +39,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   Color getColors(Set<MaterialState> states) {
     return Colors.white;
   }
+  
   String userName = "";
   String? userEmployeeID = "";
   String? userEmployeeName = "";
@@ -54,7 +55,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     orderEntry = '${sharedPreferences?.getString("order_entry")}';
     print("userName======$userName");
   }
-
+  final FocusNode quantityFocusNode = FocusNode();
   final  _nameController = TextEditingController();
   final  _paidController = TextEditingController();
   final  _bankPaidController = TextEditingController();
@@ -71,7 +72,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
   final  _quantityController = TextEditingController();
   final  _transportController = TextEditingController();
   var customerController = TextEditingController();
-  var empluyeeNameController = TextEditingController();
+  var employeeNameController = TextEditingController();
   var categoryController = TextEditingController();
   var productController = TextEditingController();
   var invoiceController = TextEditingController();
@@ -485,7 +486,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                 height: 25.0.h,
                                 margin: EdgeInsets.only(bottom: 4.h,top: 4.h),
                                 child: TypeAheadField<EmployeesModel>(
-                                  controller: empluyeeNameController,
+                                  controller: employeeNameController,
                                   builder: (context, controller, focusNode) {
                                     return TextField(
                                       controller: controller,
@@ -499,7 +500,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                             : GestureDetector(
                                           onTap: () {
                                             setState(() {
-                                              empluyeeNameController.clear();
+                                              employeeNameController.clear();
                                               controller.clear();
                                               employeeSlNo = null;
                                             });
@@ -531,7 +532,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                   },
                                   onSelected: (EmployeesModel suggestion) {
                                     setState(() {
-                                      empluyeeNameController.text = suggestion.displayName!;
+                                      employeeNameController.text = suggestion.displayName!;
                                       employeeSlNo = suggestion.employeeSlNo.toString();
                                     });
                                   },
@@ -714,6 +715,8 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                           _selectedCustomer = suggestion.customerSlNo.toString();
                                           customerSlNo = suggestion.customerSlNo.toString();
                                           customerType = suggestion.customerType.toString();
+                                          employeeNameController.text = suggestion.employeeName.toString();
+                                          employeeSlNo = suggestion.employeeId.toString();
                                           if (_selectedCustomer == "0") {
                                             isVisible = true;
                                             isEnabled = true;
@@ -1007,6 +1010,9 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                               mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
                                               expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
                                             });
+                                            Future.delayed(Duration(milliseconds: 100), () {
+                                            quantityFocusNode.requestFocus();
+                                          });
                                       },
                                     ),
                                   ),
@@ -1049,6 +1055,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     height: 25.0.h,
                                     margin: EdgeInsets.only(left: 5.w),
                                     child: TextField(
+                                      focusNode: quantityFocusNode,
                                       style: AllTextStyle.textValueStyle,
                                       controller: _quantityController,
                                       onChanged: (value) {

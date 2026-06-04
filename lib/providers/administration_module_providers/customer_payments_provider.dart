@@ -6,8 +6,8 @@ class CustomerPaymentsProvider extends ChangeNotifier {
   static bool isCustomerPaymentsLoading = false;
 
   List<CustomerPaymentsModel> customerPaymentsList = [];
-  getCustomerPayments(BuildContext context,String? employeeId,String? dateFrom,String? dateTo) async {
-    customerPaymentsList = await ApiService.fetchCustomerPayments(context, employeeId, dateFrom, dateTo);
+  getCustomerPayments(BuildContext context,String? customerId,String? paymentType,String? employeeId,String? dateFrom,String? dateTo) async {
+    customerPaymentsList = await ApiService.fetchCustomerPayments(context, customerId, paymentType, employeeId, dateFrom, dateTo);
     off();
     notifyListeners();
   }

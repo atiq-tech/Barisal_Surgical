@@ -435,7 +435,7 @@ String? saleTransport="0";
     Provider.of<DueSaleInvoiceProvider>(context, listen: false).getDueSaleInvoice(context, "");
     Provider.of<BankAccountProvider>(context, listen: false).getBankAccount(context);
     CustomerPaymentsProvider().on();
-    Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments(context,"",backEndFirstDate,backEndFirstDate);
+    Provider.of<CustomerPaymentsProvider>(context, listen: false).getCustomerPayments(context,"","","",backEndFirstDate,backEndFirstDate);
     super.initState();
   }
   double? totalRemainingDue;
@@ -1074,7 +1074,7 @@ String? saleTransport="0";
                         Utils.closeKeyBoard(context);
                         addCustomerPayment(context).then((value) {
                           Provider.of<CustomerPaymentsProvider>(context, listen: false)
-                              .getCustomerPayments(context,"", backEndFirstDate, backEndFirstDate);
+                              .getCustomerPayments(context,"","","", backEndFirstDate, backEndFirstDate);
                           setState(() {});
                         });
                         FocusScope.of(context).requestFocus(quantityFocusNode);
