@@ -2,6 +2,7 @@ import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/product_list_model.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/ecp_wise_sale_report_provider.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
+import 'package:barishal_surgical/utils/excel_export_erp_sales_report.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -591,6 +592,61 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    children: [
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            await exportEcpWiseSalesExcel(
+                              context: context,
+                              allEcpWiseSalesReportData: allEcpWiseSalesReportData,
+                            );
+                          },
+                          child: Card(
+                            color: Colors.green.shade700,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
+                                  Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                                ],
+                              ),
+                            )
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            // await exportSalesPdf(
+                            //   context: context,
+                            //   allOrdersData: allOrdersData,
+                            //   subTotal: subTotal!,
+                            //   vatTotal: vatTotal!,
+                            //   discountTotal: discountTotal!,
+                            //   transferCost: transferCost!,
+                            //   totalAmount: totalAmount!,
+                            //   paidTotal: paidTotal!,
+                            //   dueTotal: dueTotal!,
+                            //   firstDate: "$firstPickedDate",
+                            //   secondDate: "$secondPickedDate",
+                            // );
+                          },
+                          child: Card(
+                            color: Colors.indigo.shade700,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                            child: Row(
+                              children: [
+                                Icon(Icons.print, color: Colors.white, size: 15.r),
+                                Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                              ],
+                            ),
+                          )
+                          ),
+                        ),
+                      ],
+                    ),
                      DataTable(
                        headingRowHeight: 20.h,
                        // ignore: deprecated_member_use
