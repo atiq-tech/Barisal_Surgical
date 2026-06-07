@@ -30,9 +30,9 @@ Future<Uint8List?> fetchImage(String url) async {
   }
 }
 
-Future<void> exportSalesPdf({
+Future<void> salesRecordPdf({
   required BuildContext context,
-  required List allOrdersData,
+  required List allSalesData,
   required double subTotal,
   required double vatTotal,
   required double discountTotal,
@@ -95,7 +95,7 @@ Future<void> exportSalesPdf({
         pw.SizedBox(height: 5.h),
           pw.Center(
             child: pw.Text(
-              "Order Record",
+              "Sales Record",
               style: pw.TextStyle(
                 fontSize: 14.sp,
                 fontWeight: pw.FontWeight.bold,
@@ -151,8 +151,8 @@ Future<void> exportSalesPdf({
             // =========================
             // DATA ROWS
             // =========================
-            ...List.generate(allOrdersData.length, (index) {
-              final item = allOrdersData[index];
+            ...List.generate(allSalesData.length, (index) {
+              final item = allSalesData[index];
 
               return [
                 "${index + 1}",
@@ -203,7 +203,7 @@ Future<void> exportSalesPdf({
       await dir.create(recursive: true);
     }
 
-    final filePath = "${dir.path}/Order_Report_${DateTime.now().millisecondsSinceEpoch}.pdf";
+    final filePath = "${dir.path}/Sales_Report_${DateTime.now().millisecondsSinceEpoch}.pdf";
 
     final file = File(filePath);
     await file.writeAsBytes(await pdf.save());

@@ -2,6 +2,10 @@ import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/sales_details_provider.dart';
+import 'package:barishal_surgical/utils/const_model.dart';
+import 'package:barishal_surgical/utils/sales_record_excel_export_function.dart';
+import 'package:barishal_surgical/utils/sales_record_pdf_function.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -368,9 +372,73 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
       });
     }
   }
+
+  String companyName = "";
+  String repotHeading = "";
+  String companyLogothumb = "";
+
+   void getCompanyProfile() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_company_profile",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          companyName = data['Company_Name'] ?? "";
+          companyLogothumb = data['Company_Logo_thum'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_company_profile-------Company_Name======$companyName");
+    print("companyLogothumb-------Company_Logo_thumb======$companyLogothumb");
+  }
+
+  void getCurrentBranch() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_current_branch",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          repotHeading = data['Repot_Heading'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_current_branch-------Repot_Heading======$repotHeading");
+  }
   
   @override
   void initState() {
+    getCompanyProfile();
+    getCurrentBranch();
     _initLocation();
     _initializeData();
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
@@ -382,7 +450,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
     Provider.of<UsersProvider>(context,listen: false).getUsers(context);
-    Provider.of<SalesProvider>(context, listen: false).getSales(context,"","","",backEndFirstDate,backEndSecondtDate);
+    Provider.of<SalesProvider>(context, listen: false).saleslist = [];
     Provider.of<SalesRecordProvider>(context,listen: false).getSalesRecord(context,"", "", "", "", "");
     Provider.of<SalesDetailsProvider>(context,listen: false).getSalesDetails(context,"", "", "", "", "");
     super.initState();
@@ -1173,6 +1241,72 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
               ),
             ),
             SizedBox(height: 10.h),
+           allSalesData.isNotEmpty ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  await salesRecordExcelExport(
+                    context: context,
+                    allSalesData: allSalesData,
+                    subTotal: subTotal!,
+                    vatTotal: vatTotal!,
+                    discountTotal: discountTotal!,
+                    transferCost: transferCost!,
+                    totalAmount: totalAmount!,
+                    paidTotal: paidTotal!,
+                    dueTotal: dueTotal!,
+                  );
+                },
+                child: Card(
+                  color: Colors.green.shade700,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    child: Row(
+                      children: [
+                        Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
+                        Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  )
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  await salesRecordPdf(
+                    context: context,
+                    allSalesData: allSalesData,
+                    subTotal: subTotal!,
+                    vatTotal: vatTotal!,
+                    discountTotal: discountTotal!,
+                    transferCost: transferCost!,
+                    totalAmount: totalAmount!,
+                    paidTotal: paidTotal!,
+                    dueTotal: dueTotal!,
+                    companyName: companyName,
+                    repotHeading: repotHeading, 
+                    companyLogothumb: companyLogothumb,
+                    firstDate: "$firstPickedDate",
+                    secondDate: "$secondPickedDate",
+                  );
+                },
+                child: Card(
+                  color: Colors.indigo.shade700,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                  child: Row(
+                    children: [
+                      Icon(Icons.print, color: Colors.white, size: 15.r),
+                      Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                )
+                ),
+              ),
+            ],
+          ):SizedBox(),
             data == 'showAllWithoutDetails'
                 ? Expanded(
               child: SalesProvider.isSalesLoading
@@ -2166,7 +2300,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 DataCell(
                                   Center(
                                     child:GestureDetector(
-                                      child: const Icon(Icons.collections_bookmark,size: 18,),
+                                      child: const Icon(Icons.collections_bookmark,size: 18),
                                       onTap: () {
                                         Navigator.push(context, MaterialPageRoute(builder: (context) => SalesInvoiceScreen(salesId: allSalesRecordData[index].saleMasterSlNo)));
                                       },

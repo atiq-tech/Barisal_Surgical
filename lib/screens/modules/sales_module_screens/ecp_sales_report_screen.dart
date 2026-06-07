@@ -2,7 +2,10 @@ import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/product_list_model.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/ecp_wise_sale_report_provider.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
+import 'package:barishal_surgical/utils/const_model.dart';
 import 'package:barishal_surgical/utils/excel_export_erp_sales_report.dart';
+import 'package:barishal_surgical/utils/print_ecpwise_salespdf.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -127,8 +130,72 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
     );
   }
 
+  String companyName = "";
+  String repotHeading = "";
+  String companyLogothumb = "";
+
+   void getCompanyProfile() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_company_profile",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          companyName = data['Company_Name'] ?? "";
+          companyLogothumb = data['Company_Logo_thum'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_company_profile-------Company_Name======$companyName");
+    print("companyLogothumb-------Company_Logo_thumb======$companyLogothumb");
+  }
+
+  void getCurrentBranch() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_current_branch",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          repotHeading = data['Repot_Heading'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_current_branch-------Repot_Heading======$repotHeading");
+  }
+
   @override
   void initState() {
+    getCompanyProfile();
+    getCurrentBranch();
     _initLocation();
     _initializeData();
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
@@ -581,6 +648,58 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
               ),
             ),
             SizedBox(height: 15.h),
+            allEcpWiseSalesReportData.isNotEmpty ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    await exportEcpWiseSalesExcel(
+                      context: context,
+                      allEcpWiseSalesReportData: allEcpWiseSalesReportData,
+                    );
+                  },
+                  child: Card(
+                    color: Colors.green.shade700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      child: Row(
+                        children: [
+                          Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
+                          Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    )
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    await printEcpWiseSalesPdf(
+                      context: context,
+                      allEcpWiseSalesReportData: allEcpWiseSalesReportData,
+                      companyName: companyName,
+                      repotHeading: repotHeading, 
+                      companyLogothumb: companyLogothumb,
+                      firstDate: "$firstPickedDate",
+                      secondDate: "$secondPickedDate",
+                    );
+                  },
+                  child: Card(
+                    color: Colors.indigo.shade700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    child: Row(
+                      children: [
+                        Icon(Icons.print, color: Colors.white, size: 15.r),
+                        Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  )
+                  ),
+                ),
+              ],
+            ):SizedBox(),
             EcpWiseSaleReportProvider.isEcpWiseSalesReportLoading ?
             const Center(child: CircularProgressIndicator(),)
            :allEcpWiseSalesReportData.isNotEmpty? Expanded(child: Container(
@@ -592,61 +711,6 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () async {
-                            await exportEcpWiseSalesExcel(
-                              context: context,
-                              allEcpWiseSalesReportData: allEcpWiseSalesReportData,
-                            );
-                          },
-                          child: Card(
-                            color: Colors.green.shade700,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
-                                  Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                                ],
-                              ),
-                            )
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            // await exportSalesPdf(
-                            //   context: context,
-                            //   allOrdersData: allOrdersData,
-                            //   subTotal: subTotal!,
-                            //   vatTotal: vatTotal!,
-                            //   discountTotal: discountTotal!,
-                            //   transferCost: transferCost!,
-                            //   totalAmount: totalAmount!,
-                            //   paidTotal: paidTotal!,
-                            //   dueTotal: dueTotal!,
-                            //   firstDate: "$firstPickedDate",
-                            //   secondDate: "$secondPickedDate",
-                            // );
-                          },
-                          child: Card(
-                            color: Colors.indigo.shade700,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                            child: Row(
-                              children: [
-                                Icon(Icons.print, color: Colors.white, size: 15.r),
-                                Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                          )
-                          ),
-                        ),
-                      ],
-                    ),
                      DataTable(
                        headingRowHeight: 20.h,
                        // ignore: deprecated_member_use

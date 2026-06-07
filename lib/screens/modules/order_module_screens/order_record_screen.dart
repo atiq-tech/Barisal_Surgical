@@ -5,8 +5,11 @@ import 'package:barishal_surgical/providers/order_module_providers/orders_detail
 import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
 import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_screen.dart';
+import 'package:barishal_surgical/utils/animation_snackbar.dart';
+import 'package:barishal_surgical/utils/const_model.dart';
 import 'package:barishal_surgical/utils/excel_export_funtion.dart';
 import 'package:barishal_surgical/utils/export_pdf_funtion.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -373,8 +376,110 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     }
   }
 
+  String companyName = "";
+  String repotHeading = "";
+  String companyLogothumb = "";
+
+   void getCompanyProfile() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_company_profile",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          companyName = data['Company_Name'] ?? "";
+          companyLogothumb = data['Company_Logo_thum'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_company_profile-------Company_Name======$companyName");
+    print("companyLogothumb-------Company_Logo_thumb======$companyLogothumb");
+  }
+
+  void getCurrentBranch() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_current_branch",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          repotHeading = data['Repot_Heading'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_current_branch-------Repot_Heading======$repotHeading");
+  }
+
+  bool deleteBtnClk = false;
+  Future<String> deleteOrder(BuildContext context,int saleId) async {
+  String link = "${baseUrl}delete_order";
+  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  try {
+    var response = await Dio().post(link,
+      data: {
+        "saleId": saleId,
+      },
+      options: Options(
+        headers: {
+          "Content-Type": "application/json",
+          'Cookie':'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization":"Bearer ${sharedPreferences.getString("token")}",
+        },
+      ),
+    );
+    print("Deleting ID => $saleId");
+    var item = response.data;
+    print("Delete API Response => $item");
+
+    if (item["success"] == true) {
+      deleteBtnClk = false;
+      CustomSnackBar.showTopSnackBar(context,item["message"] ?? "Order Deleted Successfully");
+      return "true";
+    } else {
+      deleteBtnClk = false;
+      Utils.showTopSnackBar(context,item["message"] ?? "Delete Failed");
+      return "false";
+    }
+  } catch (e) {
+    deleteBtnClk = false;
+    print("Delete Exception => $e");
+    Utils.showTopSnackBar(context,"Something went wrong: $e");
+    return "false";
+  }
+}
+
   @override
   void initState() {
+    getCompanyProfile();
+    getCurrentBranch();
     _initLocation();
     _initializeData();
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
@@ -386,7 +491,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
     Provider.of<UsersProvider>(context,listen: false).getUsers(context);
-    Provider.of<OrdersProvider>(context, listen: false).getOrders(context,"","","",backEndFirstDate,backEndSecondtDate);
+    Provider.of<OrdersProvider>(context, listen: false).orderslist = [];
     Provider.of<OrdersRecordProvider>(context,listen: false).getOrdersRecord(context,"", "", "", "", "");
     Provider.of<OrdersDetailsProvider>(context,listen: false).getOrdersDetails(context,"", "", "", "");
     super.initState();
@@ -411,6 +516,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
       _selectUserId = "";
     });
   }
+
   @override
   Widget build(BuildContext context) {
     ///get Orders
@@ -1105,6 +1211,72 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
             ),
             
             SizedBox(height: 10.h),
+            allOrdersData.isNotEmpty?Row(
+               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    await exportSalesExcel(
+                      context: context,
+                      allOrdersData: allOrdersData,
+                      subTotal: subTotal!,
+                      vatTotal: vatTotal!,
+                      discountTotal: discountTotal!,
+                      transferCost: transferCost!,
+                      totalAmount: totalAmount!,
+                      paidTotal: paidTotal!,
+                      dueTotal: dueTotal!,
+                    );
+                  },
+                  child: Card(
+                    color: Colors.green.shade700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      child: Row(
+                        children: [
+                          Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
+                          Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    )
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    await exportSalesPdf(
+                      context: context,
+                      allOrdersData: allOrdersData,
+                      subTotal: subTotal!,
+                      vatTotal: vatTotal!,
+                      discountTotal: discountTotal!,
+                      transferCost: transferCost!,
+                      totalAmount: totalAmount!,
+                      paidTotal: paidTotal!,
+                      dueTotal: dueTotal!,
+                      companyName: companyName,
+                      repotHeading: repotHeading, 
+                      companyLogothumb: companyLogothumb,
+                      firstDate: "$firstPickedDate",
+                      secondDate: "$secondPickedDate",
+                    );
+                  },
+                  child: Card(
+                    color: Colors.indigo.shade700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    child: Row(
+                      children: [
+                        Icon(Icons.print, color: Colors.white, size: 15.r),
+                        Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  )
+                  ),
+                ),
+              ],
+            ):SizedBox(),
             data == 'showAllWithoutDetails'
               ? Expanded(
               child: SalesProvider.isSalesLoading ? const Center(child: CircularProgressIndicator())
@@ -1118,70 +1290,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [                     
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                await exportSalesExcel(
-                                  context: context,
-                                  allOrdersData: allOrdersData,
-                                  subTotal: subTotal!,
-                                  vatTotal: vatTotal!,
-                                  discountTotal: discountTotal!,
-                                  transferCost: transferCost!,
-                                  totalAmount: totalAmount!,
-                                  paidTotal: paidTotal!,
-                                  dueTotal: dueTotal!,
-                                );
-                              },
-                              child: Card(
-                                color: Colors.green.shade700,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                               child: Padding(
-                                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                                 child: Row(
-                                   children: [
-                                     Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
-                                     Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                                   ],
-                                 ),
-                               )
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                await exportSalesPdf(
-                                  context: context,
-                                  allOrdersData: allOrdersData,
-                                  subTotal: subTotal!,
-                                  vatTotal: vatTotal!,
-                                  discountTotal: discountTotal!,
-                                  transferCost: transferCost!,
-                                  totalAmount: totalAmount!,
-                                  paidTotal: paidTotal!,
-                                  dueTotal: dueTotal!,
-                                  firstDate: "$firstPickedDate",
-                                  secondDate: "$secondPickedDate",
-                                );
-                              },
-                              child: Card(
-                                color: Colors.indigo.shade700,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.print, color: Colors.white, size: 15.r),
-                                    Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              )
-                              ),
-                            ),
-                          ],
-                        ),
-                        
+                      children: [ 
                         DataTable(
                           headingRowHeight: 20.0,
                           dataRowHeight: 20.0,
@@ -1204,7 +1313,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
                           ],
                           rows: [
                             ...List.generate(
@@ -1227,24 +1336,72 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
                                   DataCell(Center(child: Container(
-                                      decoration: BoxDecoration(
-                                          color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
-                                          borderRadius: BorderRadius.circular(100.r)
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                        child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
-                                      )))),
+                                  decoration: BoxDecoration(
+                                      color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
+                                      borderRadius: BorderRadius.circular(100.r)
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                    child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
+                                  )))),
                                   DataCell(
-                                    Center(
-                                      child:GestureDetector(
-                                        child: Icon(Icons.collections_bookmark,size: 18.r),
+                                  Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+                                            )));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
                                         onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo)));
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString(),
+                                                        ),
+                                                      );
+                                                      Provider.of<OrdersProvider>(context, listen: false).orderslist = [];
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
                                         },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
                                       ),
+                                      ],
                                     ),
                                   ),
+                                ),
                                 ],
                               ),
                             ),
@@ -1398,34 +1555,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () async {
-                            await exportSalesExcel(
-                              context: context,
-                              allOrdersData: allOrdersData,
-                              subTotal: subTotal!,
-                              vatTotal: vatTotal!,
-                              discountTotal: discountTotal!,
-                              transferCost: transferCost!,
-                              totalAmount: totalAmount!,
-                              paidTotal: paidTotal!,
-                              dueTotal: dueTotal!,
-                            );
-                          },
-                          child: Card(
-                            color: Colors.green.shade700,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                           child: Padding(
-                             padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                             child: Row(
-                               children: [
-                                 Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
-                                 Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                               ],
-                             ),
-                           )
-                          ),
-                        ),
                         DataTable(
                           headingRowHeight: 20.0,
                           dataRowHeight: 20.0,
@@ -1641,34 +1770,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () async {
-                            await exportSalesExcel(
-                              context: context,
-                              allOrdersData: allOrdersData,
-                              subTotal: subTotal!,
-                              vatTotal: vatTotal!,
-                              discountTotal: discountTotal!,
-                              transferCost: transferCost!,
-                              totalAmount: totalAmount!,
-                              paidTotal: paidTotal!,
-                              dueTotal: dueTotal!,
-                            );
-                          },
-                          child: Card(
-                            color: Colors.green.shade700,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                           child: Padding(
-                             padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                             child: Row(
-                               children: [
-                                 Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
-                                 Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                               ],
-                             ),
-                           )
-                          ),
-                        ),
                         DataTable(
                           headingRowHeight: 20.0,
                           dataRowHeight: 20.0,
@@ -2033,34 +2134,6 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () async {
-                            await exportSalesExcel(
-                              context: context,
-                              allOrdersData: allOrdersData,
-                              subTotal: subTotal!,
-                              vatTotal: vatTotal!,
-                              discountTotal: discountTotal!,
-                              transferCost: transferCost!,
-                              totalAmount: totalAmount!,
-                              paidTotal: paidTotal!,
-                              dueTotal: dueTotal!,
-                            );
-                          },
-                          child: Card(
-                            color: Colors.green.shade700,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                           child: Padding(
-                             padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                             child: Row(
-                               children: [
-                                 Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
-                                 Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                               ],
-                             ),
-                           )
-                          ),
-                        ),
                         DataTable(
                           headingRowHeight: 20.0,
                           dataRowHeight: 20.0,
