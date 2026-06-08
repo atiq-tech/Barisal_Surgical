@@ -68,12 +68,12 @@ Future<void> exportSalesPdf({
 
     pdf.addPage(
       pw.MultiPage(
-        margin: pw.EdgeInsets.all(1.r),
+        maxPages: 500,
+        margin: pw.EdgeInsets.all(2.r),
         pageFormat: PdfPageFormat.a4.landscape,
         header: (context) => pw.Padding(
         padding: pw.EdgeInsets.symmetric(vertical: 5.h),
-        child: pw.Text(currentDateTime,style: pw.TextStyle(fontSize: 8.sp)),
-        ),
+        child: pw.Text(currentDateTime,style: pw.TextStyle(fontSize: 8.sp))),
         build: (context) => [
           pw.Row(
           children: [

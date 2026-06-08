@@ -434,7 +434,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
     }
     print("get_current_branch-------Repot_Heading======$repotHeading");
   }
-  
+  bool isPrinting = false;
   @override
   void initState() {
     getCompanyProfile();
@@ -1273,38 +1273,65 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                 ),
               ),
               GestureDetector(
-                onTap: () async {
-                  await salesRecordPdf(
-                    context: context,
-                    allSalesData: allSalesData,
-                    subTotal: subTotal!,
-                    vatTotal: vatTotal!,
-                    discountTotal: discountTotal!,
-                    transferCost: transferCost!,
-                    totalAmount: totalAmount!,
-                    paidTotal: paidTotal!,
-                    dueTotal: dueTotal!,
-                    companyName: companyName,
-                    repotHeading: repotHeading, 
-                    companyLogothumb: companyLogothumb,
-                    firstDate: "$firstPickedDate",
-                    secondDate: "$secondPickedDate",
-                  );
-                },
+                onTap: isPrinting ? null : () async {
+                    setState(() {
+                      isPrinting = true;
+                    });
+
+                    try {
+                     await salesRecordPdf(
+                        context: context,
+                        allSalesData: allSalesData,
+                        subTotal: subTotal!,
+                        vatTotal: vatTotal!,
+                        discountTotal: discountTotal!,
+                        transferCost: transferCost!,
+                        totalAmount: totalAmount!,
+                        paidTotal: paidTotal!,
+                        dueTotal: dueTotal!,
+                        companyName: companyName,
+                        repotHeading: repotHeading, 
+                        companyLogothumb: companyLogothumb,
+                        firstDate: "$firstPickedDate",
+                        secondDate: "$secondPickedDate",
+                      );
+                    } catch (e) {
+                      debugPrint("Print Error => $e");
+                    }
+
+                    setState(() {
+                      isPrinting = false;
+                    });
+                  },
                 child: Card(
                   color: Colors.indigo.shade700,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                  child: Row(
-                    children: [
-                      Icon(Icons.print, color: Colors.white, size: 15.r),
-                      Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                    ],
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    child: isPrinting
+                    ? SizedBox(
+                        width: 16.w,
+                        height: 16.h,
+                        child: Padding(
+                          padding: EdgeInsets.all(2.r),
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.print,color: Colors.white,size: 15.r),
+                          Text(" Print",
+                            style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
                   ),
-                )
                 ),
-              ),
+               )
             ],
           ):SizedBox(),
             data == 'showAllWithoutDetails'

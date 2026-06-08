@@ -95,6 +95,7 @@ class _LogInPageState extends State<LogInPage> {
           sharedPreferences?.setString("currentStock", "${item["access"].contains("currentStock")}");
           sharedPreferences?.setString("attendanceEntry", "${item["access"].contains("attendance_entry")}");
           sharedPreferences?.setString("customerPaymentPage", "${item["access"].contains("customerPaymentPage")}");
+          sharedPreferences?.setString("customerPaymentHistory", "${item["access"].contains("customer_payment_history")}");
           sharedPreferences?.setString("visitEntry", "${item["access"].contains("visit")}");
           sharedPreferences?.setString("visitList", "${item["access"].contains("visit_list")}");
           sharedPreferences?.setString("saveAttendance", "${item["access"].contains("save_attendance")}");

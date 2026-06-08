@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
   String? currentStock;
   String? attendanceEntry;
   String? customerPaymentPage;
+  String? customerPaymentHistory;
   String? visitEntry;
   String? visitList;
   String? saveAttendance;
@@ -77,6 +78,7 @@ class _HomePageState extends State<HomePage> {
     currentStock = '${sharedPreferences?.getString("currentStock")}';
     attendanceEntry = '${sharedPreferences?.getString("attendanceEntry")}';
     customerPaymentPage = '${sharedPreferences?.getString("customerPaymentPage")}';
+    customerPaymentHistory = '${sharedPreferences?.getString("customerPaymentHistory")}';
     visitEntry = '${sharedPreferences?.getString("visitEntry")}';
     visitList = '${sharedPreferences?.getString("visitList")}';
     saveAttendance = '${sharedPreferences?.getString("saveAttendance")}';
@@ -373,7 +375,7 @@ class _HomePageState extends State<HomePage> {
                           }
                         }
                         else if (index == 9) {
-                         if (customerPaymentPage == "true" || userType=="m"|| userType== "a") {
+                         if (customerPaymentHistory == "true" || userType=="m"|| userType== "a") {
                           Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomerPaymentHistoryScreen()));
                           } else {
                             showWarningDialog(context);

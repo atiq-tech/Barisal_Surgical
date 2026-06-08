@@ -123,6 +123,7 @@ Future<void> printEcpWiseSalesPdf({
 
   pdf.addPage(
     pw.MultiPage(
+      maxPages: 500,
       pageFormat: PdfPageFormat.a4.landscape,
       margin: pw.EdgeInsets.all(2.r),
        header: (context) => pw.Padding(

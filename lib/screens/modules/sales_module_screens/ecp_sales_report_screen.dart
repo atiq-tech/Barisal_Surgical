@@ -191,7 +191,7 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
     }
     print("get_current_branch-------Repot_Heading======$repotHeading");
   }
-
+  bool isPrinting = false;
   @override
   void initState() {
     getCompanyProfile();
@@ -299,7 +299,7 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
   }
 
     return Scaffold(
-      appBar: CustomAppBar(title: " ECP Sales Report"),
+      appBar: CustomAppBar(title: " ECP Wise Sales Report"),
       body: Container(
         padding: EdgeInsets.only(left: 8.0.w, right: 8.0.w, top: 8.0.h,bottom: 10.h),
         child: Column(
@@ -673,31 +673,58 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () async {
-                    await printEcpWiseSalesPdf(
-                      context: context,
-                      allEcpWiseSalesReportData: allEcpWiseSalesReportData,
-                      companyName: companyName,
-                      repotHeading: repotHeading, 
-                      companyLogothumb: companyLogothumb,
-                      firstDate: "$firstPickedDate",
-                      secondDate: "$secondPickedDate",
-                    );
+                onTap: isPrinting ? null : () async {
+                    setState(() {
+                      isPrinting = true;
+                    });
+
+                    try {
+                      await printEcpWiseSalesPdf(
+                        context: context,
+                        allEcpWiseSalesReportData: allEcpWiseSalesReportData,
+                        companyName: companyName,
+                        repotHeading: repotHeading,
+                        companyLogothumb: companyLogothumb,
+                        firstDate: "$firstPickedDate",
+                        secondDate: "$secondPickedDate",
+                      );
+                    } catch (e) {
+                      debugPrint("Print Error => $e");
+                    }
+
+                    setState(() {
+                      isPrinting = false;
+                    });
                   },
-                  child: Card(
-                    color: Colors.indigo.shade700,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                child: Card(
+                  color: Colors.indigo.shade700,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                    child: Row(
-                      children: [
-                        Icon(Icons.print, color: Colors.white, size: 15.r),
-                        Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                  )
+                    child: isPrinting
+                    ? SizedBox(
+                        width: 16.w,
+                        height: 16.h,
+                        child: Padding(
+                          padding: EdgeInsets.all(2.r),
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.print,color: Colors.white,size: 15.r),
+                          Text(" Print",
+                            style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
                   ),
                 ),
+               )
               ],
             ):SizedBox(),
             EcpWiseSaleReportProvider.isEcpWiseSalesReportLoading ?

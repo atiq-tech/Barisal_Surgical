@@ -282,8 +282,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       elevation: 0.0,
       backgroundColor: AppColors.appColor,
       title: const Text("Customer List",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500))),
-        body: customerList == "true" || userType == "m" || userType == "a" ?
-         Column(
+        body: Column(
           children: [
             Container(
               padding: EdgeInsets.only(left: 8.0.w, right: 8.0.w, top: 8.0.h),
@@ -640,7 +639,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   ):Center(child: Padding(padding: const EdgeInsets.all(10),child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
            SizedBox(height: 20.0.h),
           ],
-         ): Center(child: Text("You are not authorized to access this page!", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)))
+         )
         );
   }
   Widget _buildShimmerEffect(int length) {

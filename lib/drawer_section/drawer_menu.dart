@@ -75,7 +75,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
   String? saveAttendance;
   String? ecpWiseSalesReport;
   String? empWiseCusPayDue;
-
+  String? customerPaymentHistory;
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -104,6 +104,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
     currentStock = '${sharedPreferences?.getString("currentStock")}';
     attendanceEntry = '${sharedPreferences?.getString("attendanceEntry")}';
     customerPaymentPage = '${sharedPreferences?.getString("customerPaymentPage")}';
+    customerPaymentHistory = '${sharedPreferences?.getString("customerPaymentHistory")}';
     visitEntry = '${sharedPreferences?.getString("visitEntry")}';
     visitList = '${sharedPreferences?.getString("visitList")}';
     saveAttendance = '${sharedPreferences?.getString("saveAttendance")}';
@@ -296,7 +297,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                   showWarningDialog(context);
                 }
               },
-              child: Custom_List_Tile(imagePath:"images/empsreport.png", icon_name: "ECP Sales Report")),
+              child: Custom_List_Tile(imagePath:"images/empsreport.png", icon_name: "ECP Wise Sales Report")),
           const Divider(height: 1.0,thickness: 1.0,),
           InkWell(
               onTap: (){
@@ -322,7 +323,7 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
                const Divider(height: 1.0,thickness: 1.0,),
                InkWell(
               onTap: (){
-                if(customerPaymentPage == "true"|| userType=="m"|| userType== "a"){
+                if(customerPaymentHistory == "true"|| userType=="m"|| userType== "a"){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerPaymentHistoryScreen()));
                 }
                 else{

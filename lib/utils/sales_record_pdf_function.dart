@@ -68,7 +68,8 @@ Future<void> salesRecordPdf({
 
     pdf.addPage(
       pw.MultiPage(
-        margin: pw.EdgeInsets.all(1.r),
+        maxPages: 500,
+        margin: pw.EdgeInsets.all(2.r),
         pageFormat: PdfPageFormat.a4.landscape,
         header: (context) => pw.Padding(
         padding: pw.EdgeInsets.symmetric(vertical: 5.h),

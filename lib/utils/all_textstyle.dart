@@ -147,7 +147,7 @@ showWarningDialog(BuildContext context) {
         title: const Text('⚠️ Warning'),
         content: Text(
           "It is not authorized for you to access this page!",
-          style: TextStyle(fontSize: 16.5.sp),
+          style: TextStyle(fontSize: 14.sp),
         ),
         actions: <Widget>[
           Container(
@@ -160,7 +160,7 @@ showWarningDialog(BuildContext context) {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK', style: TextStyle(color: Colors.black)),
+              child: Text('OK', style: TextStyle(color: Colors.black,fontSize: 11.0.sp)),
             ),
           ),
         ],

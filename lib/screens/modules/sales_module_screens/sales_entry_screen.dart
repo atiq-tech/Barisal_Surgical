@@ -372,7 +372,7 @@ String myAddress = "Loading...";
     
     return Scaffold(
         appBar: CustomAppBar(title: 'Sales Entry'),
-        body: salesEntry =="true" || userType=="m" || userType=="a"?ModalProgressHUD(
+        body: ModalProgressHUD(
           blur: 2,
           inAsyncCall: CustomerListProvider.isCustomerListloading,
           progressIndicator: Utils.showSpinKitLoad(),
@@ -2357,7 +2357,7 @@ String myAddress = "Loading...";
               ),
             ),
           ),
-        ): Center(child: Text("You are not authorized to access this page!", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)))
+        )
     );
   }
 

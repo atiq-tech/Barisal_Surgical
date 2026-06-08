@@ -207,37 +207,65 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     });
   }
 
-  void calculateTotal() {
+//   void calculateTotal() {
+//   final allGetSalesData = salesCartList;
+//   double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
+//   subtotal = double.parse("$cartTotall");
+//   afterDisTotal = subtotal - discountAmount;
+//   vatTotall = 0;
+//   vatAmount = 0;
+//   if (_vatPercentageController.text.isNotEmpty) {
+//     double vatPer = double.parse(_vatPercentageController.text);
+//     vatAmount = (afterDisTotal * vatPer) / 100;
+//     vatTotall = vatAmount;
+//   } else if (_VatController.text.isNotEmpty) {
+//     vatAmount = double.parse(_VatController.text);
+//     vatTotall = vatAmount;
+//   } else {
+//     vatTotall = allGetSalesData.map((e) => e.vat).fold(0.0, (p, element) => p + double.parse(element!));
+//   }
+//   total = afterDisTotal + vatTotall + transportCost;
+//   if (isAdded) {
+//     cashPaid = double.parse("$total") - double.parse("$bankPaid");
+//     _paidController.text = "$cashPaid";
+//   }
+
+//   Paid = (cashPaid + bankPaid);
+//   due = total - Paid;
+
+//   setState(() {
+//   });
+//    print("SubTotal===$subtotal");
+//     print("Total===$total");
+//     print("afterDisTotal===$afterDisTotal");
+//     print("Paid===$Paid");
+//     print("due===$due");
+//     print("cashPaid===$cashPaid");
+// }
+double getDouble(TextEditingController c) {
+  return double.tryParse(c.text) ?? 0.0;
+}
+void calculateTotal() {
   final allGetSalesData = salesCartList;
-  double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
-  subtotal = double.parse("$cartTotall");
-  afterDisTotal = subtotal - discountAmount;
-  vatTotall = 0;
-  vatAmount = 0;
-  if (_vatPercentageController.text.isNotEmpty) {
-    double vatPer = double.parse(_vatPercentageController.text);
-    vatAmount = (afterDisTotal * vatPer) / 100;
-    vatTotall = vatAmount;
-  } else if (_VatController.text.isNotEmpty) {
-    vatAmount = double.parse(_VatController.text);
-    vatTotall = vatAmount;
-  } else {
-    vatTotall = allGetSalesData.map((e) => e.vat).fold(0.0, (p, element) => p + double.parse(element!));
-  }
-  total = afterDisTotal + vatTotall + transportCost;
+    double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
+    subtotal = double.parse("$cartTotall");
+  double afterDiscount = subtotal - discountAmount;
+
+  // VAT show হবে
+  vatAmount = (afterDiscount * vatPer) / 100;
+  total = afterDiscount + transportCost;
   if (isAdded) {
     cashPaid = double.parse("$total") - double.parse("$bankPaid");
     _paidController.text = "$cashPaid";
   }
-
   Paid = (cashPaid + bankPaid);
   due = total - Paid;
-
-  setState(() {
-  });
-   print("SubTotal===$subtotal");
+  setState(() {});
+    print("SubTotal===$subtotal");
     print("Total===$total");
     print("afterDisTotal===$afterDisTotal");
+    print("vatAmount===$vatAmount");
+    print("transportCost===$transportCost");
     print("Paid===$Paid");
     print("due===$due");
     print("cashPaid===$cashPaid");
@@ -389,7 +417,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
           },
         ),
        ),
-        body:orderEntry == "true" || userType == "m" || userType == "a" ? ModalProgressHUD(
+        body: ModalProgressHUD(
           blur: 2,
           inAsyncCall: CustomerListProvider.isCustomerListloading,
           progressIndicator: Utils.showSpinKitLoad(),
@@ -989,30 +1017,29 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                         );
                                       },
                                       onSelected: (ProductListModel suggestion) {
-                                            productController.text = suggestion.productName;
-                                            setState(() {
-                                              _selectedProduct = suggestion.productSlNo.toString();
-                                              cproductId = suggestion.productSlNo.toString();
-                                              cproductCode = suggestion.productCode.toString();
-                                              ccategoryName = suggestion.productCategoryName;
-                                              cname = suggestion.productName;
-                                              cTempvat = suggestion.temporaryVat;
-                                              cvat = suggestion.vat;
-                                              productUnit = suggestion.unitName;
-                                              isService = suggestion.isService;
-                                              cpurchaseRate = suggestion.productPurchaseRate;
-                                              _VatController.text = suggestion.vat;
-                                              cTempRate = suggestion.temporaryRate;
-                                              _salesRateController.text = suggestion.productSellingPrice;
-                                              Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
-                                              totalStack(cproductId);
-                                              _lotNoController.text = suggestion.productLotNo ?? '';
-                                              mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
-                                              expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
-                                            });
-                                            Future.delayed(Duration(milliseconds: 100), () {
-                                            quantityFocusNode.requestFocus();
-                                          });
+                                        productController.text = suggestion.productName;
+                                        setState(() {
+                                          _selectedProduct = suggestion.productSlNo.toString();
+                                          cproductCode = suggestion.productCode.toString();
+                                          cproductId = suggestion.productSlNo.toString();
+                                          ccategoryName = suggestion.productCategoryName;
+                                          cname = suggestion.productName;
+                                          cTempvat = suggestion.temporaryVat;
+                                          cvat = suggestion.vat;
+                                          productUnit = suggestion.unitName;
+                                          isService = suggestion.isService;
+                                          cpurchaseRate = suggestion.productPurchaseRate;
+                                          cTempRate = suggestion.temporaryRate; 
+                                          _salesRateController.text = suggestion.productSellingPrice;
+                                          Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
+                                          totalStack(cproductId);
+                                          _lotNoController.text = suggestion.productLotNo ?? '';
+                                          mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
+                                          expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
+                                        });
+                                        Future.delayed(Duration(milliseconds: 100), () {
+                                          quantityFocusNode.requestFocus();
+                                        });
                                       },
                                     ),
                                   ),
@@ -1245,20 +1272,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       mfgDate: mfgPickedDate,
                                       expDate: expPickedDate
                                     ));
-
-                                    CartTotal += Total;
-                                    _VatController.text = "0";
-                                    afterVatTotal = CartTotal;
-                                    discountVatTotal = afterVatTotal;
-                                    Paid = discountVatTotal;
-                                    categoryController.text = '';
-                                    productController.text = '';
-                                    _salesRateController.text = '';
-                                    _lotNoController.text = '';
-                                    setState(() {
-                                      Amount = 0;
-                                      Total = 0;
-                                    });
                                      calculateTotal();
                                   });
                                 }
@@ -1426,19 +1439,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     child: TextField(
                                       style: AllTextStyle.textValueStyle,
                                       controller: _discountPercentController,
-                                      onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
-                                        ///discount per
+                                       onChanged: (value) {
                                         setState(() {
-                                          if (value.trim().isEmpty) {
-                                          discountPer = 0;
-                                          } else {
-                                            discountPer = double.tryParse(value) ?? 0;
-                                          }
+                                          discountPer = getDouble(_discountPercentController);
                                           discountAmount = (subtotal * discountPer) / 100;
-                                          _DiscountController.text = double.parse("$discountAmount").toStringAsFixed(0);
+
+                                          _DiscountController.text = discountAmount.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1465,17 +1472,13 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       controller: _DiscountController,
                                       keyboardType: TextInputType.number,
                                       onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
                                         setState(() {
-                                          if (value.trim().isEmpty) {
-                                            discountAmount = 0;
-                                          } else {
-                                            discountAmount = double.tryParse(value) ?? 0;
-                                          }
-                                          discountPer = (discountAmount * 100) / subtotal;
-                                          _discountPercentController.text = double.parse("$discountPer").toStringAsFixed(0);
+                                          discountAmount = getDouble(_DiscountController);
+
+                                          discountPer = subtotal == 0 ? 0 : (discountAmount * 100) / subtotal;
+
+                                          _discountPercentController.text = discountPer.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1506,25 +1509,15 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       style: AllTextStyle.textValueStyle,
                                       controller: _vatPercentageController,
                                       onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
-
                                         setState(() {
-                                          double totalAmount = subtotal - discountAmount;
-                                          // Reset previous vat before calculation
-                                          vatAmount = 0;
-                                          vatTotall = 0;
+                                          vatPer = getDouble(_vatPercentageController);
 
-                                          if (value.isNotEmpty) {
-                                            vatPer = double.tryParse(value) ?? 0.0;
-                                            vatAmount = (totalAmount * vatPer) / 100;
-                                            vatTotall = vatAmount;
-                                            _VatController.text = vatAmount.toStringAsFixed(0);
-                                          } else {
-                                            vatPer = 0;
-                                            _VatController.clear();
-                                          }
+                                          double afterDiscount = subtotal - discountAmount;
+
+                                          vatAmount = (afterDiscount * vatPer) / 100;
+
+                                          _VatController.text = vatAmount.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1552,25 +1545,15 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       controller: _VatController,
                                       keyboardType: TextInputType.number,
                                       onChanged: (value) {
-                                        _transportController.text = '';
-                                        _paidController.text = '';
-                                        _bankPaidController.text = '';
-
                                         setState(() {
-                                          double totalAmount = subtotal - discountAmount;
-                                          // Reset previous vat before calculation
-                                          vatAmount = 0;
-                                          vatTotall = 0;
+                                          double afterDiscount = subtotal - discountAmount;
 
-                                          if (value.isNotEmpty) {
-                                            vatAmount = double.tryParse(value) ?? 0.0;
-                                            vatPer = (vatAmount * 100) / totalAmount;
-                                            vatTotall = vatAmount;
-                                            _vatPercentageController.text = vatPer.toStringAsFixed(0);
-                                          } else {
-                                            vatPer = 0;
-                                            _vatPercentageController.clear();
-                                          }
+                                          vatAmount = getDouble(_VatController);
+
+                                          vatPer = afterDiscount == 0 ? 0 : (vatAmount * 100) / afterDiscount;
+
+                                          _vatPercentageController.text = vatPer.toStringAsFixed(1);
+
                                           calculateTotal();
                                         });
                                       },
@@ -1602,14 +1585,10 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       style: AllTextStyle.textValueStyle,
                                       controller: _transportController,
                                       onChanged: (value) {
-                                       setState(() {
-                                        if (value.trim().isEmpty) {
-                                          transportCost = 0;
-                                        } else {
-                                          transportCost = double.tryParse(value) ?? 0;
-                                        }
-                                        calculateTotal();
-                                      });
+                                        setState(() {
+                                          transportCost = getDouble(_transportController);
+                                          calculateTotal();
+                                        });
                                       },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
@@ -1655,16 +1634,11 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     child: TextField(style: AllTextStyle.textValueStyle,
                                       controller: _paidController,
                                       onChanged: (value) {
-                                      setState(() {
-                                        if (value.trim().isEmpty) {
-                                          cashPaid = 0;
-                                        } else {
-                                          cashPaid = double.tryParse(value) ?? 0;
-                                        }
-                                        isAdded = false;
-                                        calculateTotal();
-                                      });
-                                    },
+                                        setState(() {
+                                          cashPaid = getDouble(_paidController);
+                                          calculateTotal();
+                                        });
+                                      },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 3.w),
@@ -1690,21 +1664,8 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                       controller: _bankPaidController,
                                       onChanged: (value) {
                                         setState(() {
-                                          if (_bankPaidController.text == "" || _bankPaidController.text == '0') {
-                                            isVisibleBankName = false;
-                                            accountController.text = "";
-                                          } else {
-                                            isVisibleBankName = true;
-                                          }
-                                        });
-                                        
-                                        setState(() {
-                                          if (value.trim().isEmpty) {
-                                            bankPaid = 0;
-                                          } else {
-                                            bankPaid = double.tryParse(value) ?? 0;
-                                          }
-                                          isAdded = false;
+                                          bankPaid = getDouble(_bankPaidController);
+                                          isVisibleBankName = bankPaid > 0;
                                           calculateTotal();
                                         });
                                       },
@@ -1814,9 +1775,11 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
                                     decoration:ContDecoration.contDecoration,
                                     child: SizedBox(
                                     child: Text(
-                                      (double.tryParse(previousDue?.toString() ?? '') ?? 0)
-                                          .toStringAsFixed(1),
-                                      style: TextStyle(color: Colors.red, fontSize: 13.sp),
+                                      (double.tryParse(previousDue?.toString() ?? '') ?? 0).toStringAsFixed(1),
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 13.5.sp,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -1931,7 +1894,7 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
               ),
             ),
           ),
-        ): Center(child: Text("You are not authorized to access this page!", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)))
+        )
     );
   }
 
@@ -1990,6 +1953,8 @@ void _expDate() async {
 
   emtyMethodAll() {
     setState(() {
+      employeeNameController.text = "";
+      customerController.text = "";
       _nameController.text = "";
       _paidController.text = "";
       _discountPercentController.text = "";
@@ -2044,26 +2009,48 @@ void _expDate() async {
     /// 🧾 SALES DATA
     var salesData = {
       "salesId": 0,
-      "invoiceNo": "",
-      "salesBy": userName,
-      "employeeId": userType == "m" || userType == "a" ? employeeSlNo ?? "" : userEmployeeID,
-      "salesFrom": "1",
-      "customerId": _selectedCustomer ?? "0",
-      "salesDate": backEndFirstDate,
-      "salesType": level,
-      "total": total,
-      "discount": discountAmount,
-      "vat": vatAmount,
-      "vatPercent": 0,
-      "transportCost": transportCost,
-      "subTotal": subtotal,
-      "accountId": _selectedBankId?? 0,
-      "cashPaid": accountController.text == "" ? Paid : 0,
-      "bankPaid": accountController.text != "" ? Paid : 0,
-      "paid": Paid,
-      "due": due,
-      "previousDue": previousDue,
-      "note": "Order from app",
+        "invoiceNo": "",
+        "salesBy": userName,
+        "salesType": level,
+        "salesFrom": "",
+        "customerId": _selectedCustomer,
+        "employeeId":  userType == "m" || userType == "a" ? employeeSlNo ?? "" : userEmployeeID,
+        "salesDate": backEndFirstDate,
+        "total": total.toString(),
+        "subTotal": subtotal.toString(),
+        "discount": discountAmount.toString(),
+        "vat": vatAmount.toString(),
+        "vatPercent": vatPer.toString(),
+        "transportCost": transportCost.toString(),
+        "paid": Paid.toString(),
+        "due": due.toString(),
+        "cashPaid": cashPaid.toString(),
+        "bankPaid": bankPaid.toString(),
+        "previousDue": previousDue.toString(),
+        "isShipping": false,
+        "note": "Order from app",
+        "accountId": _selectedBankId ?? ""
+      // "salesId": 0,
+      // "invoiceNo": "",
+      // "salesBy": userName,
+      // "employeeId": userType == "m" || userType == "a" ? employeeSlNo ?? "" : userEmployeeID,
+      // "salesFrom": "1",
+      // "customerId": _selectedCustomer ?? "0",
+      // "salesDate": backEndFirstDate,
+      // "salesType": level,
+      // "total": total,
+      // "discount": discountAmount,
+      // "vat": vatAmount,
+      // "vatPercent": 0,
+      // "transportCost": transportCost,
+      // "subTotal": subtotal,
+      // "accountId": _selectedBankId?? 0,
+      // "cashPaid": accountController.text == "" ? Paid : 0,
+      // "bankPaid": accountController.text != "" ? Paid : 0,
+      // "paid": Paid,
+      // "due": due,
+      // "previousDue": previousDue,
+      // "note": "Order from app",
     };
 
     /// 👤 CUSTOMER DATA

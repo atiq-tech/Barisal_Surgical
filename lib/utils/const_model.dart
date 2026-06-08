@@ -12,7 +12,7 @@ List dashboardItems = [
     {"name": "Sales Record", "image": "images/srecord.png"},
     {"name": "Sales Invoice", "image": "images/sInvc.png"},
 
-    {"name": "ECP Sales Report", "image": "images/empsreport.png"},
+    {"name": "ECP Wise Sales Report", "image": "images/empsreport.png"},
     {"name": "Product List", "image": "images/productlist.png"},
     {"name": "Customer Payment Entry", "image": "images/cpay.png"},
     {"name": "Customer Payment History", "image": "images/cph.png"},

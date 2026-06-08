@@ -475,7 +475,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     return "false";
   }
 }
-
+bool isPrinting = false;
   @override
   void initState() {
     getCompanyProfile();
@@ -1243,38 +1243,65 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () async {
-                    await exportSalesPdf(
-                      context: context,
-                      allOrdersData: allOrdersData,
-                      subTotal: subTotal!,
-                      vatTotal: vatTotal!,
-                      discountTotal: discountTotal!,
-                      transferCost: transferCost!,
-                      totalAmount: totalAmount!,
-                      paidTotal: paidTotal!,
-                      dueTotal: dueTotal!,
-                      companyName: companyName,
-                      repotHeading: repotHeading, 
-                      companyLogothumb: companyLogothumb,
-                      firstDate: "$firstPickedDate",
-                      secondDate: "$secondPickedDate",
-                    );
+                onTap: isPrinting ? null : () async {
+                    setState(() {
+                      isPrinting = true;
+                    });
+
+                    try {
+                      await exportSalesPdf(
+                        context: context,
+                        allOrdersData: allOrdersData,
+                        subTotal: subTotal!,
+                        vatTotal: vatTotal!,
+                        discountTotal: discountTotal!,
+                        transferCost: transferCost!,
+                        totalAmount: totalAmount!,
+                        paidTotal: paidTotal!,
+                        dueTotal: dueTotal!,
+                        companyName: companyName,
+                        repotHeading: repotHeading, 
+                        companyLogothumb: companyLogothumb,
+                        firstDate: "$firstPickedDate",
+                        secondDate: "$secondPickedDate",
+                      );
+                    } catch (e) {
+                      debugPrint("Print Error => $e");
+                    }
+
+                    setState(() {
+                      isPrinting = false;
+                    });
                   },
-                  child: Card(
-                    color: Colors.indigo.shade700,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                child: Card(
+                  color: Colors.indigo.shade700,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                    child: Row(
-                      children: [
-                        Icon(Icons.print, color: Colors.white, size: 15.r),
-                        Text(" Print",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                  )
+                    child: isPrinting
+                    ? SizedBox(
+                        width: 16.w,
+                        height: 16.h,
+                        child: Padding(
+                          padding: EdgeInsets.all(2.r),
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.print,color: Colors.white,size: 15.r),
+                          Text(" Print",
+                            style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
                   ),
                 ),
+               )
               ],
             ):SizedBox(),
             data == 'showAllWithoutDetails'
@@ -1377,10 +1404,14 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                                       Navigator.pop(dialogContext);
                                                       await deleteOrder(
                                                         parentContext,
-                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString(),
-                                                        ),
+                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
                                                       );
-                                                      Provider.of<OrdersProvider>(context, listen: false).orderslist = [];
+
+                                                      await Provider.of<OrdersProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrders(context,"", "", "", backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
                                                     },
                                                     child: const Text(
                                                       "Delete",
@@ -1459,7 +1490,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                         DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
                         DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
                       ],
                       rows:
                       List.generate(
@@ -1523,12 +1554,63 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 ),
                                 DataCell(
                                   Center(
-                                    child:GestureDetector(
-                                      child: Icon(Icons.collections_bookmark,size: 18.r),
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo),
-                                        ));
-                                      },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+                                            )));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
+                                        onTap: () {
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+                                                      );
+
+                                                      await Provider.of<OrdersProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrders(context,"", "", "", backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
+                                      ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -1577,7 +1659,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
                           ],
                           rows: [
                             ...List.generate(
@@ -1609,15 +1691,67 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                         child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
                                       )))),
                                   DataCell(
-                                    Center(
-                                      child:GestureDetector(
-                                        child: Icon(Icons.collections_bookmark,size: 18.r),
+                                  Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+                                            )));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
                                         onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo)));
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+                                                      );
+
+                                                      await Provider.of<OrdersProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrders(context,"", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
                                         },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
                                       ),
+                                      ],
                                     ),
                                   ),
+                                ),
                                 ],
                               ),
                             ),
@@ -1739,11 +1873,61 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 ),
                                 DataCell(
                                   Center(
-                                    child:GestureDetector(
-                                      child: Icon(Icons.collections_bookmark,size: 18.r),
-                                      onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
-                                      },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
+                                        onTap: () {
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
+                                                      );
+
+                                                      await Provider.of<OrdersRecordProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrdersRecord(context,"", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
+                                      ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -1792,7 +1976,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
                           ],
                           rows: [
                             ...List.generate(
@@ -1824,15 +2008,67 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                         child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
                                       )))),
                                   DataCell(
-                                    Center(
-                                      child:GestureDetector(
-                                        child: Icon(Icons.collections_bookmark,size: 18.r),
+                                  Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+                                            )));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
                                         onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo)));
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+                                                      );
+
+                                                      await Provider.of<OrdersProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrders(context,"", "",_selectEmployeeId, backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
                                         },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
                                       ),
+                                      ],
                                     ),
                                   ),
+                                ),
                                 ],
                               ),
                             ),
@@ -1890,7 +2126,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                         DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
                         DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
                       ],
                       rows:
                       List.generate(
@@ -1953,11 +2189,61 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 ),
                                 DataCell(
                                   Center(
-                                    child:GestureDetector(
-                                      child: const Icon(Icons.collections_bookmark,size: 18,),
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
-                                      },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
+                                        onTap: () {
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
+                                                      );
+
+                                                      await Provider.of<OrdersRecordProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrdersRecord(context,"", "", _selectEmployeeId, backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
+                                      ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -2156,7 +2442,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
                           ],
                           rows: [
                             ...List.generate(
@@ -2188,15 +2474,67 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                         child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
                                       )))),
                                   DataCell(
-                                    Center(
-                                      child:GestureDetector(
-                                        child: Icon(Icons.collections_bookmark,size: 18.r),
+                                  Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+                                            )));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
                                         onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo)));
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+                                                      );
+
+                                                      await Provider.of<OrdersProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrders(context,_selectUserId, "", "", backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
                                         },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
                                       ),
+                                      ],
                                     ),
                                   ),
+                                ),
                                 ],
                               ),
                             ),
@@ -2254,7 +2592,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                         DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
                         DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+                        DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
                       ],
                       rows:
                       List.generate(
@@ -2317,11 +2655,61 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                                 ),
                                 DataCell(
                                   Center(
-                                    child:GestureDetector(
-                                      child: const Icon(Icons.collections_bookmark,size: 18,),
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
-                                      },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
+                                          },
+                                          child: Icon(Icons.collections_bookmark,size: 15.r),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        GestureDetector(
+                                        onTap: () {
+                                          final parentContext = context;
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: const Text("Delete Order"),
+                                                content: const Text("Are you sure?"),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Navigator.pop(dialogContext);
+                                                      await deleteOrder(
+                                                        parentContext,
+                                                        int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
+                                                      );
+
+                                                      await Provider.of<OrdersRecordProvider>(
+                                                        parentContext,
+                                                        listen: false,
+                                                      ).getOrdersRecord(context,_selectUserId, "", "", backEndFirstDate, backEndSecondtDate);
+                                                      setState(() {});
+                                                    },
+                                                    child: const Text(
+                                                      "Delete",
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 18.r,
+                                        ),
+                                      ),
+                                      ],
                                     ),
                                   ),
                                 ),
