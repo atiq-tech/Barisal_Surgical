@@ -1114,7 +1114,7 @@ String myAddress = "Loading...";
                                           cpurchaseRate = suggestion.productPurchaseRate;
                                           cTempRate = suggestion.temporaryRate; 
                                           _salesRateController.text = suggestion.productSellingPrice;
-                                          Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
+                                          //Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
                                           totalStack(cproductId);
                                           _lotNoController.text = suggestion.productLotNo ?? '';
                                           mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
@@ -1550,9 +1550,7 @@ String myAddress = "Loading...";
                                         setState(() {
                                           discountPer = getDouble(_discountPercentController);
                                           discountAmount = (subtotal * discountPer) / 100;
-
                                           _DiscountController.text = discountAmount.toStringAsFixed(1);
-
                                           calculateTotal();
                                         });
                                       },
@@ -1583,11 +1581,8 @@ String myAddress = "Loading...";
                                       onChanged: (value) {
                                         setState(() {
                                           discountAmount = getDouble(_DiscountController);
-
                                           discountPer = subtotal == 0 ? 0 : (discountAmount * 100) / subtotal;
-
                                           _discountPercentController.text = discountPer.toStringAsFixed(1);
-
                                           calculateTotal();
                                         });
                                       },
@@ -1621,13 +1616,9 @@ String myAddress = "Loading...";
                                       onChanged: (value) {
                                         setState(() {
                                           vatPer = getDouble(_vatPercentageController);
-
                                           double afterDiscount = subtotal - discountAmount;
-
                                           vatAmount = (afterDiscount * vatPer) / 100;
-
                                           _VatController.text = vatAmount.toStringAsFixed(1);
-
                                           calculateTotal();
                                         });
                                       },
@@ -1660,13 +1651,9 @@ String myAddress = "Loading...";
                                       onChanged: (value) {
                                         setState(() {
                                           double afterDiscount = subtotal - discountAmount;
-
                                           vatAmount = getDouble(_VatController);
-
                                           vatPer = afterDiscount == 0 ? 0 : (vatAmount * 100) / afterDiscount;
-
                                           _vatPercentageController.text = vatPer.toStringAsFixed(1);
-
                                           calculateTotal();
                                         });
                                       },
@@ -1703,13 +1690,9 @@ String myAddress = "Loading...";
                                     onChanged: (value) {
                                       setState(() {
                                         double afterDiscount = subtotal - discountAmount;
-
                                         taxPer = getDouble(_taxPercentageController);
-
                                         taxAmount = (afterDiscount * taxPer) / 100;
-
                                         _TaxController.text = taxAmount.toStringAsFixed(1);
-
                                         calculateTotal();
                                       });
                                     },
@@ -1741,13 +1724,9 @@ String myAddress = "Loading...";
                                     onChanged: (value) {
                                       setState(() {
                                         double afterDiscount = subtotal - discountAmount;
-
                                         taxAmount = getDouble(_TaxController);
-
                                         taxPer = afterDiscount == 0 ? 0 : (taxAmount * 100) / afterDiscount;
-
                                         _taxPercentageController.text = taxPer.toStringAsFixed(1);
-
                                         calculateTotal();
                                       });
                                     },
@@ -1971,12 +1950,16 @@ String myAddress = "Loading...";
                                     padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 4.h),
                                     decoration:ContDecoration.contDecoration,
                                     child: SizedBox(
-                                      child: Text("$previousDue" == 'null' ? '0' : double.parse("$previousDue").toStringAsFixed(1),
-                                        style: TextStyle(color: Colors.red,fontSize: 13.5.sp),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                    child: Text(
+                                      (double.tryParse(previousDue?.toString() ?? '') ?? 0).toStringAsFixed(1),
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 13.5.sp,
                                       ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                  ),
                                   ),
                                 ),
                               ],
@@ -2417,20 +2400,31 @@ void _expDate() async {
 
   emtyMethodAll() {
     setState(() {
+      employeeNameController.text = "";
+      customerController.text = "";
+      _commentController.text = "";
       _nameController.text = "";
+       productController.text = "";
       _paidController.text = "";
+      _bankPaidController.text = "";
       _discountPercentController.text = "";
       _mobileNumberController.text = "";
       _addressController.text = "";
       _salesRateController.text = "";
       _DiscountController.text = "";
       _VatController.text = "";
+      _vatPercentageController.text = "";
       _quantityController.text = "";
       _transportController.text = "";
       bankAccountController.text = "";
+      _TaxController.text = "";
+      _taxPercentageController.text = "";
+      _lotNoController.text = "";
       discountPer = 0;
       discountAmount = 0;
-      previousDue = "0";
+      previousDue = "";
+      taxPer = 0;
+      taxAmount = 0;
       vatPer = 0;
       vatAmount = 0;
       subtotal = 0;
@@ -2438,6 +2432,14 @@ void _expDate() async {
       cashPaid = 0;
       bankPaid = 0;
       due = 0;
+      Total = 0;
+      availableStock = 0;
+      expPickedDate = null;
+      mfgPickedDate = null;
+      _selectedCustomer = null;
+      _selectedBankId = null;
+      isVisibleBankName = false;
+      Provider.of<InvoiceDueProvider>(context, listen: false).invoiceDueList = [];
     });
   }
 

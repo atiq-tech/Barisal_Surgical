@@ -150,36 +150,36 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
 
   late final Box box;
   bool isSellBtnClk = false;
-  void _clearInputFields() {
-    productController.text = '';
-    _lotNoController.text = '';
-    _salesRateController.text = '';
-    _quantityController.text = '';
-    isAdded = true;
-    Total = 0;
-    newQty = 0;
-    newTotal = 0;
-    availableStock = 0;
+//   void _clearInputFields() {
+//     productController.text = '';
+//     _lotNoController.text = '';
+//     _salesRateController.text = '';
+//     _quantityController.text = '';
+//     isAdded = true;
+//     Total = 0;
+//     newQty = 0;
+//     newTotal = 0;
+//     availableStock = 0;
 
-    _bankPaidController.text="";
-    _paidController.text = "";
-    _discountPercentController.text = "";
-    _DiscountController.text = "";
-    _vatPercentageController.text="";
-    _VatController.text = "";
-    _transportController.text = "";
-    bankAccountController.text = "";
-    discountPer = 0;
-    transportCost=0;
-    discountAmount = 0;
-    previousDue = "0";
-    vatPer = 0;
-    vatAmount = 0;
-    cashPaid = 0;
-    bankPaid = 0;
-    due = 0;
-    calculateTotal();
- }
+//     _bankPaidController.text="";
+//     _paidController.text = "";
+//     _discountPercentController.text = "";
+//     _DiscountController.text = "";
+//     _vatPercentageController.text="";
+//     _VatController.text = "";
+//     _transportController.text = "";
+//     bankAccountController.text = "";
+//     discountPer = 0;
+//     transportCost=0;
+//     discountAmount = 0;
+//     previousDue = "0";
+//     vatPer = 0;
+//     vatAmount = 0;
+//     cashPaid = 0;
+//     bankPaid = 0;
+//     due = 0;
+//     calculateTotal();
+//  }
 
   void removeFromCart(index) {
     salesCartList.removeAt(index);
@@ -247,13 +247,13 @@ double getDouble(TextEditingController c) {
 }
 void calculateTotal() {
   final allGetSalesData = salesCartList;
-    double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
-    subtotal = double.parse("$cartTotall");
+  double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
+  subtotal = double.parse("$cartTotall");
   double afterDiscount = subtotal - discountAmount;
 
   // VAT show হবে
   vatAmount = (afterDiscount * vatPer) / 100;
-  total = afterDiscount + transportCost;
+  total = afterDiscount + transportCost + vatAmount;
   if (isAdded) {
     cashPaid = double.parse("$total") - double.parse("$bankPaid");
     _paidController.text = "$cashPaid";
@@ -1031,7 +1031,7 @@ void calculateTotal() {
                                           cpurchaseRate = suggestion.productPurchaseRate;
                                           cTempRate = suggestion.temporaryRate; 
                                           _salesRateController.text = suggestion.productSellingPrice;
-                                          Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
+                                          //Total = _quantityController.text == "" ? double.parse(_salesRateController.text) : (double.parse(_quantityController.text) * double.parse(_salesRateController.text));
                                           totalStack(cproductId);
                                           _lotNoController.text = suggestion.productLotNo ?? '';
                                           mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
@@ -1105,7 +1105,7 @@ void calculateTotal() {
                                 ),
                               ],
                             ), // quantity
-                            SizedBox(height: 2.w),
+                            SizedBox(height: 4.w),
                             Row(
                               children: [
                                 Expanded(flex: 3,child: Text("Amount", style: AllTextStyle.textFieldHeadStyle)),
@@ -1119,30 +1119,6 @@ void calculateTotal() {
                                     child: Text("$Total", style: AllTextStyle.textValueStyle),
                                   ),
                                 ),
-                                // Expanded(
-                                //   flex: 5,
-                                //   child: Card(
-                                //     elevation: 0,
-                                //     color: Colors.white,
-                                //     shape: RoundedRectangleBorder(
-                                //       borderRadius: BorderRadius.circular(5.0.r),
-                                //     ),
-                                //     child: SizedBox(
-                                //       height: 25.h,
-                                //       child: Row(
-                                //         mainAxisAlignment: MainAxisAlignment.center,
-                                //         children: [
-                                //            availableStock != 0 ? Text("Stock,", style: TextStyle(color: Colors.green.shade700,fontSize: 11.sp,fontWeight: FontWeight.bold)): Text("Stock,", style: TextStyle(color: Colors.red,fontSize: 11.sp,fontWeight: FontWeight.bold)),
-                                //           Text("$availableStock ${productUnit ?? ""}",
-                                //             maxLines: 1,
-                                //             overflow: TextOverflow.ellipsis,
-                                //             style: TextStyle(fontSize: 11.sp,color:availableStock != 0 ? Colors.green.shade700 : Colors.red,fontWeight: FontWeight.bold),
-                                //           ),
-                                //         ],
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
                               ],
                             ),
                             Row(
@@ -1153,7 +1129,7 @@ void calculateTotal() {
                                 flex: 9,
                                 child: Container(
                                   height: 25.h,
-                                  margin: EdgeInsets.only(bottom: 4.h,top: 2.h),
+                                  margin: EdgeInsets.only(bottom: 4.h,top: 4.h),
                                   child: TextField(
                                     style: AllTextStyle.textFieldHeadStyle,
                                     controller: _lotNoController,
@@ -1448,6 +1424,7 @@ void calculateTotal() {
 
                                           calculateTotal();
                                         });
+                                        print("Discount Percentage : $discountPer");
                                       },
                                       keyboardType: TextInputType.phone,
                                       decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 3.w),
@@ -1481,6 +1458,7 @@ void calculateTotal() {
 
                                           calculateTotal();
                                         });
+                                        print("Discount Amount : $discountAmount");
                                       },
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.only(left: 4.w),
@@ -1520,6 +1498,7 @@ void calculateTotal() {
 
                                           calculateTotal();
                                         });
+                                        print("Vat Percentage : $vatPer");
                                       },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
@@ -1556,6 +1535,7 @@ void calculateTotal() {
 
                                           calculateTotal();
                                         });
+                                        print("Vat Amount : $vatAmount");
                                       },
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.only(left: 4.w),
@@ -1589,6 +1569,7 @@ void calculateTotal() {
                                           transportCost = getDouble(_transportController);
                                           calculateTotal();
                                         });
+                                        print("Transport Cost : $transportCost");
                                       },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
@@ -1638,6 +1619,7 @@ void calculateTotal() {
                                           cashPaid = getDouble(_paidController);
                                           calculateTotal();
                                         });
+                                        print("Cash Paid : $cashPaid");
                                       },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
@@ -1668,6 +1650,7 @@ void calculateTotal() {
                                           isVisibleBankName = bankPaid > 0;
                                           calculateTotal();
                                         });
+                                        print("Bank Paid : $bankPaid");
                                       },
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 4.w),
@@ -1837,7 +1820,7 @@ void calculateTotal() {
                                           Utils.errorSnackBar(context, "Please Add to Cart");
                                         } else {
                                           addOrder();
-                                          _clearInputFields();
+                                          //_clearInputFields();
                                         }
                                       }
                                     } 
@@ -1862,7 +1845,7 @@ void calculateTotal() {
                                         Utils.errorSnackBar(context, "Please Add to Cart");
                                       } else {
                                         addOrder();
-                                        _clearInputFields();
+                                        //_clearInputFields();
                                       }
                                      }
                                     }
@@ -1955,17 +1938,23 @@ void _expDate() async {
     setState(() {
       employeeNameController.text = "";
       customerController.text = "";
+      _commentController.text = "";
       _nameController.text = "";
+       productController.text = "";
       _paidController.text = "";
+      _bankPaidController.text = "";
       _discountPercentController.text = "";
       _mobileNumberController.text = "";
       _addressController.text = "";
       _salesRateController.text = "";
       _DiscountController.text = "";
       _VatController.text = "";
+      _vatPercentageController.text = "";
       _quantityController.text = "";
       _transportController.text = "";
       accountController.text = "";
+      bankAccountController.text = "";
+      _lotNoController.text = "";
       discountPer = 0;
       discountAmount = 0;
       previousDue = "";
@@ -1976,7 +1965,12 @@ void _expDate() async {
       cashPaid = 0;
       bankPaid = 0;
       due = 0;
-
+      Total = 0;
+      expPickedDate = null;
+      mfgPickedDate = null;
+      _selectedCustomer = null;
+      _selectedBankId = null;
+      isVisibleBankName = false;
     });
   }
 
