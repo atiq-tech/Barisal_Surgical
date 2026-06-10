@@ -7,13 +7,12 @@ import 'package:barishal_surgical/providers/order_module_providers/orders_record
 import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_screen.dart';
 import 'package:barishal_surgical/utils/animation_snackbar.dart';
 import 'package:barishal_surgical/utils/const_model.dart';
-import 'package:barishal_surgical/utils/excel_export_funtion.dart';
-import 'package:barishal_surgical/utils/export_pdf_funtion.dart';
+import 'package:barishal_surgical/utils/export_orders_excel_funtion.dart';
+import 'package:barishal_surgical/utils/export_orders_pdf_funtion.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:barishal_surgical/providers/sales_module_providers/sales_record_provider.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +26,6 @@ import '../../../providers/administration_module_providers/categories_provider.d
 import '../../../providers/administration_module_providers/customer_list_provider.dart';
 import '../../../providers/administration_module_providers/employees_provider.dart';
 import '../../../providers/administration_module_providers/products_list_provider.dart';
-import '../../../providers/sales_module_providers/sales_provider.dart';
 import '../../../utils/utils.dart';
 
 class OrderRecordScreen extends StatefulWidget {
@@ -1216,7 +1214,7 @@ bool isPrinting = false;
               children: [
                 GestureDetector(
                   onTap: () async {
-                    await exportSalesExcel(
+                    await exportOrdersExcel(
                       context: context,
                       allOrdersData: allOrdersData,
                       subTotal: subTotal!,
@@ -1249,7 +1247,7 @@ bool isPrinting = false;
                     });
 
                     try {
-                      await exportSalesPdf(
+                      await exportOrdersPdf(
                         context: context,
                         allOrdersData: allOrdersData,
                         subTotal: subTotal!,
@@ -1306,7 +1304,7 @@ bool isPrinting = false;
             ):SizedBox(),
             data == 'showAllWithoutDetails'
               ? Expanded(
-              child: SalesProvider.isSalesLoading ? const Center(child: CircularProgressIndicator())
+              child: OrdersProvider.isOrdersLoading ? const Center(child: CircularProgressIndicator())
                :allOrdersData.isNotEmpty?
               SizedBox(
                 width: double.infinity,
@@ -1463,7 +1461,7 @@ bool isPrinting = false;
             )
                 : data == 'showAllWithDetails'
                 ? Expanded(
-              child: SalesRecordProvider.isSalesRecordLoading
+              child: OrdersRecordProvider.isOrdersRecordLoading
                   ? const Center(child: CircularProgressIndicator())
                   :allOrdersRecordData.isNotEmpty?
               SizedBox(
@@ -1624,7 +1622,7 @@ bool isPrinting = false;
             )
                 : data == 'showByCustomerWithoutDetails'
                 ? Expanded(
-              child: SalesProvider.isSalesLoading
+              child: OrdersProvider.isOrdersLoading
                   ? const Center(child: CircularProgressIndicator())
                   :allOrdersData.isNotEmpty?
               SizedBox(
@@ -1782,7 +1780,7 @@ bool isPrinting = false;
             )
                 : data == 'showByCustomerWithDetails'
                 ? Expanded(
-              child: SalesRecordProvider.isSalesRecordLoading
+              child: OrdersRecordProvider.isOrdersRecordLoading
                   ? const Center(child: CircularProgressIndicator())
                   :allOrdersRecordData.isNotEmpty?
               SizedBox(
@@ -1941,7 +1939,7 @@ bool isPrinting = false;
             )
                 : data == 'showByEmployeeWithoutDetails'
                 ? Expanded(
-              child: SalesProvider.isSalesLoading
+              child: OrdersProvider.isOrdersLoading
                   ? const Center(child: CircularProgressIndicator())
                   :allOrdersData.isNotEmpty?
               SizedBox(
@@ -2099,7 +2097,7 @@ bool isPrinting = false;
             )
                 : data == 'showByEmployeeWithDetails'
                 ? Expanded(
-              child: SalesRecordProvider.isSalesRecordLoading
+              child: OrdersRecordProvider.isOrdersRecordLoading
                   ? const Center(child: CircularProgressIndicator())
                   :allOrdersRecordData.isNotEmpty?
               SizedBox(
@@ -2407,7 +2405,7 @@ bool isPrinting = false;
                 
                 : data == 'showByUserWithoutDetails'
                 ? Expanded(
-              child: SalesProvider.isSalesLoading
+              child: OrdersProvider.isOrdersLoading
                   ? const Center(child: CircularProgressIndicator())
                   :allOrdersData.isNotEmpty?
               SizedBox(
@@ -2565,7 +2563,7 @@ bool isPrinting = false;
             )
                 : data == 'showByUserWithDetails'
                 ? Expanded(
-              child: SalesRecordProvider.isSalesRecordLoading
+              child: OrdersRecordProvider.isOrdersRecordLoading
                   ? const Center(child: CircularProgressIndicator())
                   :allOrdersRecordData.isNotEmpty?
               SizedBox(

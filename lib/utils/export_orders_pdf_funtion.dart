@@ -30,7 +30,7 @@ Future<Uint8List?> fetchImage(String url) async {
   }
 }
 
-Future<void> exportSalesPdf({
+Future<void> exportOrdersPdf({
   required BuildContext context,
   required List allOrdersData,
   required double subTotal,
