@@ -670,97 +670,238 @@ String myAddress = "Loading...";
                                 Text("Customer :", style: AllTextStyle.textFieldHeadStyle),
                                 SizedBox(width: 14.w),
                                 Expanded(
-                                  flex: 5,
-                                  child: Container(
-                                    margin: EdgeInsets.only(bottom: 4.h),
-                                    height: 25.0.h,
-                                    decoration: ContDecoration.contDecoration,
-                                    child: TypeAheadField<CustomerListModel>(
-                                      controller: customerController,
-                                      builder: (context, controller, focusNode) {
-                                        return TextField(
-                                          controller: controller,
-                                          focusNode: focusNode,
-                                          style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                          decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
-                                            isDense: true,
-                                            hintText: 'Select Customer',
-                                            hintStyle: TextStyle(fontSize: 13.sp),
-                                            suffixIcon: _selectedCustomer == '' || _selectedCustomer == 'null' || _selectedCustomer == null || controller.text == '' ? null
-                                                : GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  customerController.clear();
-                                                  controller.clear();
-                                                  _selectedCustomer = null;
-                                                  customerController.text="";
-                                                  _selectedCustomer = "";
-                                                  _nameController.text = '';
-                                                  _mobileNumberController.text = '';
-                                                  _addressController.text = '';
-                                                });
-                                              },
-                                              child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                            ),
-                                            suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: InputBorder.none,
-                                            focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                            enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                flex: 5,
+                                child: Container(
+                                  margin: EdgeInsets.only(bottom: 4.h),
+                                  height: 25.0.h,
+                                  decoration: ContDecoration.contDecoration,
+                                  child: TypeAheadField<CustomerListModel>(
+                                    controller: customerController,
+
+                                    builder: (context, controller, focusNode) {
+                                      return TextField(
+                                        controller: controller,
+                                        focusNode: focusNode,
+
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          color: Colors.grey.shade800,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+
+                                        // 👉 Cursor দিলেই dropdown open feel আসবে
+                                        onTap: () {
+                                          controller.text = controller.text;
+                                          customerController.clear();
+                                          _selectedCustomer = "";
+                                        },
+
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.only(
+                                            bottom: 10.h,
+                                            left: 5.0.w,
                                           ),
-                                        );
-                                      },
-                                      suggestionsCallback: (pattern) async {
-                                        return Future.delayed(const Duration(seconds: 1), () {
-                                          return allCustomerList.where((element) =>
-                                              element.customerName.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                        });
-                                      },
-                                      itemBuilder: (context, CustomerListModel suggestion) {
-                                        return Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                          child: Text(suggestion.displayName??"",
-                                            style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
-                                          ),
-                                        );
-                                      },
-                                      onSelected: (CustomerListModel suggestion) {
-                                        customerController.text = suggestion.displayName;
-                                            setState(() {
-                                              _selectedCustomer = suggestion.customerSlNo.toString();
-                                              customerSlNo = suggestion.customerSlNo.toString();
-                                              customerType = suggestion.customerType.toString();
-                                              employeeNameController.text = suggestion.employeeName.toString();
-                                              employeeSlNo = suggestion.employeeId.toString();
-                                              if (_selectedCustomer == "0") {
-                                                isVisible = true;
-                                                isEnabled = true;
-                                                _nameController.text = '';
-                                                _mobileNumberController.text = '';
-                                                _addressController.text = '';
-                                              } else {
-                                                isEnabled = false;
-                                                isVisible = false;
-                                                _nameController.text = suggestion.customerName.toString();
-                                                _mobileNumberController.text = suggestion.customerMobile.toString();
-                                                _addressController.text = suggestion.customerAddress.toString();
-                                                creditLimit = suggestion.customerCreditLimit.toString();
-                                              }
-                                              if (customerType == "N") {
-                                                _nameController.text = allCustomerList.first.customerName ?? '';
-                                              }
-                                            });
-                                            previousDueAmount(_selectedCustomer);
-                                            print("CustomerId========$_selectedCustomer");
-                                            print("customerType========$customerType");
-                                            print("employeeSlNo========$employeeSlNo");
-                                            InvoiceDueProvider().on();
-                                            Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,_selectedCustomer);
-                                      },
-                                    ),
+                                          isDense: true,
+                                          hintText: 'Select Customer',
+                                          hintStyle: TextStyle(fontSize: 13.sp),
+
+                                          suffixIcon: _selectedCustomer == '' ||
+                                                  _selectedCustomer == 'null' ||
+                                                  _selectedCustomer == null ||
+                                                  controller.text == ''
+                                              ? null
+                                              : GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      customerController.clear();
+                                                      controller.clear();
+
+                                                      _selectedCustomer = "";
+                                                      customerSlNo = "";
+                                                      customerType = "";
+
+                                                      _nameController.text = '';
+                                                      _mobileNumberController.text = '';
+                                                      _addressController.text = '';
+                                                    });
+
+                                                    // 👉 clear করার পর আবার focus দিলে সব customer show হবে
+                                                    FocusScope.of(context).requestFocus(focusNode);
+                                                  },
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(5.r),
+                                                    child: Icon(Icons.close, size: 16.r),
+                                                  ),
+                                                ),
+
+                                          suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: InputBorder.none,
+                                          focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                          enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                        ),
+                                      );
+                                    },
+
+                                    suggestionsCallback: (pattern) async {
+                                      return Future.delayed(const Duration(milliseconds: 200), () {
+                                        // 👉 empty হলে সব customer দেখাবে
+                                        if (pattern.trim().isEmpty) {
+                                          return allCustomerList;
+                                        }
+
+                                        return allCustomerList.where((element) {
+                                          return (element.customerName ?? '')
+                                              .toLowerCase()
+                                              .contains(pattern.toLowerCase());
+                                        }).toList();
+                                      });
+                                    },
+
+                                    itemBuilder: (context, CustomerListModel suggestion) {
+                                      return Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                                        child: Text(
+                                          suggestion.displayName ?? "",
+                                          style: TextStyle(fontSize: 12.sp),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      );
+                                    },
+
+                                    onSelected: (CustomerListModel suggestion) {
+                                      customerController.text = suggestion.displayName ?? "";
+                                      setState(() {
+                                        _selectedCustomer = suggestion.customerSlNo.toString();
+                                        customerSlNo = suggestion.customerSlNo.toString();
+                                        customerType = suggestion.customerType.toString();
+                                        employeeNameController.text =suggestion.employeeName.toString();
+                                        employeeSlNo = suggestion.employeeId.toString();
+
+                                        if (_selectedCustomer == "0") {
+                                          isVisible = true;
+                                          isEnabled = true;
+                                          _nameController.text = '';
+                                          _mobileNumberController.text = '';
+                                          _addressController.text = '';
+                                        } else {
+                                          isEnabled = false;
+                                          isVisible = false;
+                                          _nameController.text = suggestion.customerName.toString();
+                                          _mobileNumberController.text = suggestion.customerMobile.toString();
+                                          _addressController.text = suggestion.customerAddress.toString();
+                                          creditLimit = suggestion.customerCreditLimit.toString();
+                                        }
+                                        if (customerType == "N") {
+                                          _nameController.text = allCustomerList.first.customerName ?? '';
+                                        }
+                                      });
+
+                                      previousDueAmount(_selectedCustomer);
+                                      print("CustomerId========$_selectedCustomer");
+                                      print("customerType========$customerType");
+                                      print("employeeSlNo========$employeeSlNo");
+
+                                      InvoiceDueProvider().on();
+                                      Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context, _selectedCustomer);
+                                    },
                                   ),
                                 ),
+                              )
+                                // Expanded(
+                                //   flex: 5,
+                                //   child: Container(
+                                //     margin: EdgeInsets.only(bottom: 4.h),
+                                //     height: 25.0.h,
+                                //     decoration: ContDecoration.contDecoration,
+                                //     child: TypeAheadField<CustomerListModel>(
+                                //       controller: customerController,
+                                //       builder: (context, controller, focusNode) {
+                                //         return TextField(
+                                //           controller: controller,
+                                //           focusNode: focusNode,
+                                //           style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+                                //           decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+                                //             isDense: true,
+                                //             hintText: 'Select Customer',
+                                //             hintStyle: TextStyle(fontSize: 13.sp),
+                                //             suffixIcon: _selectedCustomer == '' || _selectedCustomer == 'null' || _selectedCustomer == null || controller.text == '' ? null
+                                //                 : GestureDetector(
+                                //               onTap: () {
+                                //                 setState(() {
+                                //                   customerController.clear();
+                                //                   controller.clear();
+                                //                   _selectedCustomer = null;
+                                //                   customerController.text="";
+                                //                   _selectedCustomer = "";
+                                //                   _nameController.text = '';
+                                //                   _mobileNumberController.text = '';
+                                //                   _addressController.text = '';
+                                //                 });
+                                //               },
+                                //               child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+                                //             ),
+                                //             suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                //             filled: true,
+                                //             fillColor: Colors.white,
+                                //             border: InputBorder.none,
+                                //             focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                //             enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                //           ),
+                                //         );
+                                //       },
+                                //       suggestionsCallback: (pattern) async {
+                                //         return Future.delayed(const Duration(seconds: 1), () {
+                                //           return allCustomerList.where((element) =>
+                                //               element.customerName.toLowerCase().contains(pattern.toLowerCase())).toList();
+                                //         });
+                                //       },
+                                //       itemBuilder: (context, CustomerListModel suggestion) {
+                                //         return Padding(
+                                //           padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+                                //           child: Text(suggestion.displayName??"",
+                                //             style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+                                //           ),
+                                //         );
+                                //       },
+                                //       onSelected: (CustomerListModel suggestion) {
+                                //         customerController.text = suggestion.displayName;
+                                //             setState(() {
+                                //               _selectedCustomer = suggestion.customerSlNo.toString();
+                                //               customerSlNo = suggestion.customerSlNo.toString();
+                                //               customerType = suggestion.customerType.toString();
+                                //               employeeNameController.text = suggestion.employeeName.toString();
+                                //               employeeSlNo = suggestion.employeeId.toString();
+                                //               if (_selectedCustomer == "0") {
+                                //                 isVisible = true;
+                                //                 isEnabled = true;
+                                //                 _nameController.text = '';
+                                //                 _mobileNumberController.text = '';
+                                //                 _addressController.text = '';
+                                //               } else {
+                                //                 isEnabled = false;
+                                //                 isVisible = false;
+                                //                 _nameController.text = suggestion.customerName.toString();
+                                //                 _mobileNumberController.text = suggestion.customerMobile.toString();
+                                //                 _addressController.text = suggestion.customerAddress.toString();
+                                //                 creditLimit = suggestion.customerCreditLimit.toString();
+                                //               }
+                                //               if (customerType == "N") {
+                                //                 _nameController.text = allCustomerList.first.customerName ?? '';
+                                //               }
+                                //             });
+                                //             previousDueAmount(_selectedCustomer);
+                                //             print("CustomerId========$_selectedCustomer");
+                                //             print("customerType========$customerType");
+                                //             print("employeeSlNo========$employeeSlNo");
+                                //             InvoiceDueProvider().on();
+                                //             Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,_selectedCustomer);
+                                //       },
+                                //     ),
+                                //   ),
+                                // ),
                               ],
                             ),
                             Row(

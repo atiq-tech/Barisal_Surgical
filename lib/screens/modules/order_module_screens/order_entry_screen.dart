@@ -690,45 +690,85 @@ void calculateTotal() {
                                     child: TypeAheadField<CustomerListModel>(
                                       controller: customerController,
                                       builder: (context, controller, focusNode) {
-                                        return TextField(
-                                          controller: controller,
-                                          focusNode: focusNode,
-                                          style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                          decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
-                                            isDense: true,
-                                            hintText: 'Select Customer',
-                                            hintStyle: TextStyle(fontSize: 13.sp),
-                                            suffixIcon: _selectedCustomer == '' || _selectedCustomer == 'null' || _selectedCustomer == null || controller.text == '' ? null
-                                                : GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  customerController.clear();
-                                                  controller.clear();
-                                                  _selectedCustomer = null;
-                                                  customerController.text="";
-                                                  _selectedCustomer = "";
-                                                  _nameController.text = '';
-                                                  _mobileNumberController.text = '';
-                                                  _addressController.text = '';
-                                                });
-                                              },
-                                              child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                            ),
-                                            suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: InputBorder.none,
-                                            focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                            enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                      return TextField(
+                                        controller: controller,
+                                        focusNode: focusNode,
+
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          color: Colors.grey.shade800,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+
+                                        // 👉 Cursor দিলেই dropdown open feel আসবে
+                                        onTap: () {
+                                          controller.text = controller.text;
+                                          customerController.clear();
+                                          _selectedCustomer = "";
+                                        },
+
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.only(
+                                            bottom: 10.h,
+                                            left: 5.0.w,
                                           ),
-                                        );
-                                      },
-                                      suggestionsCallback: (pattern) async {
-                                        return Future.delayed(const Duration(seconds: 1), () {
-                                          return allCustomerList.where((element) =>
-                                              element.customerName.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                        });
-                                      },
+                                          isDense: true,
+                                          hintText: 'Select Customer',
+                                          hintStyle: TextStyle(fontSize: 13.sp),
+
+                                          suffixIcon: _selectedCustomer == '' ||
+                                                  _selectedCustomer == 'null' ||
+                                                  _selectedCustomer == null ||
+                                                  controller.text == ''
+                                              ? null
+                                              : GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      customerController.clear();
+                                                      controller.clear();
+
+                                                      _selectedCustomer = "";
+                                                      customerSlNo = "";
+                                                      customerType = "";
+
+                                                      _nameController.text = '';
+                                                      _mobileNumberController.text = '';
+                                                      _addressController.text = '';
+                                                    });
+
+                                                    // 👉 clear করার পর আবার focus দিলে সব customer show হবে
+                                                    FocusScope.of(context).requestFocus(focusNode);
+                                                  },
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(5.r),
+                                                    child: Icon(Icons.close, size: 16.r),
+                                                  ),
+                                                ),
+
+                                          suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: InputBorder.none,
+                                          focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+                                          enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+                                        ),
+                                      );
+                                    },
+
+                                    suggestionsCallback: (pattern) async {
+                                      return Future.delayed(const Duration(milliseconds: 200), () {
+                                        // 👉 empty হলে সব customer দেখাবে
+                                        if (pattern.trim().isEmpty) {
+                                          return allCustomerList;
+                                        }
+
+                                        return allCustomerList.where((element) {
+                                          return (element.customerName ?? '')
+                                              .toLowerCase()
+                                              .contains(pattern.toLowerCase());
+                                        }).toList();
+                                      });
+                                    },
                                       itemBuilder: (context, CustomerListModel suggestion) {
                                         return Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
