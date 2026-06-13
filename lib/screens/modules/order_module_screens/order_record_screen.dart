@@ -1207,7 +1207,6 @@ bool isPrinting = false;
                 ],
               ),
             ),
-            
             SizedBox(height: 10.h),
             allOrdersData.isNotEmpty?Row(
                mainAxisAlignment: MainAxisAlignment.spaceBetween,

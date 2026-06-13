@@ -715,7 +715,6 @@ void calculateTotal() {
                                           isDense: true,
                                           hintText: 'Select Customer',
                                           hintStyle: TextStyle(fontSize: 13.sp),
-
                                           suffixIcon: _selectedCustomer == '' ||
                                                   _selectedCustomer == 'null' ||
                                                   _selectedCustomer == null ||

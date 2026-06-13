@@ -425,8 +425,6 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
         setState(() {
           repotHeading = data['Repot_Heading'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
         //startAutoStartTimeChecker();
       }
     } catch (e) {
@@ -559,8 +557,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                     ],
                   ),
 
-                  isCustomerWiseClicked == true
-                      ? Row(
+                  isCustomerWiseClicked == true ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(flex: 1, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
