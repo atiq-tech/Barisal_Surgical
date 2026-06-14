@@ -173,10 +173,6 @@ Future<void> salesRecordPdf({
                 item.status == "a" ? "Approved" : "Pending",
               ];
             }),
-
-        /* =========================
-          FOOTER TOTAL ROW (IMPORTANT)
-          ========================= */
             [
               "", "", "", "", "",
               "TOTAL",
@@ -197,8 +193,6 @@ Future<void> salesRecordPdf({
     );
 
     Navigator.pop(context);
-
-    // SAVE FILE TO DOWNLOADS
     Directory dir = Directory('/storage/emulated/0/Download');
     if (!await dir.exists()) {
       await dir.create(recursive: true);

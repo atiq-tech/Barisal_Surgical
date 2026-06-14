@@ -30,10 +30,8 @@ import 'package:barishal_surgical/providers/sales_module_providers/sales_invoice
 import 'package:barishal_surgical/providers/sales_module_providers/sales_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/sales_record_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/total_stock_provider.dart';
-//import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:workmanager/workmanager.dart';
 import 'hive/hive_adapter.dart';
 
 late final SharedPreferences sharedPreferences;
@@ -41,39 +39,13 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
    WidgetsFlutterBinding.ensureInitialized();
-  // await NotificationService.init();
-  // await requestNotificationPermission();
-
-  // await Workmanager().initialize(
-  //   callbackDispatcher,
-  //   isInDebugMode: false,
-  // );
-  
-  // await Workmanager().registerOneOffTask(
-  //   DateTime.now().millisecondsSinceEpoch.toString(),
-  //   inAttendanceTask,
-  //   initialDelay: const Duration(seconds: 5),
-  // );
-
   sharedPreferences = await SharedPreferences.getInstance();
   await Hive.initFlutter();
   Hive.registerAdapter(ProductAdapter());
   await Hive.openBox<Product>('product');
   await Hive.openBox('profile');
-  /// Top
-  // await Hive.openBox('todaySales');
-  // await Hive.openBox('monthlySales');
-  // await Hive.openBox('totalDue');
-  // await Hive.openBox('cashBalance');
   runApp(const MyApp());
 }
-
-// Future<void> requestNotificationPermission() async {
-//   final status = await Permission.notification.status;
-//   if (!status.isGranted) {
-//     await Permission.notification.request();
-//   }
-// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
