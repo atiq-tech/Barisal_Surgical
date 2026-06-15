@@ -129,7 +129,7 @@ Future<Uint8List?> _fetchImage(String url) async {
       return response.bodyBytes;
     } else {
       print('Image Load Failed: Status ${response.statusCode}');
-      return null; // এরর না ছুড়ে নাল রিটার্ন করছি যাতে অ্যাপ ক্রাশ না করে
+      return null; 
     }
   } catch (e) {
     print('Error fetching image: $e');
@@ -161,7 +161,7 @@ Future<Uint8List?> _fetchImage(String url) async {
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(3), // মার্জিন একটু বাড়িয়ে দেওয়া হয়েছে সুন্দর দেখানোর জন্য
+      margin: const pw.EdgeInsets.all(3), 
       build: (context) => [
         pw.Text(currentDateTime, style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
         if (netHeader != null) 

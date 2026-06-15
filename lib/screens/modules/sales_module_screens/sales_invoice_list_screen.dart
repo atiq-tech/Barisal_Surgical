@@ -143,7 +143,7 @@ Future<Uint8List?> _fetchImage(String url) async {
       return response.bodyBytes;
     } else {
       print('Image Load Failed: Status ${response.statusCode}');
-      return null; // এরর না ছুড়ে নাল রিটার্ন করছি যাতে অ্যাপ ক্রাশ না করে
+      return null; 
     }
   } catch (e) {
     print('Error fetching image: $e');
@@ -156,7 +156,7 @@ Future<Uint8List?> _fetchImage(String url) async {
 
   String currentDateTime = DateFormat('M/d/yyyy, h:mm a').format(DateTime.now());
   
-  // ইমেজগুলো ফেচ করা
+  
   final Uint8List? netHeader = await _fetchImage("$imageBaseUrl$headerImg");
   final Uint8List? netFooter = await _fetchImage("$imageBaseUrl$footerImg");
   

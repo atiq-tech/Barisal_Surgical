@@ -165,6 +165,10 @@ class _StockListScreenState extends State<StockListScreen> {
 }
 
 
+
+
+
+
 /// before simmer
 // import 'package:flutter/material.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';

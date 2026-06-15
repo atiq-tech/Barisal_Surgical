@@ -337,7 +337,6 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
       ),
     );
   }
-
   void _onRecordTypeSelected(String selectedValue) {
     setState(() {
       _selectedRecordTypes = selectedValue;
