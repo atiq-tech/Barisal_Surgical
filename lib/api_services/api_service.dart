@@ -286,7 +286,7 @@ class ApiService{
       Response response = await Dio().post(link,
           data: {
             "customerType": "$customerType",
-            "employeeId": "$employeeId"
+            "employeeId": sharedPreferences.getString('employeeId') == null || sharedPreferences.getString('employeeId') == "null" || sharedPreferences.getString('employeeId') == "" || sharedPreferences.getString('employeeId') == "0" ? "$employeeId" : sharedPreferences.getString('employeeId') 
           },
           options: Options(headers: {
             "Content-Type": "application/json",

@@ -37,12 +37,20 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
   String isColor = "";
   String isSize = "";
   int? decimal = 0;
+  String userName = "";
+  String userId = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
+  String? userType = "";
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    isColor= "${sharedPreferences?.getString('is_color')}";
-    isSize= "${sharedPreferences?.getString('is_size')}";
-    //decimal = int.parse("${sharedPreferences?.getString('decimal')}");
+    userName = "${sharedPreferences?.getString('userName')}";
+    userId = "${sharedPreferences?.getString('userId')}";
+    userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
+    userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
+    userType = "${sharedPreferences?.getString('userType')}";
+    print("userName======$userName");
   }
 
   Color getColor(Set<MaterialState> states) {
@@ -57,6 +65,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
   Color getColorTotal(Set<MaterialState> states) {
     return Colors.blue.shade900;
   }
+
   String? firstPickedDate;
   var backEndFirstDate;
   var backEndSecondtDate;
@@ -631,7 +640,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 3,
-                        child: Container(
+                        child: userType == "a" || userType == "m" ? Container(
                           height: 25.0.h,
                           margin: EdgeInsets.only(top: 4.h),
                           child: TypeAheadField<EmployeesModel>(
@@ -686,6 +695,14 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               });
                             },
                           ),
+                        ):Container(
+                          height: 25.h,
+                          margin: EdgeInsets.only(top: 4.h),
+                          decoration:ContDecoration.contDecoration,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                            child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
+                          )
                         ),
                       ),
                     ],
@@ -769,7 +786,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                           Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                           Expanded(
                             flex: 3,
-                            child: Container(
+                            child: userType == "a" || userType == "m" ? Container(
                               height: 25.0.h,
                               margin: EdgeInsets.only(top: 4.h),
                               child: TypeAheadField<EmployeesModel>(
@@ -824,6 +841,14 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   });
                                 },
                               ),
+                            ):Container(
+                              height: 25.h,
+                              margin: EdgeInsets.only(top: 4.h),
+                              decoration:ContDecoration.contDecoration,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                                child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
+                              )
                             ),
                           ),
                         ],
@@ -905,7 +930,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 3,
-                        child: Container(
+                        child: userType == "a" || userType == "m" ? Container(
                           height: 25.0.h,
                           margin: EdgeInsets.only(top: 4.h),
                           child: TypeAheadField<UsersModel>(
@@ -960,11 +985,19 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               });
                             },
                           ),
+                        ):Container(
+                          height: 25.h,
+                          margin: EdgeInsets.only(top: 4.h),
+                          decoration:ContDecoration.contDecoration,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                            child: Text(userName,style: AllTextStyle.dateFormatStyle),
+                          )
                         ),
                       ),
                     ],
                   ): Container(),
-                  isAllTypeClicked == true||isCustomerWiseClicked==true||isEmployeeWiseClicked==true||isUserWiseClicked==true
+                  isAllTypeClicked == true || isCustomerWiseClicked==true || isEmployeeWiseClicked==true || isUserWiseClicked==true
                       ? Row(
                     children: [
                       Expanded(flex: 1, child: Text("Record Type", style:AllTextStyle.textFieldHeadStyle)),
@@ -1143,7 +1176,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 Provider.of<SalesProvider>(context, listen: false).getSales(context,
                                     "",
                                     "",
-                                    _selectEmployeeId,
+                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
                                     backEndFirstDate,
                                     backEndSecondtDate,
                                 );
@@ -1154,7 +1187,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(context,
                                     "",
                                     "",
-                                    _selectEmployeeId,
+                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
                                     backEndFirstDate,
                                     backEndSecondtDate
                                 );
@@ -1179,7 +1212,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 Provider.of<SalesDetailsProvider>(context, listen: false).getSalesDetails(context,
                                   "",
                                   _selectQtyProductId,
-                                  _selectEmployeeId,
+                                  userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
                                   "$backEndFirstDate",
                                   "$backEndSecondtDate",
                                 );
@@ -1189,7 +1222,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 data = 'showByUserWithoutDetails';
                                 ///get sales api UserType
                                 Provider.of<SalesProvider>(context, listen: false).getSales(context,
-                                  _selectUserId,
+                                  userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
                                   "",
                                   "",
                                   backEndFirstDate,
@@ -1200,7 +1233,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                 data = 'showByUserWithDetails';
                                 ///get sales Record api UserType
                                 Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(context,
-                                  _selectUserId,
+                                  userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
                                   "",
                                   "",
                                   backEndFirstDate,

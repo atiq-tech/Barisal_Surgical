@@ -1,4 +1,7 @@
 
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/common_widget/commontype_aheadfield.dart';
 import 'package:barishal_surgical/common_widget/custom_appbar.dart';
@@ -11,10 +14,20 @@ import 'package:barishal_surgical/providers/sales_module_providers/customer_due_
 import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
+import 'package:barishal_surgical/utils/const_model.dart';
 import 'package:barishal_surgical/utils/utils.dart';
+import 'package:dio/dio.dart';
+import 'package:excel/excel.dart' as ex;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -188,15 +201,86 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
     );
   }
 
+  String companyName = "";
+  String repotHeading = "";
+  String dueStatus = "";
+  String invoiceNote = "";
+  String headerImg = "";
+  String footerImg = "";
+
+   void getCompanyProfile() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_company_profile",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          companyName = data['Company_Name'] ?? "";
+          repotHeading = data['Repot_Heading'] ?? "";
+          dueStatus = data['dueStatus'] ?? "";
+          invoiceNote = data['InvoiceNote'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_company_profile-------Company_Name======$companyName");
+    print("get_company_profile-------Company_Name======$repotHeading");
+    print("get_company_profile-------dueStatus======$dueStatus");
+    print("get_company_profile-------invoiceNote======$invoiceNote");
+  }
+
+  void getCurrentBranch() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_current_branch",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          headerImg = data['Branch_header'] ?? "";
+          footerImg = data['Branch_footer'] ?? "";
+        });
+
+        /// START AUTO TIME CHECK EVERY 1 SECOND
+        //startAutoStartTimeChecker();
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+    print("get_current_branch-------Branch_header======$headerImg");
+    print("get_current_branch-------Branch_footer======$footerImg");
+  }
+
   @override
   void initState() {
+    getCompanyProfile();
+    getCurrentBranch();
     _initLocation();
     WidgetsBinding.instance.addPostFrameCallback(_getDropdownSize);
     _initializeData();
-    // Provider.of<CustomerListProvider>(context, listen: false).getCustomerList("","","");
     Provider.of<AreasProvider>(context, listen: false).getAreas(context);
     Provider.of<CustomerDueProvider>(context, listen: false).customerDuelist = [];
-    //Provider.of<CustomerDueProvider>(context, listen: false).getCustomerDue(context, "", "", "");
     Provider.of<InvoiceDueProvider>(context, listen: false).invoiceDueList = [];
     _loadCustomerData();
     super.initState();
@@ -214,6 +298,209 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
       areaId = "";
       invoiceId = "";
     });
+  }
+
+   // ইমেজ ফেচ করার জন্য উন্নত ফাংশন
+  Future<Uint8List?> _fetchImage(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        print('Image Load Failed: Status ${response.statusCode}');
+        return null; 
+      }
+    } catch (e) {
+      print('Error fetching image: $e');
+      return null;
+    }
+  }
+
+ // --- Actual PDF Print Function for Customer Due List ---
+  Future<void> _printCustomerDueList(List allCustomerDueData, double totalDue) async {
+    final pdf = pw.Document();
+    String currentDateTime = DateFormat('M/d/yyyy, h:mm a').format(DateTime.now());
+    
+    // Load Unicode compatible font from Google Fonts
+    final font = await PdfGoogleFonts.robotoRegular();
+    final fontBold = await PdfGoogleFonts.robotoBold();
+      
+    // Optional: Header image fetch (jodi thake)
+    final Uint8List? netHeader = await _fetchImage("$imageBaseUrl$headerImg");
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(2), // Margin ektuadjust kore dilam for better look
+        build: (pw.Context context) {
+          return [
+            // Date & Time
+            pw.Text(currentDateTime, style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic, font: font)),
+            pw.SizedBox(height: 5),
+            
+            //Header Image (Jodi thake)
+            if (netHeader != null) 
+            pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80, width: 500)),
+            pw.SizedBox(height: 10),
+
+            // Data Table
+            pw.Table.fromTextArray(
+              headers: ['Customer Id', 'Customer Name', 'Owner Name', 'Address', 'Mobile', 'Due Amount'],
+              data: [
+                ...List.generate(allCustomerDueData.length, (index) {
+                  final item = allCustomerDueData[index];
+                  return [
+                    //'${index + 1}',
+                    item.customerCode ?? '',
+                    item.customerName ?? '',
+                    item.ownerName ?? '',
+                    item.customerAddress ?? '',
+                    item.customerMobile ?? '',
+                    item.dueAmount ?? '0',
+                  ];
+                }),
+                // Total Row inside PDF table
+                [
+                  //'',
+                  '',
+                  '',
+                  '',
+                  '',
+                  'TOTAL DUE',
+                  totalDue.toStringAsFixed(3),
+                ]
+              ],
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white, font: fontBold),
+              headerDecoration: const pw.BoxDecoration(color: PdfColors.teal900),
+              rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5))),
+              cellStyle: pw.TextStyle(fontSize: 9, font: font),
+              cellAlignment: pw.Alignment.centerLeft,
+            ),
+          ];
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+  }
+
+
+  // --- Customer Due List Excel Export Function ---
+  Future<void> _downloadCustomerDueExcel(List allCustomerDueData, double totalDue) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Text("Exporting Excel..."),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final excel = ex.Excel.createExcel();
+      final sheet = excel['Customer Due List'];
+      excel.setDefaultSheet('Customer Due List');
+
+      // HEADER ROW
+      sheet.appendRow([
+       // ex.TextCellValue('Sl.'),
+        ex.TextCellValue('Customer Id'),
+        ex.TextCellValue('Customer Name'),
+        ex.TextCellValue('Owner Name'),
+        ex.TextCellValue('Address'),
+        ex.TextCellValue('Customer Mobile'),
+        ex.TextCellValue('Due Amount'),
+      ]);
+
+      // DATA ROWS
+      for (int i = 0; i < allCustomerDueData.length; i++) {
+        final item = allCustomerDueData[i];
+
+        sheet.appendRow([
+          // ex.IntCellValue(i + 1),
+          ex.TextCellValue(item.customerCode ?? ''),
+          ex.TextCellValue(item.customerName ?? ''),
+          ex.TextCellValue(item.ownerName ?? ''),
+          ex.TextCellValue(item.customerAddress ?? ''),
+          ex.TextCellValue(item.customerMobile ?? ''),
+          ex.DoubleCellValue(double.tryParse(item.dueAmount.toString()) ?? 0.0),
+        ]);
+      }
+
+      // TOTAL ROW
+      sheet.appendRow([
+        //ex.TextCellValue(''),
+        ex.TextCellValue(''),
+        ex.TextCellValue(''),
+        ex.TextCellValue(''),
+        ex.TextCellValue(''),
+        ex.TextCellValue('TOTAL DUE'),
+        ex.DoubleCellValue(totalDue),
+      ]);
+
+      final bytes = excel.encode();
+
+      if (bytes == null) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Excel generate failed")),
+        );
+        return;
+      }
+
+      // SAVE LOCATION (DOWNLOADS FOLDER)
+      Directory directory;
+
+      if (Platform.isAndroid) {
+        directory = Directory('/storage/emulated/0/Download');
+
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+      } else {
+        directory = await getApplicationDocumentsDirectory();
+      }
+
+      final filePath = "${directory.path}/Customer_Due_List_${DateTime.now().millisecondsSinceEpoch}.xlsx";
+
+      final file = File(filePath);
+      await file.writeAsBytes(bytes, flush: true);
+
+      Navigator.pop(context); // Close loading dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Excel Export Successful (Saved in Downloads)"),
+          backgroundColor: Colors.green,
+          action: SnackBarAction(
+            label: "OPEN",
+            textColor: Colors.white,
+            onPressed: () async {
+              await OpenFile.open(filePath);
+            },
+          ),
+        ),
+      );
+
+      await OpenFile.open(filePath);
+      print("Saved at: $filePath");
+
+    } catch (e) {
+      Navigator.pop(context); // Close loading dialog if error occurs
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Export Error: $e")),
+      );
+
+      print("Export Error => $e");
+    }
   }
   
   @override
@@ -500,11 +787,57 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 15.h),
+            // Action Buttons (Print & Excel)
+            allCustomerDueData.isEmpty ? SizedBox(height: 0.w) : Padding(
+              padding: EdgeInsets.only(top: 5.0.h, left: 10.0.w, right: 5.0.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                        _printCustomerDueList(allCustomerDueData, totalDue);
+                    },
+                    child: Card(
+                      elevation: 5,
+                      color: const Color.fromARGB(255, 47, 11, 92),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 2.0.h),
+                        child: Row(
+                          children: [
+                            Icon(Icons.print, size: 16.0.r, color: Colors.white),
+                            Text("Print",style: TextStyle(color: Colors.white, fontSize: 14.0.sp)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  GestureDetector(
+                    onTap: () {
+                      _downloadCustomerDueExcel(allCustomerDueData, totalDue);
+                    },
+                    child: Card(
+                      elevation: 5,    
+                      color: Colors.green.shade700,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 2.0.h),
+                        child: Row(
+                          children: [
+                            Icon(Icons.download, size: 16.0.r, color: Colors.white),
+                            Text("Excel",style: TextStyle(color: Colors.white, fontSize: 14.0.sp)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 5.h),
             CustomerDueProvider.isCustomerDueLoading ?
             const Center(child: CircularProgressIndicator(),)
            :allCustomerDueData.isNotEmpty? Expanded(child: Container(
-           padding: EdgeInsets.only(bottom: 10.h),
+            padding: EdgeInsets.only(bottom: 10.h),
              child: SingleChildScrollView(
                scrollDirection: Axis.vertical,
                child: SingleChildScrollView(
@@ -522,7 +855,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                        showCheckboxColumn: true,
                        border: TableBorder.all(color: Colors.black54, width: 1.w),
                        columns: [
-                         DataColumn(label: Expanded(child: Center(child: Text('Sl',style:AllTextStyle.tableHeadTextStyle)))),
+                         //DataColumn(label: Expanded(child: Center(child: Text('Sl',style:AllTextStyle.tableHeadTextStyle)))),
                          DataColumn(label: Expanded(child: Center(child: Text('Customer Id',style:AllTextStyle.tableHeadTextStyle)))),
                          DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
                          DataColumn(label: Expanded(child: Center(child: Text('Owner Name',style:AllTextStyle.tableHeadTextStyle)))),
@@ -540,16 +873,15 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                                 ? index % 2 == 0
                                     ? WidgetStateProperty.resolveWith(AppColors.getColors)
                                     : WidgetStateProperty.resolveWith(AppColors.getArea)
-                                : 
-                                isCustomers == true
+                                : isCustomers == true
                                     ? index % 2 == 0
                                         ? WidgetStateProperty.resolveWith(AppColors.getColors)
                                         : WidgetStateProperty.resolveWith(AppColors.getCustomer)
-                                    : index % 2 == 0
-                                            ? WidgetStateProperty.resolveWith(AppColors.getColors)
-                                            : WidgetStateProperty.resolveWith(AppColors.getAll),
+                                : index % 2 == 0
+                                  ? WidgetStateProperty.resolveWith(AppColors.getColors)
+                                  : WidgetStateProperty.resolveWith(AppColors.getAll),
                             cells: <DataCell>[
-                              DataCell(Center(child: Text("${index + 1}"))),
+                              //DataCell(Center(child: Text("${index + 1}"))),
                               DataCell(Center(child: Text(allCustomerDueData[index].customerCode ?? ""))),
                               DataCell(Center(child: Text(allCustomerDueData[index].customerName ?? ""))),
                               DataCell(Center(child: Text(allCustomerDueData[index].ownerName ?? ""))),
@@ -561,7 +893,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                         ),
                         DataRow(
                           cells: [
-                            DataCell(SizedBox()),
+                            //DataCell(SizedBox()),
                             DataCell(SizedBox()),
                             DataCell(SizedBox()),
                             DataCell(SizedBox()),
@@ -572,7 +904,6 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                           ],
                         ),
                       ],
-                  
                      ),
                      SizedBox(height: 100.h)
                    ],
@@ -581,8 +912,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
              ),
            ),
           ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))), 
-         
-          ],
+         ],
         ),
       ),
     );
