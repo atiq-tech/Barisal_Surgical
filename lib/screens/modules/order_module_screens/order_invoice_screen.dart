@@ -256,7 +256,7 @@ Future<Uint8List?> _fetchImage(String url) async {
               children: [
                 _buildInfoRow("Prepared By:", data.sales[0].addedBy??""),
                 _buildInfoRow("Invoice No.:", data.sales[0].saleMasterInvoiceNo??""),
-                _buildInfoRow("Sales Date:", data.sales[0].saleMasterSaleDate??""),
+                _buildInfoRow("Date:", data.sales[0].saleMasterSaleDate??""),
                 _buildInfoRow("Employee:", data.sales[0].employeeName??""),
               ],
             ),
@@ -721,7 +721,7 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                                 ),
                                 RichText(
                                   text: TextSpan(
-                                    text: 'Sales Date: ',
+                                    text: 'Date: ',
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 10.sp,

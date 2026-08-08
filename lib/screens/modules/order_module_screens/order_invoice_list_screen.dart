@@ -271,7 +271,7 @@ Future<Uint8List?> _fetchImage(String url) async {
               children: [
                 _buildInfoRow("Prepared By:", data.sales[0].addedBy??""),
                 _buildInfoRow("Invoice No.:", data.sales[0].saleMasterInvoiceNo??""),
-                _buildInfoRow("Sales Date:", data.sales[0].saleMasterSaleDate??""),
+                _buildInfoRow("Date:", data.sales[0].saleMasterSaleDate??""),
                 _buildInfoRow("Employee:", data.sales[0].employeeName??""),
               ],
             ),

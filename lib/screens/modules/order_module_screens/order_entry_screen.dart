@@ -835,7 +835,7 @@ void calculateTotal() {
                                       },
                                       keyboardType: TextInputType.text,
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.only(bottom: isEnabled==false? 10.5.h:8.5.h, left: 5.w),
+                                        contentPadding: EdgeInsets.only(bottom: isEnabled==false? 10.5.h:8.5.h, left: 5.w,right: 5.w),
                                         hintText: "Customer Name",
                                         hintStyle: AllTextStyle.textValueStyle,
                                         fillColor: Colors.white,
@@ -1793,14 +1793,15 @@ void calculateTotal() {
                                   flex: 3,
                                   child: Container(
                                     height: 25.h,
-                                    padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 4.h),
+                                    padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 5.h),
                                     decoration:ContDecoration.contDecoration,
                                     child: SizedBox(
                                     child: Text(
                                       (double.tryParse(previousDue?.toString() ?? '') ?? 0).toStringAsFixed(1),
                                       style: TextStyle(
                                         color: Colors.red,
-                                        fontSize: 13.5.sp,
+                                        fontSize: 11.sp,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,

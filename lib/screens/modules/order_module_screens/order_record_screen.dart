@@ -35,15 +35,25 @@ class OrderRecordScreen extends StatefulWidget {
 }
 
 class _OrderRecordScreenState extends State<OrderRecordScreen> {
-  String isColor = "";
-  String isSize = "";
   int? decimal = 0;
+  String userName = "";
+  String userId = "";
+  String? userEmployeeID = "";
+  String? userEmployeeName = "";
+  String? userType = "";
   SharedPreferences? sharedPreferences;
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    isColor= "${sharedPreferences?.getString('is_color')}";
-    isSize= "${sharedPreferences?.getString('is_size')}";
-    //decimal = int.parse("${sharedPreferences?.getString('decimal')}");
+    userName = "${sharedPreferences?.getString('userName')}";
+    userId = "${sharedPreferences?.getString('userId')}";
+    userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
+    userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
+    userType = "${sharedPreferences?.getString('userType')}";
+    print("userName======$userName");
+    print("userId======$userId");
+    print("userEmployeeID======$userEmployeeID");
+    print("userEmployeeName======$userEmployeeName");
+    print("userType======$userType");
   }
 
   Color getColor(Set<MaterialState> states) {
@@ -675,7 +685,7 @@ bool isPrinting = false;
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 3,
-                        child: Container(
+                        child: userType == "a" || userType == "m" ? Container(
                           height: 25.0.h,
                           margin: EdgeInsets.only(top: 4.h),
                           child: TypeAheadField<EmployeesModel>(
@@ -730,6 +740,14 @@ bool isPrinting = false;
                               });
                             },
                           ),
+                        ):Container(
+                          height: 25.h,
+                          margin: EdgeInsets.only(top: 4.h),
+                          decoration:ContDecoration.contDecoration,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                            child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
+                          )
                         ),
                       ),
                     ],
@@ -878,7 +896,7 @@ bool isPrinting = false;
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 3,
-                        child: Container(
+                        child: userType == "a" || userType == "m" ? Container(
                           height: 25.0.h,
                           margin: EdgeInsets.only(top: 4.h),
                           child: TypeAheadField<UsersModel>(
@@ -933,6 +951,14 @@ bool isPrinting = false;
                               });
                             },
                           ),
+                        ):Container(
+                          height: 25.h,
+                          margin: EdgeInsets.only(top: 4.h),
+                          decoration:ContDecoration.contDecoration,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                            child: Text(userName,style: AllTextStyle.dateFormatStyle),
+                          )
                         ),
                       ),
                     ],
@@ -1058,8 +1084,6 @@ bool isPrinting = false;
                       padding: EdgeInsets.all(1.0.r),
                       child: InkWell(
                         onTap: () async {
-                          // final connectivityResult = await (Connectivity().checkConnectivity());
-                          // if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
                             OrdersProvider().on();
                             OrdersRecordProvider().on();
                             OrdersDetailsProvider().on();
@@ -1116,7 +1140,7 @@ bool isPrinting = false;
                                 Provider.of<OrdersProvider>(context, listen: false).getOrders(context,
                                     "",
                                     "",
-                                    _selectEmployeeId,
+                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
                                     backEndFirstDate,
                                     backEndSecondtDate,
                                 );
@@ -1127,7 +1151,7 @@ bool isPrinting = false;
                                 Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context,
                                     "",
                                     "",
-                                    _selectEmployeeId,
+                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
                                     backEndFirstDate,
                                     backEndSecondtDate
                                 );
@@ -1160,7 +1184,7 @@ bool isPrinting = false;
                                 data = 'showByUserWithoutDetails';
                                 ///get sales api UserType
                                 Provider.of<OrdersProvider>(context, listen: false).getOrders(context,
-                                  _selectUserId,
+                                  userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
                                   "",
                                   "",
                                   backEndFirstDate,
@@ -1171,7 +1195,7 @@ bool isPrinting = false;
                                 data = 'showByUserWithDetails';
                                 ///get sales Record api UserType
                                 Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context,
-                                  _selectUserId,
+                                 userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
                                   "",
                                   "",
                                   backEndFirstDate,
@@ -1179,10 +1203,6 @@ bool isPrinting = false;
                                 );
                               }
                             });
-                          //}
-                          // else{
-                          //   Utils.errorSnackBar(context, "Please connect with internet");
-                          // }
                         },
                         child: Container(
                           height: 28.0.h,

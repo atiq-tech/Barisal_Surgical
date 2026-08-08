@@ -34,8 +34,6 @@ class SalesRecordScreen extends StatefulWidget {
 }
 
 class _SalesRecordScreenState extends State<SalesRecordScreen> {
-  String isColor = "";
-  String isSize = "";
   int? decimal = 0;
   String userName = "";
   String userId = "";

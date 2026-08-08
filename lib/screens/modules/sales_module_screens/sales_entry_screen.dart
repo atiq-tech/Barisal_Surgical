@@ -932,7 +932,7 @@ String myAddress = "Loading...";
                                       },
                                       keyboardType: TextInputType.text,
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.only(bottom: isEnabled==false? 10.5.h:8.5.h, left: 5.w),
+                                        contentPadding: EdgeInsets.only(bottom: isEnabled==false? 10.5.h:8.5.h, left: 5.w,right: 5.w),
                                         hintText: "Customer Name",
                                         hintStyle: AllTextStyle.textValueStyle,
                                         fillColor: Colors.white,
