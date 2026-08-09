@@ -38,7 +38,7 @@ late final SharedPreferences sharedPreferences;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   sharedPreferences = await SharedPreferences.getInstance();
   await Hive.initFlutter();
   Hive.registerAdapter(ProductAdapter());

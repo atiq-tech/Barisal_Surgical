@@ -2064,27 +2064,6 @@ void _expDate() async {
         "isShipping": false,
         "note": "Order from app",
         "accountId": _selectedBankId ?? ""
-      // "salesId": 0,
-      // "invoiceNo": "",
-      // "salesBy": userName,
-      // "employeeId": userType == "m" || userType == "a" ? employeeSlNo ?? "" : userEmployeeID,
-      // "salesFrom": "1",
-      // "customerId": _selectedCustomer ?? "0",
-      // "salesDate": backEndFirstDate,
-      // "salesType": level,
-      // "total": total,
-      // "discount": discountAmount,
-      // "vat": vatAmount,
-      // "vatPercent": 0,
-      // "transportCost": transportCost,
-      // "subTotal": subtotal,
-      // "accountId": _selectedBankId?? 0,
-      // "cashPaid": accountController.text == "" ? Paid : 0,
-      // "bankPaid": accountController.text != "" ? Paid : 0,
-      // "paid": Paid,
-      // "due": due,
-      // "previousDue": previousDue,
-      // "note": "Order from app",
     };
 
     /// 👤 CUSTOMER DATA

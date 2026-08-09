@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+ 
 class SalesDetailsModel {
   final dynamic saleDetailsSlNo;
   final dynamic saleMasterIdNo;
