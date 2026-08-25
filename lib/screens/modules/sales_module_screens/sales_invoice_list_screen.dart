@@ -74,10 +74,6 @@ class _SalesInvoiceListScreenState extends State<SalesInvoiceListScreen> {
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_company_profile-------Company_Name======$companyName");
-    print("get_company_profile-------Company_Name======$repotHeading");
-    print("get_company_profile-------dueStatus======$dueStatus");
-    print("get_company_profile-------invoiceNote======$invoiceNote");
   }
 
   void getCurrentBranch() async {
@@ -106,8 +102,6 @@ class _SalesInvoiceListScreenState extends State<SalesInvoiceListScreen> {
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_current_branch-------Branch_header======$headerImg");
-    print("get_current_branch-------Branch_footer======$footerImg");
   }
 
   String myAddress = "Loading...";
