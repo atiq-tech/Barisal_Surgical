@@ -5,20 +5,20 @@ import '../../models/administration_module_models/categories_model.dart';
 class CategoriesProvider extends ChangeNotifier {
   static bool isCategoriesListLoading = false;
   List<CategoriesModel> categoriesList = [];
-  getCategoriesList(BuildContext context) async {
-    categoriesList = await ApiService.fetchCategoriesListApi(context);
-    off();
-    notifyListeners();
+  Future<void> getCategoriesList(BuildContext context) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      categoriesList = await ApiService.fetchCategoriesListApi(context) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isCategoriesListLoading = false;
-      notifyListeners();
-    });
+    isCategoriesListLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isCategoriesListLoading = true;
     notifyListeners();
   }

@@ -36,7 +36,6 @@ class _SalesInvoiceListScreenState extends State<SalesInvoiceListScreen> {
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
     userName = "${sharedPreferences?.getString('userName')}";
-    print("userName======$userName");
   }
 
   String companyName = "";
@@ -67,9 +66,6 @@ class _SalesInvoiceListScreenState extends State<SalesInvoiceListScreen> {
           dueStatus = data['dueStatus'] ?? "";
           invoiceNote = data['InvoiceNote'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
@@ -95,9 +91,6 @@ class _SalesInvoiceListScreenState extends State<SalesInvoiceListScreen> {
           headerImg = data['Branch_header'] ?? "";
           footerImg = data['Branch_footer'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
@@ -129,7 +122,6 @@ class _SalesInvoiceListScreenState extends State<SalesInvoiceListScreen> {
     super.initState();
   }
 
-  // ইমেজ ফেচ করার জন্য উন্নত ফাংশন
 Future<Uint8List?> _fetchImage(String url) async {
   try {
     final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
@@ -147,92 +139,22 @@ Future<Uint8List?> _fetchImage(String url) async {
 
   Future<void> printInvoice(SalesInvoiceModel? data) async {
   if (data == null || data.sales.isEmpty) return;
-
   String currentDateTime = DateFormat('M/d/yyyy, h:mm a').format(DateTime.now());
-  
-  
   final Uint8List? netHeader = await _fetchImage("$imageBaseUrl$headerImg");
   final Uint8List? netFooter = await _fetchImage("$imageBaseUrl$footerImg");
-  
   final pdf = pw.Document();
-  
-  /// লোকাল লোগো লোড করা
-  // Uint8List? logoImage;
-  // try {
-  //   final logoImg = await rootBundle.load('images/brsgcl.png');
-  //   logoImage = logoImg.buffer.asUint8List();
-  // } catch (e) {
-  //   print("Local logo not found: $e");
-  // }
 
 
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(3), // মার্জিন একটু বাড়িয়ে দেওয়া হয়েছে সুন্দর দেখানোর জন্য
+      margin: const pw.EdgeInsets.all(3), 
       build: (context) => [
         pw.Text(currentDateTime, style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
         if (netHeader != null) 
                 pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80, width: 500)),
                 pw.SizedBox(height: 10),
-        // --- Header Section ---
-        // pw.Row(
-        //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-        //   crossAxisAlignment: pw.CrossAxisAlignment.start,
-        //   children: [
-        //     pw.Column(
-        //       crossAxisAlignment: pw.CrossAxisAlignment.start,
-        //       children: [
-        //         if (netHeader != null) 
-        //         pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80, width: 500)),
-        //         pw.SizedBox(height: 10),
-        //         pw.Text(currentDateTime, 
-        //             style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
-        //         // --- Header Section (Logo & Company Name in One Row) ---
-        //         pw.Row(
-        //           mainAxisAlignment: pw.MainAxisAlignment.start, // লোগো এবং নামকে বাম দিক থেকে সাজাবে
-        //           crossAxisAlignment: pw.CrossAxisAlignment.center, // লম্বালম্বি মাঝ বরাবর থাকবে
-        //           children: [
-        //           // বাম পাশে লোগো
-        //          if (logoImage != null) pw.Image(pw.MemoryImage(logoImage), width: 50, height: 40),
-        //             pw.SizedBox(width: 10),// লোগো এবং নামের মাঝে ফাঁকা জায়গা
-        //           pw.Text(
-        //           "BARISAL\nSURGICAL", 
-        //               style: pw.TextStyle(
-        //                 fontSize: 25, 
-        //                 fontWeight: pw.FontWeight.bold, 
-        //                 fontStyle: pw.FontStyle.italic,
-        //                 color: PdfColors.green900
-        //               )
-        //             ),
-        //           ],
-        //         ),
-        //         pw.SizedBox(height: 5),
-        //         pw.Text("(Importer, Indenter, Wholesaler & General Supplier)", 
-        //             style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
-        //       ],
-        //     ),
-        //     pw.Container(
-        //       height: 90,
-        //       width: 1,
-        //       decoration: pw.BoxDecoration(
-        //         border: pw.Border.all(width: 1.5, color: PdfColors.green900)
-        //       ),
-        //     ),
-        //     pw.Column(
-        //       crossAxisAlignment: pw.CrossAxisAlignment.end,
-        //       children: [
-        //         pw.Text("Rizia Mansion, 34/1, Mitford Road, Dhaka-1100", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //         pw.Text("Phone: 9577294, 9512133", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //         pw.Text("E-mail: barishalsurgical@gmail.com", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //         pw.Text("Web: www.barishalsurgical.com", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //       ],
-        //     ),
-        //   ],
-        // ),
-        
         pw.Divider(thickness: 1.5, color: PdfColors.green900),
-        
         // --- Invoice Title ---
         pw.Center(
           child: pw.Container(
@@ -648,12 +570,10 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                             );
                           },
                           suggestionsCallback: (pattern) async {
-                            return Future.delayed(const Duration(seconds: 1), () {
-                              return allSalesInvoicesData.where((element) {
+                            return allSalesInvoicesData.where((element) {
                               if (element.invoiceText == null) return false;
                               return element.invoiceText!.toLowerCase().contains(pattern.toLowerCase());
-                            }).toList();  
-                            });
+                            }).toList();
                           },
                           itemBuilder: (context, SalesModel suggestion) {
                             return Padding(

@@ -187,7 +187,6 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
       userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
       userType = sharedPreferences?.getString('userType') ?? "";
     });
-    print("userType======$userType");
     _loadCustomerData();
   }
 
@@ -229,17 +228,10 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
           dueStatus = data['dueStatus'] ?? "";
           invoiceNote = data['InvoiceNote'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_company_profile-------Company_Name======$companyName");
-    print("get_company_profile-------Company_Name======$repotHeading");
-    print("get_company_profile-------dueStatus======$dueStatus");
-    print("get_company_profile-------invoiceNote======$invoiceNote");
   }
 
   void getCurrentBranch() async {
@@ -261,15 +253,10 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
           headerImg = data['Branch_header'] ?? "";
           footerImg = data['Branch_footer'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_current_branch-------Branch_header======$headerImg");
-    print("get_current_branch-------Branch_footer======$footerImg");
   }
 
   @override
@@ -284,8 +271,8 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
     Provider.of<InvoiceDueProvider>(context, listen: false).invoiceDueList = [];
     _loadCustomerData();
     super.initState();
-    print("myAddress=======$myAddress");
   }
+
   var customerController = TextEditingController();
   var areaController = TextEditingController();
   var invoiceController = TextEditingController();
@@ -300,7 +287,6 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
     });
   }
 
-   // ইমেজ ফেচ করার জন্য উন্নত ফাংশন
   Future<Uint8List?> _fetchImage(String url) async {
     try {
       final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
@@ -316,25 +302,19 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
     }
   }
 
- // --- Actual PDF Print Function for Customer Due List ---
   Future<void> _printCustomerDueList(List allCustomerDueData, double totalDue) async {
     final pdf = pw.Document();
     String currentDateTime = DateFormat('M/d/yyyy, h:mm a').format(DateTime.now());
-    
-    // Load Unicode compatible font from Google Fonts
     final font = await PdfGoogleFonts.robotoRegular();
     final fontBold = await PdfGoogleFonts.robotoBold();
-      
-    // Optional: Header image fetch (jodi thake)
     final Uint8List? netHeader = await _fetchImage("$imageBaseUrl$headerImg");
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(2), // Margin ektuadjust kore dilam for better look
+        margin: pw.EdgeInsets.all(2.r), 
         build: (pw.Context context) {
           return [
-            // Date & Time
             pw.Text(currentDateTime, style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic, font: font)),
             pw.SizedBox(height: 5),
             
@@ -455,9 +435,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
         return;
       }
 
-      // SAVE LOCATION (DOWNLOADS FOLDER)
       Directory directory;
-
       if (Platform.isAndroid) {
         directory = Directory('/storage/emulated/0/Download');
 
@@ -469,12 +447,10 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
       }
 
       final filePath = "${directory.path}/Customer_Due_List_${DateTime.now().millisecondsSinceEpoch}.xlsx";
-
       final file = File(filePath);
       await file.writeAsBytes(bytes, flush: true);
 
-      Navigator.pop(context); // Close loading dialog
-
+      Navigator.pop(context); 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("Excel Export Successful (Saved in Downloads)"),
@@ -493,8 +469,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
       print("Saved at: $filePath");
 
     } catch (e) {
-      Navigator.pop(context); // Close loading dialog if error occurs
-
+      Navigator.pop(context); 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Export Error: $e")),
       );
@@ -506,10 +481,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
   @override
   Widget build(BuildContext context) {
     final allCustomersData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo!=0).toList();
-    print("Customer length==============${allCustomersData.length}");
     final allInvoiceDueData = Provider.of<InvoiceDueProvider>(context).invoiceDueList;
-    print("allInvoiceDueData========${allInvoiceDueData.length}");
-    // final allCustomersData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo != 0).toList();
     final allAreasData = Provider.of<AreasProvider>(context).areasList;
     final providerCDueData = Provider.of<CustomerDueProvider>(context).customerDuelist;
     final allCustomerDueData = providerCDueData.where((item) {
@@ -680,10 +652,8 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allCustomersData.where((element) =>
+                              return allCustomersData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                               
                             },
                             itemBuilder: (context, CustomerListModel suggestion) {
@@ -761,7 +731,7 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                           }
                           CustomerDueProvider().on();
                           Provider.of<CustomerDueProvider>(context, listen: false).getCustomerDue(context, customerId ?? "", areaId ?? "", invoiceId ?? "");
-                         print("customerId====$customerId===areaId====$areaId====invoiceId====$invoiceId");
+                         
                         },
                         
                         child: Container(
@@ -855,7 +825,6 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                        showCheckboxColumn: true,
                        border: TableBorder.all(color: Colors.black54, width: 1.w),
                        columns: [
-                         //DataColumn(label: Expanded(child: Center(child: Text('Sl',style:AllTextStyle.tableHeadTextStyle)))),
                          DataColumn(label: Expanded(child: Center(child: Text('Customer Id',style:AllTextStyle.tableHeadTextStyle)))),
                          DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
                          DataColumn(label: Expanded(child: Center(child: Text('Owner Name',style:AllTextStyle.tableHeadTextStyle)))),
@@ -881,7 +850,6 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                                   ? WidgetStateProperty.resolveWith(AppColors.getColors)
                                   : WidgetStateProperty.resolveWith(AppColors.getAll),
                             cells: <DataCell>[
-                              //DataCell(Center(child: Text("${index + 1}"))),
                               DataCell(Center(child: Text(allCustomerDueData[index].customerCode ?? ""))),
                               DataCell(Center(child: Text(allCustomerDueData[index].customerName ?? ""))),
                               DataCell(Center(child: Text(allCustomerDueData[index].ownerName ?? ""))),
@@ -893,7 +861,6 @@ class _CustomerDueListScreenState extends State<CustomerDueListScreen> {
                         ),
                         DataRow(
                           cells: [
-                            //DataCell(SizedBox()),
                             DataCell(SizedBox()),
                             DataCell(SizedBox()),
                             DataCell(SizedBox()),

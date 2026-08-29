@@ -6,20 +6,20 @@ class ProductListProvider extends ChangeNotifier {
   static bool isProductsListLoading = false;
 
   List<ProductListModel> productsList = [];
-  getProductList(BuildContext context,String? customerId) async {
-    productsList = await ApiService.fetchProductListApi(context,customerId);
-    off();
-    notifyListeners();
+  Future<void> getProductList(BuildContext context,String? customerId) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      productsList = await ApiService.fetchProductListApi(context,customerId) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('off');
-      isProductsListLoading = false;
-      notifyListeners();
-    },);
+    isProductsListLoading = false;
+    notifyListeners();
   }
   on(){
-    print('on');
     isProductsListLoading = true;
     notifyListeners();
   }

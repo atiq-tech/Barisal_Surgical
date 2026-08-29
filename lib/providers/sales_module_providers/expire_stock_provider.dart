@@ -5,20 +5,20 @@ import '../../api_services/api_service.dart';
 class ExpireStockProvider extends ChangeNotifier {
   static bool isExpireStockLoading = false;
   List<ExpireStockModel> expireStockList = [];
-  getExpireStock(BuildContext context,String? productId) async {
-    expireStockList = await ApiService.fetchExpireStockApi(context,productId);
-    off();
-    notifyListeners();
+  Future<void> getExpireStock(BuildContext context,String? productId) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      expireStockList = await ApiService.fetchExpireStockApi(context,productId) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isExpireStockLoading = false;
-      notifyListeners();
-    });
+    isExpireStockLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isExpireStockLoading = true;
     notifyListeners();
   }

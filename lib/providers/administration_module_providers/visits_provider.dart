@@ -7,20 +7,20 @@ class VisitsProvider extends ChangeNotifier {
   static bool isVisitsLoading = false;
 
   List<VisitsModel> visitsList = [];
-  getVisits(BuildContext context,String? customerId,String? employeeId,String? dateFrom,String? dateTo) async {
-    visitsList = await ApiService.fetchVisitApi(context, customerId, employeeId, dateFrom, dateTo);
-    off();
-    notifyListeners();
+  Future<void> getVisits(BuildContext context,String? customerId,String? employeeId,String? dateFrom,String? dateTo) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      visitsList = await ApiService.fetchVisitApi(context, customerId, employeeId, dateFrom, dateTo) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isVisitsLoading = false;
-      notifyListeners();
-    },);
+    isVisitsLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isVisitsLoading = true;
     notifyListeners();
   }

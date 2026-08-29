@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class UsersProvider extends ChangeNotifier {
   List<UsersModel> usersList = [];
-  getUsers(BuildContext context) async {
-    usersList = await ApiService.fetchUsersApi(context);
+  Future<void> getUsers(BuildContext context) async {
+    usersList = await ApiService.fetchUsersApi(context) ?? [];
     notifyListeners();
   }}

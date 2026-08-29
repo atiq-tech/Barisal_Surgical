@@ -90,8 +90,6 @@ class _HomePageState extends State<HomePage> {
   String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
   int? totatOrdValue = 0;
   String? routName;
-
-  ///late Position currentPosition;
   String? currentAddress;
   String fullAddress = "";
   bool isRouteAvailable = true;
@@ -99,7 +97,6 @@ class _HomePageState extends State<HomePage> {
   String? longitude;
 
   Future<void> _getLocation() async {
-    /// Check permission
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -113,7 +110,6 @@ class _HomePageState extends State<HomePage> {
       latitude = position.latitude.toString();
       longitude = position.longitude.toString();
     });
-    print("latitude=====$latitude  longitude=====$longitude");
   }
   late ScrollController _scrollController;
 

@@ -545,10 +545,8 @@ void calculateTotal() {
                                     );
                                   },
                                   suggestionsCallback: (pattern) async {
-                                    return Future.delayed(const Duration(seconds: 1), () {
-                                      return allGetEmployeesData.where((element) =>
+                                    return allGetEmployeesData.where((element) =>
                                           element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                    });
                                   },
                                   itemBuilder: (context, EmployeesModel suggestion) {
                                     return Padding(
@@ -1042,10 +1040,8 @@ void calculateTotal() {
                                         );
                                       },
                                       suggestionsCallback: (pattern) async {
-                                        return Future.delayed(const Duration(seconds: 1), () {
-                                          return allProductList.where((element) =>
+                                        return allProductList.where((element) =>
                                               element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                        });
                                       },
                                       itemBuilder: (context, ProductListModel suggestion) {
                                         return Padding(
@@ -1750,10 +1746,8 @@ void calculateTotal() {
                                     );
                                   },
                                   suggestionsCallback: (pattern) async {
-                                    return Future.delayed(const Duration(seconds: 1), () {
-                                      return allBankAccountList.where((element) =>
+                                    return allBankAccountList.where((element) =>
                                           element.bankName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                    });
                                   },
                                   itemBuilder: (context, BankAccountModel suggestion) {
                                     return Padding(

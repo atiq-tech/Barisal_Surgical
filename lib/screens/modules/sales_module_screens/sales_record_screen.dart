@@ -33,6 +33,16 @@ class SalesRecordScreen extends StatefulWidget {
   State<SalesRecordScreen> createState() => _SalesRecordScreenState();
 }
 
+class _SalesTotals {
+  double subTotal = 0;
+  double vatTotal = 0;
+  double discountTotal = 0;
+  double transferCost = 0;
+  double totalAmount = 0;
+  double paidTotal = 0;
+  double dueTotal = 0;
+}
+
 class _SalesRecordScreenState extends State<SalesRecordScreen> {
   int? decimal = 0;
   String userName = "";
@@ -48,7 +58,6 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
     userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
     userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
     userType = "${sharedPreferences?.getString('userType')}";
-    print("userName======$userName");
   }
 
   Color getColor(Set<MaterialState> states) {
@@ -382,7 +391,6 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
   String companyName = "";
   String repotHeading = "";
   String companyLogothumb = "";
-
    void getCompanyProfile() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     try {
@@ -394,23 +402,16 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }),
       );
-
       if (response.statusCode == 200) {
         var data = response.data is List ? response.data[0] : response.data;
-
         setState(() {
           companyName = data['Company_Name'] ?? "";
           companyLogothumb = data['Company_Logo_thum'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_company_profile-------Company_Name======$companyName");
-    print("companyLogothumb-------Company_Logo_thumb======$companyLogothumb");
   }
 
   void getCurrentBranch() async {
@@ -424,23 +425,20 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }),
       );
-
       if (response.statusCode == 200) {
         var data = response.data is List ? response.data[0] : response.data;
-
         setState(() {
           repotHeading = data['Repot_Heading'] ?? "";
         });
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_current_branch-------Repot_Heading======$repotHeading");
   }
   bool isPrinting = false;
   @override
   void initState() {
+    super.initState();
     getCompanyProfile();
     getCurrentBranch();
     _initLocation();
@@ -455,9 +453,6 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
     Provider.of<UsersProvider>(context,listen: false).getUsers(context);
     Provider.of<SalesProvider>(context, listen: false).saleslist = [];
-    Provider.of<SalesRecordProvider>(context,listen: false).getSalesRecord(context,"", "", "", "", "");
-    Provider.of<SalesDetailsProvider>(context,listen: false).getSalesDetails(context,"", "", "", "", "");
-    super.initState();
   }
 
   var customerController = TextEditingController();
@@ -479,33 +474,156 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
       _selectUserId = "";
     });
   }
+
+  double _asDouble(dynamic value) {
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  _SalesTotals _calculateSalesTotals(List allSalesData) {
+    final totals = _SalesTotals();
+    for (final sale in allSalesData) {
+      totals.subTotal += _asDouble(sale.saleMasterSubTotalAmount);
+      totals.vatTotal += _asDouble(sale.saleMasterTaxAmount);
+      totals.discountTotal += _asDouble(sale.saleMasterTotalDiscountAmount);
+      totals.transferCost += _asDouble(sale.saleMasterFreight);
+      totals.totalAmount += _asDouble(sale.saleMasterTotalSaleAmount);
+      totals.paidTotal += _asDouble(sale.saleMasterPaidAmount);
+      totals.dueTotal += _asDouble(sale.saleMasterDueAmount);
+    }
+    return totals;
+  }
+
+  Future<void> _showReport() async {
+    String nextData = data;
+    Future<void>? request;
+
+    if (isAllTypeClicked && isWithoutDetailsClicked) {
+      nextData = 'showAllWithoutDetails';
+      request = Provider.of<SalesProvider>(context, listen: false).getSales(
+        context,
+        "",
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isAllTypeClicked && isWithDetailsClicked) {
+      nextData = 'showAllWithDetails';
+      request = Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(
+        context,
+        "",
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isCustomerWiseClicked && isWithoutDetailsClicked) {
+      nextData = 'showByCustomerWithoutDetails';
+      request = Provider.of<SalesProvider>(context, listen: false).getSales(
+        context,
+        "",
+        _selectCustomerId,
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isCustomerWiseClicked && isWithDetailsClicked) {
+      nextData = 'showByCustomerWithDetails';
+      request = Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(
+        context,
+        "",
+        _selectCustomerId,
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isEmployeeWiseClicked && isWithoutDetailsClicked) {
+      nextData = 'showByEmployeeWithoutDetails';
+      request = Provider.of<SalesProvider>(context, listen: false).getSales(
+        context,
+        "",
+        "",
+        userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isEmployeeWiseClicked && isWithDetailsClicked) {
+      nextData = 'showByEmployeeWithDetails';
+      request = Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(
+        context,
+        "",
+        "",
+        userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isCategoryWiseClicked) {
+      nextData = 'showByCategoryDetails';
+      request = Provider.of<SalesDetailsProvider>(context, listen: false).getSalesDetails(
+        context,
+        "$_selectCategoryId",
+        "",
+        "",
+        "$backEndFirstDate",
+        "$backEndSecondtDate",
+      );
+    } else if (isQuantityWiseClicked) {
+      nextData = 'showByQuantityDetails';
+      request = Provider.of<SalesDetailsProvider>(context, listen: false).getSalesDetails(
+        context,
+        "",
+        _selectQtyProductId,
+        userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+        "$backEndFirstDate",
+        "$backEndSecondtDate",
+      );
+    } else if (isUserWiseClicked && isWithoutDetailsClicked) {
+      nextData = 'showByUserWithoutDetails';
+      request = Provider.of<SalesProvider>(context, listen: false).getSales(
+        context,
+        userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isUserWiseClicked && isWithDetailsClicked) {
+      nextData = 'showByUserWithDetails';
+      request = Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(
+        context,
+        userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    }
+
+    if (nextData != data && mounted) {
+      setState(() {
+        data = nextData;
+      });
+    }
+    await request;
+  }
+
   @override
   Widget build(BuildContext context) {
-    ///get Sales
     final allSalesData = Provider.of<SalesProvider>(context).saleslist;
-    subTotal = allSalesData.map((e) => e.saleMasterSubTotalAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    vatTotal = allSalesData.map((e) => e.saleMasterTaxAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    discountTotal = allSalesData.map((e) => e.saleMasterTotalDiscountAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    transferCost = allSalesData.fold(0.0, (p, e) {
-      double value = double.tryParse(e.saleMasterFreight?.toString() ?? '0') ?? 0.0;
-      return p! + value;
-    });
-    totalAmount = allSalesData.map((e) => e.saleMasterTotalSaleAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    paidTotal = allSalesData.map((e) => e.saleMasterPaidAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    dueTotal = allSalesData.map((e) => e.saleMasterDueAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    ///get Sales
+    final salesTotals = _calculateSalesTotals(allSalesData);
+    subTotal = salesTotals.subTotal;
+    vatTotal = salesTotals.vatTotal;
+    discountTotal = salesTotals.discountTotal;
+    transferCost = salesTotals.transferCost;
+    totalAmount = salesTotals.totalAmount;
+    paidTotal = salesTotals.paidTotal;
+    dueTotal = salesTotals.dueTotal;
     final allSalesRecordData = Provider.of<SalesRecordProvider>(context).salesRecordlist;
-    ///get Customer
-     final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
-    ///Categories list
-     final allCategoriesData = Provider.of<CategoriesProvider>(context).categoriesList;
-    /// Get Employees
-     final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
-    ///get Sale_details
+    final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
+    final allCategoriesData = Provider.of<CategoriesProvider>(context).categoriesList;
+    final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
     final allSaleDetailsData = Provider.of<SalesDetailsProvider>(context).salesDetailslist;
-    /// all products list
     final allProductsData = Provider.of<ProductListProvider>(context).productsList;
-    /// get user
     final allUsersData = Provider.of<UsersProvider>(context).usersList;
     return Scaffold(
       appBar: CustomAppBar(title: "Sales Record"),
@@ -605,10 +723,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allCustomerData.where((element) =>
+                              return allCustomerData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, CustomerListModel suggestion) {
                               return Padding(
@@ -673,10 +789,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allGetEmployeesData.where((element) =>
+                              return allGetEmployeesData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, EmployeesModel suggestion) {
                               return Padding(
@@ -750,10 +864,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allCategoriesData.where((element) =>
+                              return allCategoriesData.where((element) =>
                                     element.productCategoryName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, CategoriesModel suggestion) {
                               return Padding(
@@ -819,10 +931,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   );
                                 },
                                 suggestionsCallback: (pattern) async {
-                                  return Future.delayed(const Duration(seconds: 1), () {
-                                    return allGetEmployeesData.where((element) =>
+                                  return allGetEmployeesData.where((element) =>
                                         element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                  });
                                 },
                                 itemBuilder: (context, EmployeesModel suggestion) {
                                   return Padding(
@@ -893,10 +1003,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   );
                                 },
                                 suggestionsCallback: (pattern) async {
-                                  return Future.delayed(const Duration(seconds: 1), () {
-                                    return allProductsData.where((element) =>
+                                  return allProductsData.where((element) =>
                                         element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                  });
                                 },
                                 itemBuilder: (context, ProductListModel suggestion) {
                                   return Padding(
@@ -963,10 +1071,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allUsersData.where((element) =>
+                              return allUsersData.where((element) =>
                                     element.fullName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, UsersModel suggestion) {
                               return Padding(
@@ -983,7 +1089,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               });
                             },
                           ),
-                        ):Container(
+                        ) : Container(
                           height: 25.h,
                           margin: EdgeInsets.only(top: 4.h),
                           decoration:ContDecoration.contDecoration,
@@ -995,8 +1101,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                       ),
                     ],
                   ): Container(),
-                  isAllTypeClicked == true || isCustomerWiseClicked==true || isEmployeeWiseClicked==true || isUserWiseClicked==true
-                      ? Row(
+                  isAllTypeClicked == true || isCustomerWiseClicked == true || isEmployeeWiseClicked == true || isUserWiseClicked == true
+                    ? Row(
                     children: [
                       Expanded(flex: 1, child: Text("Record Type", style:AllTextStyle.textFieldHeadStyle)),
                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
@@ -1115,135 +1221,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                     child: Container(
                       padding: EdgeInsets.all(1.0.r),
                       child: InkWell(
-                        onTap: () async {
-                          // final connectivityResult = await (Connectivity().checkConnectivity());
-                          // if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
-                            SalesProvider().on();
-                            SalesRecordProvider().on();
-                            SalesDetailsProvider().on();
-                            setState(() {
-                              if (isAllTypeClicked && isWithoutDetailsClicked) {
-                                data = 'showAllWithoutDetails';
-                                ///get sale AllType
-                                Provider.of<SalesProvider>(context, listen: false).getSales(context,
-                                    "",
-                                    "",
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              else if (isAllTypeClicked && isWithDetailsClicked) {
-                                data = 'showAllWithDetails';
-                                ///get sale api AllType
-                                Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(context,
-                                    "",
-                                    "",
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              /// By Customer
-                              else if (isCustomerWiseClicked && isWithoutDetailsClicked) {
-                                data = 'showByCustomerWithoutDetails';
-                                ///get sale CustomerType
-                                Provider.of<SalesProvider>(context, listen: false).getSales(context,
-                                    "",
-                                    _selectCustomerId,
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              else if (isCustomerWiseClicked && isWithDetailsClicked) {
-                                data = 'showByCustomerWithDetails';
-                                ///get sales Record api CustomerType
-                                Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(context,
-                                    "",
-                                    _selectCustomerId,
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              /// By Employee
-                              else if (isEmployeeWiseClicked && isWithoutDetailsClicked) {
-                                data = 'showByEmployeeWithoutDetails';
-                                ///get sales api EmployeeType
-                                Provider.of<SalesProvider>(context, listen: false).getSales(context,
-                                    "",
-                                    "",
-                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
-                                    backEndFirstDate,
-                                    backEndSecondtDate,
-                                );
-                              }
-                              else if (isEmployeeWiseClicked && isWithDetailsClicked) {
-                                data = 'showByEmployeeWithDetails';
-                                ///get sales Record api  EmployeeType
-                                Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(context,
-                                    "",
-                                    "",
-                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              /// By Category
-                              else if (isCategoryWiseClicked) {
-                                data = 'showByCategoryDetails';
-                                ///get sale_details categoryType
-                                Provider.of<SalesDetailsProvider>(context, listen: false).getSalesDetails(context,
-                                  "$_selectCategoryId",
-                                  "",
-                                  "",
-                                  "$backEndFirstDate",
-                                  "$backEndSecondtDate",
-                                  
-                                );
-                              }
-                              // By Quantity
-                              else if (isQuantityWiseClicked) {
-                                data = 'showByQuantityDetails';
-                                ///get sale_details QuantityType
-                                Provider.of<SalesDetailsProvider>(context, listen: false).getSalesDetails(context,
-                                  "",
-                                  _selectQtyProductId,
-                                  userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
-                                  "$backEndFirstDate",
-                                  "$backEndSecondtDate",
-                                );
-                              }
-                              // By User
-                              else if (isUserWiseClicked && isWithoutDetailsClicked) {
-                                data = 'showByUserWithoutDetails';
-                                ///get sales api UserType
-                                Provider.of<SalesProvider>(context, listen: false).getSales(context,
-                                  userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
-                                  "",
-                                  "",
-                                  backEndFirstDate,
-                                  backEndSecondtDate,
-                                );
-                              }
-                              else if (isUserWiseClicked && isWithDetailsClicked) {
-                                data = 'showByUserWithDetails';
-                                ///get sales Record api UserType
-                                Provider.of<SalesRecordProvider>(context, listen: false).getSalesRecord(context,
-                                  userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
-                                  "",
-                                  "",
-                                  backEndFirstDate,
-                                  backEndSecondtDate,
-                                );
-                              }
-                            });
-                          //}
-                          // else{
-                          //   Utils.errorSnackBar(context, "Please connect with internet");
-                          // }
-                        },
+                        onTap: _showReport,
                         child: Container(
                           height: 28.0.h,
                           width: 102.0.w,
@@ -1304,7 +1282,6 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                     setState(() {
                       isPrinting = true;
                     });
-
                     try {
                      await salesRecordPdf(
                         context: context,
@@ -1362,10 +1339,10 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
             ],
           ):SizedBox(),
             data == 'showAllWithoutDetails'
-                ? Expanded(
-              child: SalesProvider.isSalesLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allSalesData.isNotEmpty?
+              ? Expanded(
+             child: SalesProvider.isSalesLoading
+                ? const Center(child: CircularProgressIndicator())
+                :allSalesData.isNotEmpty?
               SizedBox(
                 width: double.infinity,
                 height: double.infinity,
@@ -2012,25 +1989,19 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : LayoutBuilder(
                         builder: (context, constraints) {
-                          // --- Logic: Same Product Grouping Start ---
-                          // Prottek product-er ID ke key hishebe dhore quantity ebong amount jog kora hochche
                           Map<String, Map<String, dynamic>> groupedMap = {};
 
                           for (var item in allSaleDetailsData) {
                             String id = item.productCode;
-
                             if (groupedMap.containsKey(id)) {
-                              // Jodi product-ti agei map-e thake, tar quantity ar amount jog korun
                               double oldQty = double.parse(groupedMap[id]!['quantity'].toString());
                               double newQty = oldQty + double.parse(item.saleDetailsTotalQuantity);
-
                               double oldAmt = double.parse(groupedMap[id]!['amount'].toString());
                               double newAmt = oldAmt + double.parse(item.saleDetailsTotalAmount.toString());
 
                               groupedMap[id]!['quantity'] = newQty;
                               groupedMap[id]!['amount'] = newAmt;
                             } else {
-                              // Jodi product-ti prothom-bar ashe, notun entry create korun
                               groupedMap[id] = {
                                 'productCode': item.productCode,
                                 'productName': item.productName,
@@ -2040,11 +2011,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                               };
                             }
                           }
-
-                          // Map-tike List-e convert korlam jate DataTable-e show kora jay
                           List groupedList = groupedMap.values.toList();
-                          // --- Logic: Grouping End ---
-
                           return SizedBox(
                             width: double.infinity,
                             height: double.infinity,
@@ -2057,12 +2024,10 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                   children: [
                                     DataTable(
                                       headingRowHeight: 20.h,
-                                      dataRowHeight: 20.h, // Height ektu bariyechi readability-r jonno
-                                      headingRowColor: MaterialStateColor.resolveWith(
-                                          (states) => Colors.indigo.shade900),
+                                      dataRowHeight: 20.h,
+                                      headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
                                       showCheckboxColumn: true,
-                                      border: TableBorder.all(
-                                          color: Colors.blue.shade200, width: 1),
+                                      border: TableBorder.all(color: Colors.blue.shade200, width: 1),
                                       columns: [
                                         DataColumn(label: Text('Sl.', style: AllTextStyle.tableHeadTextStyle)),
                                         DataColumn(label: Text('Product Id', style: AllTextStyle.tableHeadTextStyle)),
@@ -2084,12 +2049,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
                                               DataCell(Center(child: Text(item['productCode']))),
                                               DataCell(Center(child: Text(item['productName']))),
                                               DataCell(Center(child: Text(item['productCategoryName']))),
-                                              // Quantity formatting
-                                              DataCell(Center(
-                                                  child: Text(item['quantity'].toStringAsFixed(decimal!)))),
-                                              // Amount display
-                                              DataCell(Center(
-                                                  child: Text('${item['amount']}'))),
+                                              DataCell(Center(child: Text(item['quantity'].toStringAsFixed(decimal!)))),
+                                              DataCell(Center(child: Text('${item['amount']}'))),
                                             ],
                                           );
                                         },
@@ -2105,9 +2066,8 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
               )
                 : data == 'showByQuantityDetails'
                 ? Expanded(
-              child: SalesDetailsProvider.isSalesDetailsLoading
-                  ? const Center(
-                  child: CircularProgressIndicator())
+                child: SalesDetailsProvider.isSalesDetailsLoading? const Center(
+                child: CircularProgressIndicator())
                   : SizedBox(
                 width: double.infinity,
                 height: double.infinity,

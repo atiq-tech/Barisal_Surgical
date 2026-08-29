@@ -648,12 +648,10 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                             );
                           },
                           suggestionsCallback: (pattern) async {
-                            return Future.delayed(const Duration(seconds: 1), () {
-                              return allOrdersInvoicesData.where((element) {
+                            return allOrdersInvoicesData.where((element) {
                               if (element.invoiceText == null) return false;
                               return element.invoiceText!.toLowerCase().contains(pattern.toLowerCase());
-                            }).toList();  
-                            });
+                            }).toList();
                           },
                           itemBuilder: (context, OrdersModel suggestion) {
                             return Padding(

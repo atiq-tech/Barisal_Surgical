@@ -5,20 +5,20 @@ import '../../models/sales_module_models/total_stock_model.dart';
 class TotalStockProvider extends ChangeNotifier {
   static bool isTotalStockLoading = false;
   List<TotalStockModel> totalStockList = [];
-  getTotalStock(BuildContext context) async {
-    totalStockList = await ApiService.fetchTotalStockApi(context);
-    off();
-    notifyListeners();
+  Future<void> getTotalStock(BuildContext context) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      totalStockList = await ApiService.fetchTotalStockApi(context) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isTotalStockLoading = false;
-      notifyListeners();
-    });
+    isTotalStockLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isTotalStockLoading = true;
     notifyListeners();
   }

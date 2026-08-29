@@ -1,12 +1,19 @@
+import 'dart:typed_data';
+
 import 'package:barishal_surgical/common_widget/common_location.dart';
 import 'package:barishal_surgical/models/administration_module_models/customer_list_model.dart';
 import 'package:barishal_surgical/models/administration_module_models/employees_model.dart';
+import 'package:barishal_surgical/models/sales_module_models/emp_wise_cus_pay_due_model.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/emp_wise_cus_pay_due_provider.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
+import 'package:barishal_surgical/utils/const_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barishal_surgical/utils/all_textstyle.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +21,12 @@ import '../../../common_widget/custom_appbar.dart';
 import '../../../providers/administration_module_providers/customer_list_provider.dart';
 import '../../../providers/administration_module_providers/employees_provider.dart';
 import '../../../utils/utils.dart';
+import 'dart:io';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CustomerPaymentDueScreen extends StatefulWidget {
   const CustomerPaymentDueScreen({super.key});
@@ -99,10 +112,6 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
 
    emtyMethod() {
     setState(() {
-      // customerController.text= "";
-      // employeeController.text="";
-      // _selectCustomerId = "";
-      // _selectEmployeeId = "";
     });
   }
 
@@ -162,7 +171,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
               child: CompositedTransformFollower(
                 link: _searchLayerLink,
                 showWhenUnlinked: false,
-                offset: Offset(0.0, _searchDropdownSize.height + 5), // বাটনের নিচে সামান্য গ্যাপ
+                offset: Offset(0.0, _searchDropdownSize.height + 5), 
                 child: Material(
                   elevation: 9.0,
                   color: Colors.teal.shade50,
@@ -213,7 +222,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
       } else if (selectedValue == "By Employee") {
         searchStatus = "employee";
       }
-      emtyMethod(); // আপনার প্র্য়োজনীয় মেথড কল
+      emtyMethod();
     });
   }
 
@@ -231,7 +240,6 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
   final GlobalKey _paymentKey = GlobalKey();
   Size _paymentDropdownSize = Size.zero;
 
-  // ড্রপডাউনের সাইজ ক্যালকুলেট করার জন্য
   void _getPaymentDropdownSize() {
     final RenderBox renderBox = _paymentKey.currentContext?.findRenderObject() as RenderBox;
     _paymentDropdownSize = renderBox.size;
@@ -241,7 +249,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
     if (_isPaymentDropdownOpen) {
       _removePaymentDropdown();
     } else {
-      _getPaymentDropdownSize(); // ওপেন করার সময় সাইজ আপডেট করে নেওয়া ভালো
+      _getPaymentDropdownSize(); 
       _showPaymentDropdown();
     }
   }
@@ -274,10 +282,10 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
               child: CompositedTransformFollower(
                 link: _paymentLayerLink,
                 showWhenUnlinked: false,
-                offset: Offset(0.0, _paymentDropdownSize.height + 5), // বাটনের ঠিক নিচে দেখাবে
+                offset: Offset(0.0, _paymentDropdownSize.height + 5), 
                 child: Material(
                   elevation: 9.0,
-                  color: Colors.teal.shade50, // আপনার আগের কালার থিম অনুযায়ী
+                  color: Colors.teal.shade50, 
                   borderRadius: BorderRadius.circular(5.r),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -295,7 +303,7 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                               child: Text(
-                                type,style: TextStyle(fontSize: 12.sp), // আপনার কাস্টম স্টাইল
+                                type,style: TextStyle(fontSize: 12.sp), 
                               ),
                             ),
                             if (index != _paymentTypes.length - 1)
@@ -344,7 +352,6 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
       userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
       userType = sharedPreferences?.getString('userType') ?? "";
     });
-    print("userType======$userType");
     _loadCustomerData();
   }
 
@@ -358,8 +365,68 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
     );
   }
 
+  String companyName = "";
+  String repotHeading = "";
+  String dueStatus = "";
+  String invoiceNote = "";
+  String headerImg = "";
+  String footerImg = "";
+
+   void getCompanyProfile() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_company_profile",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+        setState(() {
+          companyName = data['Company_Name'] ?? "";
+          repotHeading = data['Repot_Heading'] ?? "";
+          dueStatus = data['dueStatus'] ?? "";
+          invoiceNote = data['InvoiceNote'] ?? "";
+        });
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+  }
+
+  void getCurrentBranch() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      final response = await Dio().get(
+        "${baseUrl}get_current_branch",
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data is List ? response.data[0] : response.data;
+
+        setState(() {
+          headerImg = data['Branch_header'] ?? "";
+          footerImg = data['Branch_footer'] ?? "";
+        });
+      }
+    } catch (e) {
+      print("Error fetching company profile: $e");
+    }
+  }
+
   @override
   void initState() {
+    getCompanyProfile();
+    getCurrentBranch();
     _initializeData();
     _initLocation();
     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
@@ -370,6 +437,820 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
     Provider.of<EmpWiseCusPayDueProvider>(context,listen: false).empWiseCusPayDuelist = [];
     super.initState();
   }
+
+  Future<Uint8List?> _fetchImage(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        print('Image Load Failed: Status ${response.statusCode}');
+        return null; 
+      }
+    } catch (e) {
+      print('Error fetching image: $e');
+      return null;
+    }
+  }
+
+Future<void> _generatePDF() async {
+  try {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    final allEmpWiseCusPayDueData = Provider.of<EmpWiseCusPayDueProvider>(context, listen: false).empWiseCusPayDuelist;
+    
+    if (allEmpWiseCusPayDueData.isEmpty) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No data to generate PDF')));
+      return;
+    }
+
+    // Build table data
+    final tableData = _buildTableDataForExport(allEmpWiseCusPayDueData);
+    final pdf = pw.Document();
+    String currentDateTime = DateFormat('M/d/yyyy, h:mm a').format(DateTime.now());
+    final font = await PdfGoogleFonts.robotoRegular();
+    final fontBold = await PdfGoogleFonts.robotoBold();
+    final Uint8List? netHeader = await _fetchImage("$imageBaseUrl$headerImg");
+    
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: pw.EdgeInsets.all(2.r),
+        build: (pw.Context context) {
+          return [
+            pw.Text(currentDateTime, style: pw.TextStyle(fontSize: 8.sp, fontStyle: pw.FontStyle.italic, font: font)),
+            pw.SizedBox(height: 5.h),
+            if (netHeader != null) 
+            pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80.h, width: 500.w)),
+            pw.SizedBox(height: 10.h),
+            pw.Divider(height: 1,thickness: 1, color: PdfColors.black),
+            pw.SizedBox(height: 3.h),
+            pw.Divider(height: 1,thickness: 1, color: PdfColors.black),
+            pw.SizedBox(height: 10.h),
+            // Header
+            pw.Container(
+              alignment: pw.Alignment.center,
+              child: pw.Column(
+                children: [
+                  pw.Text(
+                    'Customer Payment Due Report',
+                    style: pw.TextStyle(
+                      fontSize: 14,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                  pw.SizedBox(height: 3),
+                  pw.Text(
+                    'Statement: "$firstPickedDate" to "$secondPickedDate"',
+                    style: pw.TextStyle(fontSize: 9,font: fontBold),
+                  ),
+                  pw.SizedBox(height: 8),
+                ],
+              ),
+            ),
+            
+            // Table
+            pw.Table(
+              border: pw.TableBorder.all(width: 0.5),
+              children: _buildPdfRows(tableData),
+            ),
+            
+            // Signature Section
+            pw.SizedBox(height: 15),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text('_______________________'),
+                    pw.Text('Manager Signature', style: pw.TextStyle(fontSize: 9)),
+                  ],
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text('_______________________'),
+                    pw.Text('Authorized Signature', style: pw.TextStyle(fontSize: 9)),
+                  ],
+                ),
+              ],
+            ),
+          ];
+        },
+      ),
+    );
+
+    // Save PDF to temporary directory
+    final output = await getTemporaryDirectory();
+    final file = File('${output.path}/customer_payment_due_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    await file.writeAsBytes(await pdf.save());
+    
+    // Close loading dialog
+    Navigator.pop(context);
+    
+    // Show success dialog with options
+    _showPrintOptionsDialog(context, file.path);
+    
+  } catch (e) {
+    // Close loading dialog if open
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error generating PDF: $e')),
+    );
+  }
+}
+
+// Show print options dialog
+void _showPrintOptionsDialog(BuildContext context, String filePath) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('PDF Generated Successfully'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 60,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'PDF file has been generated successfully!',
+              style: TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'File saved at: ${filePath.split('/').last}',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          // Print Button
+          TextButton.icon(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+              try {
+                final file = File(filePath);
+                await Printing.sharePdf(
+                  bytes: await file.readAsBytes(),
+                  filename: filePath.split('/').last,
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error printing: $e')),
+                );
+              }
+            },
+            icon: const Icon(Icons.print, color: Colors.blue),
+            label: const Text('Print / Share'),
+          ),
+          
+          // Share Button
+          TextButton.icon(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+              try {
+                await Share.shareXFiles(
+                  [XFile(filePath)],
+                  text: 'Customer Payment Due Report',
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error sharing: $e')),
+                );
+              }
+            },
+            icon: const Icon(Icons.share, color: Colors.green),
+            label: const Text('Share'),
+          ),
+          
+          // Close Button
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+            },
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+// Helper method to parse double safely
+double _parseDouble(dynamic value) {
+  if (value == null) return 0.0;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is String) return double.tryParse(value) ?? 0.0;
+  return 0.0;
+}
+
+// Helper method to build table data for export
+List<Map<String, dynamic>> _buildTableDataForExport(List<EmpWiseCusPayDueModel> data) {
+  List<Map<String, dynamic>> tableData = [];
+  String currentEmployee = "";
+  String currentCustomer = "";
+  int serial = 0;
+
+  // Employee totals
+  double empInvoiceAmount = 0, empDiscount = 0, empVat = 0, empTrCost = 0;
+  double empReturned = 0, empNetPayable = 0, empPaid = 0;
+  double empInvoiceDue = 0, empPreviousDue = 0, empTotalDue = 0;
+
+  // Customer totals
+  double cusInvoiceAmount = 0, cusDiscount = 0, cusVat = 0, cusTrCost = 0;
+  double cusReturned = 0, cusNetPayable = 0, cusPaid = 0;
+  double cusInvoiceDue = 0, cusPreviousDue = 0, cusTotalDue = 0;
+
+  for (int i = 0; i < data.length; i++) {
+    var item = data[i];
+
+    // Employee change
+    if (currentEmployee != (item.employeeName ?? "")) {
+      // Add customer subtotal
+      if (currentCustomer.isNotEmpty) {
+        tableData.add({
+          'isSubtotal': true,
+          'isCustomer': true,
+          'customerName': currentCustomer,
+          'subTotal': cusInvoiceAmount,
+          'discount': cusDiscount,
+          'vat': cusVat,
+          'transport': cusTrCost,
+          'returned': cusReturned,
+          'bill': cusNetPayable,
+          'paid': cusPaid,
+          'invoiceDue': cusInvoiceDue,
+          'previousDue': cusPreviousDue,
+          'due': cusTotalDue,
+        });
+      }
+
+      // Add employee subtotal
+      if (currentEmployee.isNotEmpty) {
+        tableData.add({
+          'isSubtotal': true,
+          'isEmployee': true,
+          'employeeName': currentEmployee,
+          'subTotal': empInvoiceAmount,
+          'discount': empDiscount,
+          'vat': empVat,
+          'transport': empTrCost,
+          'returned': empReturned,
+          'bill': empNetPayable,
+          'paid': empPaid,
+          'invoiceDue': empInvoiceDue,
+          'previousDue': empPreviousDue,
+          'due': empTotalDue,
+        });
+      }
+
+      currentEmployee = item.employeeName ?? "";
+      currentCustomer = "";
+      serial = 0;
+
+      // Reset employee totals
+      empInvoiceAmount = empDiscount = empVat = empTrCost = 0;
+      empReturned = empNetPayable = empPaid = 0;
+      empInvoiceDue = empPreviousDue = empTotalDue = 0;
+
+      // Add employee header
+      tableData.add({
+        'isHeader': true,
+        'isEmployeeHeader': true,
+        'employeeName': currentEmployee,
+      });
+    }
+
+    // Customer change
+    if (currentCustomer != (item.customerName ?? "")) {
+      // Add customer subtotal
+      if (currentCustomer.isNotEmpty) {
+        tableData.add({
+          'isSubtotal': true,
+          'isCustomer': true,
+          'customerName': currentCustomer,
+          'subTotal': cusInvoiceAmount,
+          'discount': cusDiscount,
+          'vat': cusVat,
+          'transport': cusTrCost,
+          'returned': cusReturned,
+          'bill': cusNetPayable,
+          'paid': cusPaid,
+          'invoiceDue': cusInvoiceDue,
+          'previousDue': cusPreviousDue,
+          'due': cusTotalDue,
+        });
+      }
+
+      currentCustomer = item.customerName ?? "";
+      serial = 0;
+
+      // Reset customer totals
+      cusInvoiceAmount = cusDiscount = cusVat = cusTrCost = 0;
+      cusReturned = cusNetPayable = cusPaid = 0;
+      cusInvoiceDue = cusPreviousDue = cusTotalDue = 0;
+    }
+
+    serial++;
+
+    // Add data row
+    double subTotal = _parseDouble(item.subTotal);
+    double discount = _parseDouble(item.discount);
+    double vat = _parseDouble(item.vat);
+    double transport = _parseDouble(item.transport);
+    double returned = _parseDouble(item.returned);
+    double bill = _parseDouble(item.bill);
+    double paid = _parseDouble(item.paid);
+    double invoiceDue = _parseDouble(item.invoiceDue);
+    double previousDue = _parseDouble(item.previousDue);
+    double due = _parseDouble(item.due);
+
+    tableData.add({
+      'slNo': serial,
+      'date': item.date ?? '',
+      'invoiceNo': item.invoiceNo ?? '',
+      'comment': item.comment ?? '',
+      'customerName': item.customerName ?? '',
+      'subTotal': subTotal,
+      'discount': discount,
+      'vat': vat,
+      'transport': transport,
+      'returned': returned,
+      'bill': bill,
+      'paid': paid,
+      'invoiceDue': invoiceDue,
+      'previousDue': previousDue,
+      'due': due,
+    });
+
+    // Update totals
+    cusInvoiceAmount += subTotal;
+    cusDiscount += discount;
+    cusVat += vat;
+    cusTrCost += transport;
+    cusReturned += returned;
+    cusNetPayable += bill;
+    cusPaid += paid;
+    cusInvoiceDue += invoiceDue;
+    cusPreviousDue += previousDue;
+    cusTotalDue += due;
+
+    empInvoiceAmount += subTotal;
+    empDiscount += discount;
+    empVat += vat;
+    empTrCost += transport;
+    empReturned += returned;
+    empNetPayable += bill;
+    empPaid += paid;
+    empInvoiceDue += invoiceDue;
+    empPreviousDue += previousDue;
+    empTotalDue += due;
+  }
+
+  // Add final customer subtotal
+  if (currentCustomer.isNotEmpty) {
+    tableData.add({
+      'isSubtotal': true,
+      'isCustomer': true,
+      'customerName': currentCustomer,
+      'subTotal': cusInvoiceAmount,
+      'discount': cusDiscount,
+      'vat': cusVat,
+      'transport': cusTrCost,
+      'returned': cusReturned,
+      'bill': cusNetPayable,
+      'paid': cusPaid,
+      'invoiceDue': cusInvoiceDue,
+      'previousDue': cusPreviousDue,
+      'due': cusTotalDue,
+    });
+  }
+
+  // Add final employee subtotal
+  if (currentEmployee.isNotEmpty) {
+    tableData.add({
+      'isSubtotal': true,
+      'isEmployee': true,
+      'employeeName': currentEmployee,
+      'subTotal': empInvoiceAmount,
+      'discount': empDiscount,
+      'vat': empVat,
+      'transport': empTrCost,
+      'returned': empReturned,
+      'bill': empNetPayable,
+      'paid': empPaid,
+      'invoiceDue': empInvoiceDue,
+      'previousDue': empPreviousDue,
+      'due': empTotalDue,
+    });
+  }
+
+  return tableData;
+}
+
+// Helper method to build PDF rows
+List<pw.TableRow> _buildPdfRows(List<Map<String, dynamic>> tableData) {
+  List<pw.TableRow> rows = [];
+  
+  // Header
+  rows.add(
+    pw.TableRow(
+      decoration: pw.BoxDecoration(
+        color: PdfColors.blue,
+      ),
+      children: [
+        _buildPdfCell('SL', isHeader: true),
+        _buildPdfCell('Invoice Date', isHeader: true),
+        _buildPdfCell('Invoice No', isHeader: true),
+        _buildPdfCell('Comments', isHeader: true),
+        _buildPdfCell('Customer Name', isHeader: true),
+        _buildPdfCell('Inv. Amount', isHeader: true),
+        _buildPdfCell('Discount', isHeader: true),
+        _buildPdfCell('VAT', isHeader: true),
+        _buildPdfCell('Transport', isHeader: true),
+        _buildPdfCell('Return', isHeader: true),
+        _buildPdfCell('Net Payable', isHeader: true),
+        _buildPdfCell('Paid', isHeader: true),
+        _buildPdfCell('Inv. Due', isHeader: true),
+        _buildPdfCell('Prev. Due', isHeader: true),
+        _buildPdfCell('Total Due', isHeader: true),
+      ],
+    ),
+  );
+
+  // Process all rows
+  for (int i = 0; i < tableData.length; i++) {
+    final data = tableData[i];
+    
+    // Check if it's a header
+    if (data['isHeader'] == true && data['isEmployeeHeader'] == true) {
+      rows.add(
+        pw.TableRow(
+          decoration: pw.BoxDecoration(
+            color: PdfColors.grey300,
+          ),
+          children: [
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell(
+              'Employee Name: ${data['employeeName']}', 
+              isBold: true, 
+              color: PdfColors.green,
+            ),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+            _buildPdfCell('', isBold: true, color: PdfColors.green),
+          ],
+        ),
+      );
+      continue;
+    }
+    
+    // Check if it's a subtotal
+    if (data['isSubtotal'] == true) {
+      String label = '';
+      if (data['isEmployee'] == true) {
+        label = 'Sub Total (${data['employeeName']}):';
+      } else if (data['isCustomer'] == true) {
+        label = 'Sub Total (${data['customerName']}):';
+      }
+      
+      rows.add(
+        pw.TableRow(
+          decoration: pw.BoxDecoration(
+            color: data['isEmployee'] == true ? PdfColors.grey300 : PdfColors.grey200,
+          ),
+          children: [
+            _buildPdfCell('', isBold: true),
+            _buildPdfCell('', isBold: true),
+            _buildPdfCell('', isBold: true),
+            _buildPdfCell('', isBold: true),
+            _buildPdfCell(label, isBold: true),
+            _buildPdfCell((data['subTotal'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['discount'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['vat'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['transport'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['returned'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['bill'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['paid'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['invoiceDue'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['previousDue'] ?? 0).toStringAsFixed(2), isBold: true),
+            _buildPdfCell((data['due'] ?? 0).toStringAsFixed(2), isBold: true),
+          ],
+        ),
+      );
+      continue;
+    }
+    
+    // Regular data row
+    final color = i % 2 == 0 ? PdfColors.grey100 : PdfColors.white;
+    rows.add(
+      pw.TableRow(
+        decoration: pw.BoxDecoration(
+          color: color,
+        ),
+        children: [
+          _buildPdfCell('${data['slNo']}'),
+          _buildPdfCell(data['date'].toString()),
+          _buildPdfCell(data['invoiceNo'].toString()),
+          _buildPdfCell(data['comment'].toString()),
+          _buildPdfCell(data['customerName'].toString()),
+          _buildPdfCell((data['subTotal'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['discount'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['vat'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['transport'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['returned'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['bill'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['paid'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['invoiceDue'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['previousDue'] ?? 0).toStringAsFixed(2)),
+          _buildPdfCell((data['due'] ?? 0).toStringAsFixed(2)),
+        ],
+      ),
+    );
+  }
+
+  // Add Grand Total Row (like a data row)
+  final grandTotalData = _getGrandTotalData(tableData);
+  rows.add(
+    pw.TableRow(
+      decoration: pw.BoxDecoration(
+        color: PdfColors.green700,
+      ),
+      children: [
+        _buildPdfCell('', isBold: true, color: PdfColors.white),
+        _buildPdfCell('', isBold: true, color: PdfColors.white),
+        _buildPdfCell('', isBold: true, color: PdfColors.white),
+        _buildPdfCell('', isBold: true, color: PdfColors.white),
+        _buildPdfCell('GRAND TOTAL', isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['subTotal']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['discount']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['vat']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['transport']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['returned']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['bill']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['paid']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['invoiceDue']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['previousDue']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+        _buildPdfCell(grandTotalData['due']!.toStringAsFixed(2), isBold: true, color: PdfColors.white),
+      ],
+    ),
+  );
+  
+  return rows;
+}
+
+// Helper method to get grand total data
+Map<String, double> _getGrandTotalData(List<Map<String, dynamic>> tableData) {
+  double totalSubTotal = 0;
+  double totalDiscount = 0;
+  double totalVat = 0;
+  double totalTransport = 0;
+  double totalReturned = 0;
+  double totalNetPayable = 0;
+  double totalPaid = 0;
+  double totalInvoiceDue = 0;
+  double totalPreviousDue = 0;
+  double totalDue = 0;
+
+  for (var data in tableData) {
+    // Skip header rows and subtotal rows for grand total calculation
+    if (data['isHeader'] == true || data['isSubtotal'] == true) continue;
+    
+    totalSubTotal += (data['subTotal'] ?? 0);
+    totalDiscount += (data['discount'] ?? 0);
+    totalVat += (data['vat'] ?? 0);
+    totalTransport += (data['transport'] ?? 0);
+    totalReturned += (data['returned'] ?? 0);
+    totalNetPayable += (data['bill'] ?? 0);
+    totalPaid += (data['paid'] ?? 0);
+    totalInvoiceDue += (data['invoiceDue'] ?? 0);
+    totalPreviousDue += (data['previousDue'] ?? 0);
+    totalDue += (data['due'] ?? 0);
+  }
+  
+  return {
+    'subTotal': totalSubTotal,
+    'discount': totalDiscount,
+    'vat': totalVat,
+    'transport': totalTransport,
+    'returned': totalReturned,
+    'bill': totalNetPayable,
+    'paid': totalPaid,
+    'invoiceDue': totalInvoiceDue,
+    'previousDue': totalPreviousDue,
+    'due': totalDue,
+  };
+}
+
+// Update _buildPdfCell to support custom color
+pw.Widget _buildPdfCell(String text, {bool isHeader = false, bool isBold = false, PdfColor? color}) {
+  return pw.Padding(
+    padding: pw.EdgeInsets.all(3),
+    child: pw.Text(
+      text,
+      style: pw.TextStyle(
+        fontSize: isHeader ? 8 : 7,
+        fontWeight: isBold || isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
+        color: color ?? (isHeader ? PdfColors.white : PdfColors.black),
+      ),
+    ),
+  );
+}
+
+// // Helper method to build PDF rows
+// List<pw.TableRow> _buildPdfRows(List<Map<String, dynamic>> tableData) {
+//   List<pw.TableRow> rows = [];
+  
+//   // Header
+//   rows.add(
+//     pw.TableRow(
+//       decoration: pw.BoxDecoration(
+//         color: PdfColors.blue,
+//       ),
+//       children: [
+//         _buildPdfCell('SL', isHeader: true),
+//         _buildPdfCell('Invoice Date', isHeader: true),
+//         _buildPdfCell('Invoice No', isHeader: true),
+//         _buildPdfCell('Comments', isHeader: true),
+//         _buildPdfCell('Customer Name', isHeader: true),
+//         _buildPdfCell('Inv. Amount', isHeader: true),
+//         _buildPdfCell('Discount', isHeader: true),
+//         _buildPdfCell('VAT', isHeader: true),
+//         _buildPdfCell('Transport', isHeader: true),
+//         _buildPdfCell('Return', isHeader: true),
+//         _buildPdfCell('Net Payable', isHeader: true),
+//         _buildPdfCell('Paid', isHeader: true),
+//         _buildPdfCell('Inv. Due', isHeader: true),
+//         _buildPdfCell('Prev. Due', isHeader: true),
+//         _buildPdfCell('Total Due', isHeader: true),
+//       ],
+//     ),
+//   );
+
+//   // Process all rows
+//   for (int i = 0; i < tableData.length; i++) {
+//     final data = tableData[i];
+    
+//     // Check if it's a header
+//     if (data['isHeader'] == true && data['isEmployeeHeader'] == true) {
+//       rows.add(
+//         pw.TableRow(
+//           decoration: pw.BoxDecoration(
+//             color: PdfColors.grey300,
+//           ),
+//           children: [
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell(
+//               'Employee Name: ${data['employeeName']}', 
+//               isBold: true, 
+//               color: PdfColors.green,
+//             ),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//             _buildPdfCell('', isBold: true, color: PdfColors.green),
+//           ],
+//         ),
+//       );
+//       continue;
+//     }
+    
+//     // Check if it's a subtotal
+//     if (data['isSubtotal'] == true) {
+//       String label = '';
+//       if (data['isEmployee'] == true) {
+//         label = 'Sub Total (${data['employeeName']}):';
+//       } else if (data['isCustomer'] == true) {
+//         label = 'Sub Total (${data['customerName']}):';
+//       }
+      
+//       rows.add(
+//         pw.TableRow(
+//           decoration: pw.BoxDecoration(
+//             color: data['isEmployee'] == true ? PdfColors.grey300 : PdfColors.grey200,
+//           ),
+//           children: [
+//             _buildPdfCell('', isBold: true),
+//             _buildPdfCell('', isBold: true),
+//             _buildPdfCell('', isBold: true),
+//             _buildPdfCell('', isBold: true),
+//             _buildPdfCell(label, isBold: true),
+//             _buildPdfCell((data['subTotal'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['discount'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['vat'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['transport'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['returned'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['bill'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['paid'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['invoiceDue'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['previousDue'] ?? 0).toStringAsFixed(2), isBold: true),
+//             _buildPdfCell((data['due'] ?? 0).toStringAsFixed(2), isBold: true),
+//           ],
+//         ),
+//       );
+//       continue;
+//     }
+    
+//     // Regular data row
+//     final color = i % 2 == 0 ? PdfColors.grey100 : PdfColors.white;
+//     rows.add(
+//       pw.TableRow(
+//         decoration: pw.BoxDecoration(
+//           color: color,
+//         ),
+//         children: [
+//           _buildPdfCell('${data['slNo']}'),
+//           _buildPdfCell(data['date'].toString()),
+//           _buildPdfCell(data['invoiceNo'].toString()),
+//           _buildPdfCell(data['comment'].toString()),
+//           _buildPdfCell(data['customerName'].toString()),
+//           _buildPdfCell((data['subTotal'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['discount'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['vat'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['transport'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['returned'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['bill'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['paid'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['invoiceDue'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['previousDue'] ?? 0).toStringAsFixed(2)),
+//           _buildPdfCell((data['due'] ?? 0).toStringAsFixed(2)),
+//         ],
+//       ),
+//     );
+//   }
+  
+//   return rows;
+// }
+
+// String _getGrandTotalRowForPDF(List<Map<String, dynamic>> tableData) {
+//   double totalSubTotal = 0;
+//   double totalDiscount = 0;
+//   double totalVat = 0;
+//   double totalTransport = 0;
+//   double totalReturned = 0;
+//   double totalNetPayable = 0;
+//   double totalPaid = 0;
+//   double totalInvoiceDue = 0;
+//   double totalPreviousDue = 0;
+//   double totalDue = 0;
+
+//   for (var data in tableData) {
+//     // Skip header rows and subtotal rows for grand total calculation
+//     if (data['isHeader'] == true || data['isSubtotal'] == true) continue;
+    
+//     totalSubTotal += (data['subTotal'] ?? 0);
+//     totalDiscount += (data['discount'] ?? 0);
+//     totalVat += (data['vat'] ?? 0);
+//     totalTransport += (data['transport'] ?? 0);
+//     totalReturned += (data['returned'] ?? 0);
+//     totalNetPayable += (data['bill'] ?? 0);
+//     totalPaid += (data['paid'] ?? 0);
+//     totalInvoiceDue += (data['invoiceDue'] ?? 0);
+//     totalPreviousDue += (data['previousDue'] ?? 0);
+//     totalDue += (data['due'] ?? 0);
+//   }
+  
+//   return 'Grand Total: SubTotal: ${totalSubTotal.toStringAsFixed(2)} | Discount: ${totalDiscount.toStringAsFixed(2)} | VAT: ${totalVat.toStringAsFixed(2)} | Transport: ${totalTransport.toStringAsFixed(2)} | Return: ${totalReturned.toStringAsFixed(2)} | Net Payable: ${totalNetPayable.toStringAsFixed(2)} | Paid: ${totalPaid.toStringAsFixed(2)} | Invoice Due: ${totalInvoiceDue.toStringAsFixed(2)} | Previous Due: ${totalPreviousDue.toStringAsFixed(2)} | Total Due: ${totalDue.toStringAsFixed(2)}';
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -786,10 +1667,8 @@ List<DataRow> _buildRows() {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allGetEmployeesData.where((element) =>
+                              return allGetEmployeesData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, EmployeesModel suggestion) {
                               return Padding(
@@ -864,10 +1743,8 @@ List<DataRow> _buildRows() {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allCustomerData.where((element) =>
+                              return allCustomerData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, CustomerListModel suggestion) {
                               return Padding(
@@ -1021,16 +1898,10 @@ List<DataRow> _buildRows() {
                             backEndFirstDate,
                             backEndSecondtDate
                           );
-                          print("customerIdToPass====${_selectCustomerId??""}");
-                          print("employeeIdToPass====$employeeIdToPass");
-                          print("searchStatus====$searchStatus");
-                          print("paymentStatus====$paymentStatus");
-                          print("backEndFirstDate====$backEndFirstDate");
-                          print("backEndSecondtDate====$backEndSecondtDate");
                         },
                         child: Container(
                           height: 28.0.h,
-                          width: 102.0.w,
+                          width: 120.0.w,
                           decoration: BoxDecoration(
                             color: const Color.fromARGB(255, 4, 113, 185),
                             borderRadius: BorderRadius.circular(5.0.r),
@@ -1051,56 +1922,88 @@ List<DataRow> _buildRows() {
                 ],
               ),
             ),
-            SizedBox(height: 15.h),
+            SizedBox(height: 10.w),
+            if (allEmpWiseCusPayDueData.isNotEmpty) ...[
+              SizedBox(width: 10.w),
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: _generatePDF,
+                  child: Container(
+                    height: 28.0.h,
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade900,
+                      borderRadius: BorderRadius.circular(5.0.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.6),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.picture_as_pdf, color: Colors.white, size: 16.r),
+                        SizedBox(width: 5.w),
+                        Text("PDF", style: AllTextStyle.saveButtonTextStyle),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            SizedBox(height: 5.h),
             EmpWiseCusPayDueProvider.isEmpWiseCusPayDueLoading ?
             const Center(child: CircularProgressIndicator(),)
            : allEmpWiseCusPayDueData.isNotEmpty? Expanded(
-  child: Container(
-    padding: EdgeInsets.only(bottom: 10.h),
-    child: SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+            child: Container(
+              padding: EdgeInsets.only(bottom: 10.h),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-            /// ================= TABLE =================
-            DataTable(
-              headingRowHeight: 25.h,
-              dataRowHeight: 22.h,
-              headingRowColor: WidgetStateProperty.all(AppColors.appColor),
-              border: TableBorder.all(color: Colors.black54, width: 1.w),
+                      /// ================= TABLE =================
+                      DataTable(
+                        headingRowHeight: 25.h,
+                        dataRowHeight: 22.h,
+                        headingRowColor: WidgetStateProperty.all(AppColors.appColor),
+                        border: TableBorder.all(color: Colors.cyan.shade100, width: 1.w),
 
-              columns: [
-                DataColumn(label: Text('SL No',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Invoice Date',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Invoice No',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Comments',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Customer Name',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Invoice Amount',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Discount',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Vat',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Transport Cost',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Return Amount',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Net Payable',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Paid Amount',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Invoice Due',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Previous Due',style: AllTextStyle.tableHeadTextStyle)),
-                DataColumn(label: Text('Total Due',style: AllTextStyle.tableHeadTextStyle)),
-              ],
-
-              rows: _buildRows(),
+                        columns: [
+                          DataColumn(label: Text('SL No',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Invoice Date',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Invoice No',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Comments',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Customer Name',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Invoice Amount',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Discount',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Vat',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Transport Cost',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Return Amount',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Net Payable',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Paid Amount',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Invoice Due',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Previous Due',style: AllTextStyle.tableHeadTextStyle)),
+                          DataColumn(label: Text('Total Due',style: AllTextStyle.tableHeadTextStyle)),
+                        ],
+                        rows: _buildRows(),
+                      ),
+                      SizedBox(height: 100.h)
+                    ],
+                  ),
+                ),
+              ),
             ),
-            SizedBox(height: 100.h)
-          ],
-        ),
-      ),
-    ),
-  ),
-): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))), 
-         
-          ],
+          ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))), 
+         ],
         ),
       ),
     );

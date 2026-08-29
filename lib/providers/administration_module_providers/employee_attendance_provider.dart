@@ -6,20 +6,20 @@ class EmployeeAttendanceProvider extends ChangeNotifier {
   static bool isEmployeeAttendanceLoading = false;
 
   List<EmployeeAttendanceModel> employeeAttendanceList = [];
-  getEmployeeAttendance(BuildContext context,String? employeeId,String? dateFrom,String? dateTo) async {
-    employeeAttendanceList = await ApiService.fetchEmployeeAttendance(context, employeeId, dateFrom, dateTo);
-    off();
-    notifyListeners();
+  Future<void> getEmployeeAttendance(BuildContext context,String? employeeId,String? dateFrom,String? dateTo) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      employeeAttendanceList = await ApiService.fetchEmployeeAttendance(context, employeeId, dateFrom, dateTo);
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isEmployeeAttendanceLoading = false;
-      notifyListeners();
-    },);
+    isEmployeeAttendanceLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isEmployeeAttendanceLoading = true;
     notifyListeners();
   }

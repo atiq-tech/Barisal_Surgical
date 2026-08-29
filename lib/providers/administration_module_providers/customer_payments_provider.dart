@@ -6,20 +6,20 @@ class CustomerPaymentsProvider extends ChangeNotifier {
   static bool isCustomerPaymentsLoading = false;
 
   List<CustomerPaymentsModel> customerPaymentsList = [];
-  getCustomerPayments(BuildContext context,String? customerId,String? paymentType,String? employeeId,String? dateFrom,String? dateTo) async {
-    customerPaymentsList = await ApiService.fetchCustomerPayments(context, customerId, paymentType, employeeId, dateFrom, dateTo);
-    off();
-    notifyListeners();
+  Future<void> getCustomerPayments(BuildContext context,String? customerId,String? paymentType,String? employeeId,String? dateFrom,String? dateTo) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      customerPaymentsList = await ApiService.fetchCustomerPayments(context, customerId, paymentType, employeeId, dateFrom, dateTo) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isCustomerPaymentsLoading = false;
-      notifyListeners();
-    },);
+    isCustomerPaymentsLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isCustomerPaymentsLoading = true;
     notifyListeners();
   }

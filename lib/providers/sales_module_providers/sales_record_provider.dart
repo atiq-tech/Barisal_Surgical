@@ -6,22 +6,21 @@ class SalesRecordProvider extends ChangeNotifier {
 static bool isSalesRecordLoading = false;
 
 List<SalesRecordModel> salesRecordlist = [];
- getSalesRecord(BuildContext context,String? userId, String? customerId, String? employeeId, String? dateFrom, String? dateTo) async {
-   salesRecordlist = await ApiService.fetchSalesRecord(context,userId,customerId,employeeId,dateFrom,dateTo);
-   off();
-   notifyListeners();
+ Future<void> getSalesRecord(BuildContext context,String? userId, String? customerId, String? employeeId, String? dateFrom, String? dateTo) async {
+   await Future<void>.delayed(Duration.zero);
+   on();
+   try {
+     salesRecordlist = await ApiService.fetchSalesRecord(context,userId,customerId,employeeId,dateFrom,dateTo) ?? [];
+   } finally {
+     off();
+   }
 }
-
- off(){
- Future.delayed(const Duration(seconds: 1),() {
- print('off');
-   isSalesRecordLoading = false;
+  off(){
+    isSalesRecordLoading = false;
     notifyListeners();
-  });
-}
- on(){
- print('on');
-  isSalesRecordLoading = true;
-   notifyListeners();
+  }
+  on(){
+    isSalesRecordLoading = true;
+    notifyListeners();
   }
 }

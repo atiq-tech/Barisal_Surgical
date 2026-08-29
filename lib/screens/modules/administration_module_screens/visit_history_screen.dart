@@ -354,10 +354,8 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                                   );
                                 },
                                 suggestionsCallback: (pattern) async {
-                                  return Future.delayed(const Duration(seconds: 1), () {
-                                    return allCustomerData.where((element) =>
+                                  return allCustomerData.where((element) =>
                                         element.customerName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                  });
                                 },
                                 itemBuilder: (context, CustomerListModel suggestion) {
                                   return Padding(
@@ -427,10 +425,8 @@ class _VisitHistoryScreenState extends State<VisitHistoryScreen> {
                                   );
                                 },
                                 suggestionsCallback: (pattern) async {
-                                  return Future.delayed(const Duration(seconds: 1), () {
-                                    return allEmployeeData.where((element) =>
+                                  return allEmployeeData.where((element) =>
                                         element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                  });
                                 },
                                 itemBuilder: (context, EmployeesModel suggestion) {
                                   return Padding(

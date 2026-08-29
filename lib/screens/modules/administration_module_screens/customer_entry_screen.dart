@@ -307,10 +307,8 @@ String? tradeLicenseName, tradeLicensePath;
                                 );
                               },
                               suggestionsCallback: (pattern) async {
-                                return Future.delayed(const Duration(seconds: 1), () {
-                                  return allEmployeeData.where((element) =>
+                                return allEmployeeData.where((element) =>
                                       element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                });
                               },
                               itemBuilder: (context, EmployeesModel suggestion) {
                                 return Padding(
@@ -467,10 +465,8 @@ String? tradeLicenseName, tradeLicensePath;
                                 );
                               },
                               suggestionsCallback: (pattern) async {
-                                return Future.delayed(const Duration(seconds: 1), () {
-                                  return allAreaData.where((element) =>
+                                return allAreaData.where((element) =>
                                       element.districtName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                });
                               },
                               itemBuilder: (context, AreasModel suggestion) {
                                 return Padding(
@@ -855,10 +851,8 @@ String? tradeLicenseName, tradeLicensePath;
                                 );
                               },
                               suggestionsCallback: (pattern) async {
-                                return Future.delayed(const Duration(seconds: 1), () {
-                                  return allBranchesData.where((element) =>
+                                return allBranchesData.where((element) =>
                                       element.branchTitle!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                });
                               },
                               itemBuilder: (context, BranchesModel suggestion) {
                                 return Padding(

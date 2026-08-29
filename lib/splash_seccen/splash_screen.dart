@@ -25,9 +25,7 @@ class SplashScreenState extends State<AnimatedSplashScreen>
   Future<void> _initLocation() async {
     try {
       var result = await LocationService.fetchAndUploadLocation();
-
       if (!mounted || result == null) return;
-
       setState(() {
         myLat = result['lat'];
         myLong = result['long'];
@@ -41,14 +39,11 @@ class SplashScreenState extends State<AnimatedSplashScreen>
   @override
   void initState() {
     super.initState();
-
     _initLocation();
-
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-
     _animation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -58,14 +53,10 @@ class SplashScreenState extends State<AnimatedSplashScreen>
         curve: Curves.easeInOut,
       ),
     );
-
     _controller.forward();
-
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
-
       final token = sharedPreferences.getString('token');
-
       if (token != null) {
         Navigator.pushAndRemoveUntil(
           context,

@@ -101,7 +101,6 @@ class ApiService{
             "Authorization": "Bearer ${sharedPreferences.getString("token")}",
           }));
       var item = response.data;
-      print("TotalStock===$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -131,7 +130,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
-      print("TotalStock===$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -144,9 +142,6 @@ class ApiService{
     }
     return null;
   }
-
-  
-
 
   ///==================Categories List=======================new
   static fetchCategoriesListApi(BuildContext context) async {
@@ -294,7 +289,6 @@ class ApiService{
             "Authorization": "Bearer ${sharedPreferences.getString("token")}",
           }));
       var item = response.data;
-      print("Customer=====$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -331,7 +325,6 @@ class ApiService{
         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
       }));
     var item = response.data;
-    print("get_orders=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -367,7 +360,6 @@ class ApiService{
         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
       }));
     var item = response.data;
-    print("get_orders_record=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -404,7 +396,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
     var item = response.data;
-    print("get_sales=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -440,7 +431,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
     var item = response.data;
-    print("get_sales_record=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -477,7 +467,6 @@ class ApiService{
         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
       }));
     var item = response.data;
-    print("get_sale_details=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -512,7 +501,6 @@ class ApiService{
         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
       }));
     var item = response.data;
-    print("get_order_details=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -593,7 +581,6 @@ class ApiService{
         "Authorization": "Bearer ${sharedPreferences.getString("token")}",
       }));
     var item = response.data;
-    print("get_invoice_due=====$item");
     if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -627,7 +614,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
-      print("get_visits=====$item");
      if(item is! List){
       if(item['status'] == 401 && item['success'] == false) {
         ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -668,7 +654,6 @@ class ApiService{
     );
 
     print("STATUS CODE: ${response.statusCode}");
-    print("RESPONSE: ${response.data}");
 
     if (response.statusCode == 200) {
       final data = response.data;
@@ -712,7 +697,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
-      print("CustomerDue===$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -743,7 +727,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
-      print("DueSaleInvoice===$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -785,7 +768,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
-      print("EmpWiseCusPayDue===$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -826,7 +808,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
-      print("DueSaleInvoice===$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");
@@ -867,7 +848,6 @@ class ApiService{
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }));
       var item = response.data;
-      print("get_customer_payments===$item");
       if(item is! List){
         if(item['status'] == 401 && item['success'] == false) {
           ErrorSnackbarHelper.showSnackbar("🎁 Session Expired! Please Log in Again!");

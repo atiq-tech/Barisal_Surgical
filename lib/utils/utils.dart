@@ -165,7 +165,7 @@ class Utils{
                   decoration: BoxDecoration(
                   color: Color(0xffe06666),
                   borderRadius: BorderRadius.circular(3.r)), child: Center(
-                 child: Text("Close", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),),
+                 child: Text("Close", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
                 ),
               ),
             )

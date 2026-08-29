@@ -56,9 +56,6 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
           dueStatus = data['dueStatus'] ?? "";
           invoiceNote = data['InvoiceNote'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
@@ -84,9 +81,6 @@ class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
           headerImg = data['Branch_header'] ?? "";
           footerImg = data['Branch_footer'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
@@ -139,19 +133,8 @@ Future<Uint8List?> _fetchImage(String url) async {
   // ইমেজগুলো ফেচ করা
   final Uint8List? netHeader = await _fetchImage("$imageBaseUrl$headerImg");
   final Uint8List? netFooter = await _fetchImage("$imageBaseUrl$footerImg");
-  
   final pdf = pw.Document();
   
-  /// লোকাল লোগো লোড করা
-  // Uint8List? logoImage;
-  // try {
-  //   final logoImg = await rootBundle.load('images/brsgcl.png');
-  //   logoImage = logoImg.buffer.asUint8List();
-  // } catch (e) {
-  //   print("Local logo not found: $e");
-  // }
-
-
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
@@ -161,65 +144,7 @@ Future<Uint8List?> _fetchImage(String url) async {
         if (netHeader != null) 
                 pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80, width: 500)),
                 pw.SizedBox(height: 10),
-        // --- Header Section ---
-        // pw.Row(
-        //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-        //   crossAxisAlignment: pw.CrossAxisAlignment.start,
-        //   children: [
-        //     pw.Column(
-        //       crossAxisAlignment: pw.CrossAxisAlignment.start,
-        //       children: [
-        //         if (netHeader != null) 
-        //         pw.Center(child: pw.Image(pw.MemoryImage(netHeader), height: 80, width: 500)),
-        //         pw.SizedBox(height: 10),
-        //         pw.Text(currentDateTime, 
-        //             style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
-        //         // --- Header Section (Logo & Company Name in One Row) ---
-        //         pw.Row(
-        //           mainAxisAlignment: pw.MainAxisAlignment.start, // লোগো এবং নামকে বাম দিক থেকে সাজাবে
-        //           crossAxisAlignment: pw.CrossAxisAlignment.center, // লম্বালম্বি মাঝ বরাবর থাকবে
-        //           children: [
-        //           // বাম পাশে লোগো
-        //          if (logoImage != null) pw.Image(pw.MemoryImage(logoImage), width: 50, height: 40),
-        //             pw.SizedBox(width: 10),// লোগো এবং নামের মাঝে ফাঁকা জায়গা
-        //           pw.Text(
-        //           "BARISAL\nSURGICAL", 
-        //               style: pw.TextStyle(
-        //                 fontSize: 25, 
-        //                 fontWeight: pw.FontWeight.bold, 
-        //                 fontStyle: pw.FontStyle.italic,
-        //                 color: PdfColors.green900
-        //               )
-        //             ),
-        //           ],
-        //         ),
-        //         pw.SizedBox(height: 5),
-        //         pw.Text("(Importer, Indenter, Wholesaler & General Supplier)", 
-        //             style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
-        //       ],
-        //     ),
-        //     pw.Container(
-        //       height: 90,
-        //       width: 1,
-        //       decoration: pw.BoxDecoration(
-        //         border: pw.Border.all(width: 1.5, color: PdfColors.green900)
-        //       ),
-        //     ),
-        //     pw.Column(
-        //       crossAxisAlignment: pw.CrossAxisAlignment.end,
-        //       children: [
-        //         pw.Text("Rizia Mansion, 34/1, Mitford Road, Dhaka-1100", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //         pw.Text("Phone: 9577294, 9512133", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //         pw.Text("E-mail: barishalsurgical@gmail.com", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //         pw.Text("Web: www.barishalsurgical.com", style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
-        //       ],
-        //     ),
-        //   ],
-        // ),
-        
         pw.Divider(thickness: 1.5, color: PdfColors.green900),
-        
-        // --- Invoice Title ---
         pw.Center(
           child: pw.Container(
             padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 2),
@@ -231,8 +156,6 @@ Future<Uint8List?> _fetchImage(String url) async {
           ),
         ),
         pw.Divider(thickness: 1.5, color: PdfColors.green900),
-
-        // --- Customer & Invoice Info ---
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
@@ -259,19 +182,17 @@ Future<Uint8List?> _fetchImage(String url) async {
         ),
         _buildInfoRow("Address:", data.sales[0].customerAddress),
         pw.SizedBox(height: 20),
-
-        // --- Product Table ---
         pw.Table(
           border: pw.TableBorder.all(width: 0.5, color: PdfColors.grey),
           columnWidths: {
             0: const pw.FixedColumnWidth(25), 
-            1: const pw.FixedColumnWidth(60), // Sl
-            2: const pw.FlexColumnWidth(3),  // Description
-            3: const pw.FixedColumnWidth(40), // Qty
-            4: const pw.FixedColumnWidth(40), // Ret Qty
-            5: const pw.FixedColumnWidth(40), // Unit
-            6: const pw.FixedColumnWidth(50), // Rate
-            7: const pw.FixedColumnWidth(60), // Total
+            1: const pw.FixedColumnWidth(60), 
+            2: const pw.FlexColumnWidth(3),  
+            3: const pw.FixedColumnWidth(40), 
+            4: const pw.FixedColumnWidth(40), 
+            5: const pw.FixedColumnWidth(40),
+            6: const pw.FixedColumnWidth(50), 
+            7: const pw.FixedColumnWidth(60), 
           },
           children: [
             // Table Header
@@ -282,13 +203,11 @@ Future<Uint8List?> _fetchImage(String url) async {
                 _buildTableCell("Product Code", isHeader: true),
                 _buildTableCell("Description", isHeader: true),
                 _buildTableCell("Qty", isHeader: true),
-                //_buildTableCell("Ret. Qty", isHeader: true),
                 _buildTableCell("Unit", isHeader: true),
                 _buildTableCell("Rate", isHeader: true),
                 _buildTableCell("Total", isHeader: true),
               ],
             ),
-            // Table Body
             ...data.saleDetails.asMap().entries.map((entry) {
               int i = entry.key;
               var item = entry.value;
@@ -298,14 +217,12 @@ Future<Uint8List?> _fetchImage(String url) async {
                   _buildTableCell(item.productCode,),
                   _buildTableCell(item.productName, align: pw.TextAlign.left),
                   _buildTableCell(item.saleDetailsTotalQuantity.toString()),
-                  //_buildTableCell("0"), // Return Qty static 0
                   _buildTableCell(item.unitName),
                   _buildTableCell(item.saleDetailsRate),
                   _buildTableCell(item.saleDetailsTotalAmount.toString()),
                 ],
               );
             }).toList(),
-            // --- Total Row ---
             pw.TableRow(
               decoration: const pw.BoxDecoration(color: PdfColors.grey50),
               children: [
@@ -316,7 +233,6 @@ Future<Uint8List?> _fetchImage(String url) async {
                   child: pw.Text("Total", textAlign: pw.TextAlign.right, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
                 ),
                 _buildTableCell(_calculateTotalQty(data.saleDetails), isHeader: true),
-                //_buildTableCell("0", isHeader: true),
                 _buildTableCell(""),
                 _buildTableCell(""),
                 _buildTableCell(data.sales[0].saleMasterTotalSaleAmount, isHeader: true),
@@ -324,8 +240,6 @@ Future<Uint8List?> _fetchImage(String url) async {
             ),
           ],
         ),
-
-        // --- Calculation Summary ---
         pw.SizedBox(height: 10),
         pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -335,14 +249,13 @@ Future<Uint8List?> _fetchImage(String url) async {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                  // Eiti pw.Column er children er bhetore thakbe
                   data.sales[0].bankName != null && data.sales[0].bankName != "null" 
                     ? pw.Table(
                         border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
                         columnWidths: const {
-                          0: pw.FixedColumnWidth(25), // SL
-                          1: pw.FlexColumnWidth(),    // Bank Name
-                          2: pw.FixedColumnWidth(50), // Amount
+                          0: pw.FixedColumnWidth(25), 
+                          1: pw.FlexColumnWidth(),    
+                          2: pw.FixedColumnWidth(50), 
                         },
                         defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
                         children: [
@@ -447,7 +360,6 @@ Future<Uint8List?> _fetchImage(String url) async {
           ),
         ),
          pw.SizedBox(height: 60),
-        // --- Signature Section ---
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
@@ -479,8 +391,6 @@ Future<Uint8List?> _fetchImage(String url) async {
   await Printing.layoutPdf(onLayout: (format) async => pdf.save());
 }
 
-// --- Helper Functions ---
-
 String _calculateTotalQty(List<dynamic> details) {
   double total = 0;
   for (var item in details) {
@@ -502,12 +412,11 @@ pw.Widget _buildInfoRow(String label, String value) {
   );
 }
 
-// String text এর বদলে dynamic text ব্যবহার করুন
 pw.Widget _buildTableCell(dynamic text, {bool isHeader = false, pw.TextAlign align = pw.TextAlign.center}) {
   return pw.Padding(
     padding: const pw.EdgeInsets.all(5),
     child: pw.Text(
-      text?.toString() ?? "", // এখানে null চেক এবং toString() করে দেওয়া হয়েছে
+      text?.toString() ?? "", 
       textAlign: align,
       style: pw.TextStyle(
         fontSize: 9, 
@@ -533,7 +442,6 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
 
   String numberToWords(int number) {
     if (number == 0) return "Zero";
-
     final List<String> units = [
       "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
       "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"
@@ -578,7 +486,6 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                 child: Center(child: CircularProgressIndicator()),
               );
             } else if (snapshot.hasData) {
-              /// Total Calculation
               int totalQty = snapshot.data!.saleDetails.fold<int>(0,(sum, item) => sum + int.tryParse(item.saleDetailsTotalQuantity.toString())!);
               double totalAmount = snapshot.data!.saleDetails.fold<double>(0.0,(sum, item) => sum + double.tryParse(item.saleDetailsTotalAmount.toString())!);
 
@@ -980,641 +887,3 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
     );
   }
 }
-
-
-
-
-
-// import 'dart:convert' show utf8;
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import '../../../common_widget/custom_appbar.dart';
-// import '../../../utils/all_textstyle.dart';
-//
-// class SalesInvoiceScreen extends StatefulWidget {
-//   const SalesInvoiceScreen({super.key,
-//     //required this.salesId
-//   });
-//   //final String salesId;
-//   @override
-//   State<SalesInvoiceScreen> createState() => _SalesInvoiceScreenState();
-// }
-// class _SalesInvoiceScreenState extends State<SalesInvoiceScreen> {
-//   double totalDue = 0.0;
-//   @override
-//   void initState() {
-//     // TODO: implement initState
-//     super.initState();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: CustomAppBar(title: "Sales Invoice"),
-//       body: SingleChildScrollView(
-//         child: Container(
-//           padding: EdgeInsets.all(10.r),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               SizedBox(height: 5.0.h),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.end,
-//                 children: [
-//                   Icon(Icons.print,color: Colors.teal.shade900),
-//                   SizedBox(width: 3.0.w),
-//                   Text("Print",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.teal.shade900,fontSize: 18.0.sp)),
-//                 ],
-//               ),
-//               Padding(padding: EdgeInsets.symmetric(vertical: 1.h),child: Divider()),
-//               Align(
-//                   alignment: Alignment.center,
-//                   child: Text("Sales Invoice",style: AllTextStyle.cashStatementHeadingTextStyle)),
-//               Padding(padding: EdgeInsets.symmetric(vertical: 1.h),child: Divider()),
-//               Row(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Expanded(
-//                     flex: 5,
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         RichText(
-//                           text: TextSpan(
-//                             text: 'Customer Id : ',
-//                             style: TextStyle(
-//                                 color: Colors.black,
-//                                 fontSize: 10.sp,
-//                                 fontWeight: FontWeight.w700
-//                             ),
-//                             children: <TextSpan>[
-//                               TextSpan(
-//                                   text: "",
-//                                   style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
-//                               ),
-//                             ],
-//                           ),
-//                         ),RichText(
-//                           text: TextSpan(
-//                             text: 'Name : ',
-//                             style: TextStyle(
-//                                 color: Colors.black,
-//                                 fontSize: 10.sp,
-//                                 fontWeight: FontWeight.w700
-//                             ),
-//                             children: <TextSpan>[
-//                               TextSpan(
-//                                   text: "",
-//                                   style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
-//                               ),
-//                             ],
-//                           ),
-//                         ),RichText(
-//                           text: TextSpan(
-//                             text: 'Mobile : ',
-//                             style: TextStyle(
-//                                 color: Colors.black,
-//                                 fontSize: 10.sp,
-//                                 fontWeight: FontWeight.w700
-//                             ),
-//                             children: <TextSpan>[
-//                               TextSpan(
-//                                   text: "",
-//                                   style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   Expanded(
-//                     flex: 5,
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.end,
-//                       children: [
-//                         RichText(
-//                           text: TextSpan(
-//                             text: 'Sales By:',
-//                             style: TextStyle(
-//                                 color: Colors.black,
-//                                 fontSize: 10.sp,
-//                                 fontWeight: FontWeight.w700
-//                             ),
-//                             children: <TextSpan>[
-//                               TextSpan(
-//                                   text: "",
-//                                   style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                         RichText(
-//                           text: TextSpan(
-//                             text: 'Invoice No:',
-//                             style: TextStyle(
-//                                 color: Colors.black,
-//                                 fontSize: 10.sp,
-//                                 fontWeight: FontWeight.w700
-//                             ),
-//                             children: <TextSpan>[
-//                               TextSpan(
-//                                   text: "",
-//                                   style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                         RichText(
-//                           text: TextSpan(
-//                             text: 'Sales Date:',
-//                             style: TextStyle(
-//                                 color: Colors.black,
-//                                 fontSize: 10.sp,
-//                                 fontWeight: FontWeight.w700
-//                             ),
-//                             children: <TextSpan>[
-//                               TextSpan(
-//                                   //text: Utils.formatFrontEndDate("${22-02-2025}"),
-//                                   text: "${22-02-2025}",
-//                                   style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               RichText(
-//                 text: TextSpan(
-//                   text: 'Address : ',
-//                   style: TextStyle(
-//                       color: Colors.black,
-//                       fontSize: 10.sp,
-//                       fontWeight: FontWeight.w700
-//                   ),
-//                   children: <TextSpan>[
-//                     TextSpan(
-//                         text: "",
-//                         style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w400)
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Padding(padding: EdgeInsets.symmetric(vertical: 2.h),child: Divider()),
-//               SingleChildScrollView(
-//                 scrollDirection: Axis.horizontal,
-//                 child: DataTable(
-//                   headingRowHeight: 20.0.h,
-//                   dataRowHeight: 20.0.h,
-//                   showCheckboxColumn: true,
-//                   border: TableBorder.all(color: Colors.black54, width: 1.w),
-//                   dataTextStyle: TextStyle(fontSize: 10.sp, color: Colors.black),
-//                   columns: [
-//                     DataColumn(label: Center(child: Text('SL',style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                     DataColumn(label: Padding(
-//                       padding: EdgeInsets.only(left: 40.0.w),
-//                       child: Text('Description',style: TextStyle(fontSize: 10.sp, color: Colors.black)),
-//                     )),
-//                     DataColumn(label: Center(child: Text('Qnty',style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                     DataColumn(label: Center(child: Text('Unit Price',style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                     DataColumn(label: Center(child: Text('Total',style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                   ],
-//                   rows: List.generate(
-//                     ///snapshot.data?.saleDetails.length ?? 0,
-//                     5,
-//                         (int index) {
-//                       return DataRow(cells: <DataCell>[
-//                         DataCell(Center(child: Text("${index + 1}"))),
-//                         DataCell(Center(child: Text('',style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                         DataCell(Center(child: Text("",style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                         DataCell(Center(child: Text('',style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                         DataCell(Center(child: Text('',style: TextStyle(fontSize: 10.sp, color: Colors.black)))),
-//                       ]);
-//                     },
-//                   ),
-//                 ),
-//               ),
-//               SizedBox(height: 10.h),
-//               Row(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Expanded(
-//                     flex: 5,
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.end,
-//                       children: [
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Previous Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Current Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Divider(color: Colors.black),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Total Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   SizedBox(width: 100.0.w),
-//                   Expanded(
-//                     flex: 5,
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.end,
-//                       children: [
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Sub Total:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Discount:",style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000",style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Vat:",style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Transport Cost:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Divider(color: Colors.black,height: 2.h),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Total:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Paid:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                           ],
-//                         ),
-//                         Divider(color: Colors.black,height: 2.h),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text("Due:", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500)),
-//                             Text("1000", style: TextStyle(fontSize: 10.sp,fontWeight: FontWeight.w500),
-//                             ),
-//                           ],
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               SizedBox(height: 20.h),
-//               SelectableText("In Word:${"1000"}", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 10.sp)),
-//               SizedBox(height: 10.h),
-//               Text("Note:${"Thank You"}", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 10.sp)),
-//               SizedBox(height: 10.h),
-//             ],),
-//         ),
-//       ),
-//
-//
-//
-//       // body: FutureBuilder(
-//       //   future: Provider.of<SalesInvoiceProvider>(context).getSalesInvoice(context, widget.salesId),
-//       //   builder: (context, snapshot) {
-//       //     if (snapshot.connectionState == ConnectionState.waiting) {
-//       //       double previousDue = double.tryParse(snapshot.data?.sales[0].saleMasterPreviousDue ?? '') ?? 0.0;
-//       //       double dueAmount = double.tryParse(snapshot.data?.sales[0].saleMasterDueAmount ?? '') ?? 0.0;
-//       //       totalDue = previousDue + dueAmount;
-//       //       return const Center(
-//       //         child: CircularProgressIndicator(),
-//       //       );
-//       //     } else if (snapshot.hasData) {
-//       //       return SingleChildScrollView(
-//       //         child: Container(
-//       //           padding: const EdgeInsets.all(10),
-//       //           child: Column(
-//       //             crossAxisAlignment: CrossAxisAlignment.start,
-//       //             children: [
-//       //               const SizedBox(height: 10.0),
-//       //               Align(
-//       //                 alignment: Alignment.topLeft,
-//       //                 child: SizedBox(
-//       //                   height: 30,
-//       //                   child: ElevatedButton(
-//       //                     onPressed: () {
-//       //                       createPdf(snapshot.data);
-//       //                     },
-//       //                     style: ElevatedButton.styleFrom(
-//       //                         elevation: 5,
-//       //                         backgroundColor: Colors.green.shade100
-//       //                     ),
-//       //                     child: const Text("Save As PDF",style: TextStyle(color: Colors.black)),
-//       //                   ),
-//       //                 ),
-//       //               ),
-//       //               const Padding(padding: EdgeInsets.symmetric(vertical: 5),child: Divider()),
-//       //               Align(
-//       //                   alignment: Alignment.center,
-//       //                   child: Text("Sales Invoice",style: AllTextStyle.cashStatementHeadingTextStyle)),
-//       //               const Padding(padding: EdgeInsets.symmetric(vertical: 5),child: Divider()),
-//       //               Row(
-//       //                 crossAxisAlignment: CrossAxisAlignment.start,
-//       //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       //                 children: [
-//       //                   Expanded(
-//       //                     flex: 5,
-//       //                     child: Column(
-//       //                       crossAxisAlignment: CrossAxisAlignment.start,
-//       //                       children: [
-//       //                         RichText(
-//       //                           text: TextSpan(
-//       //                             text: 'Customer Id : ',
-//       //                             style: const TextStyle(
-//       //                                 color: Colors.black,
-//       //                                 fontSize: 10,
-//       //                                 fontWeight: FontWeight.w700
-//       //                             ),
-//       //                             children: <TextSpan>[
-//       //                               TextSpan(
-//       //                                   text: snapshot.data?.sales[0].customerCode??"",
-//       //                                   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                               ),
-//       //                             ],
-//       //                           ),
-//       //                         ),RichText(
-//       //                           text: TextSpan(
-//       //                             text: 'Name : ',
-//       //                             style: const TextStyle(
-//       //                                 color: Colors.black,
-//       //                                 fontSize: 10,
-//       //                                 fontWeight: FontWeight.w700
-//       //                             ),
-//       //                             children: <TextSpan>[
-//       //                               TextSpan(
-//       //                                   text: snapshot.data?.sales[0].customerName??"",
-//       //                                   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                               ),
-//       //                             ],
-//       //                           ),
-//       //                         ),RichText(
-//       //                           text: TextSpan(
-//       //                             text: 'Mobile : ',
-//       //                             style: const TextStyle(
-//       //                                 color: Colors.black,
-//       //                                 fontSize: 10,
-//       //                                 fontWeight: FontWeight.w700
-//       //                             ),
-//       //                             children: <TextSpan>[
-//       //                               TextSpan(
-//       //                                   text: snapshot.data?.sales[0].customerMobile??"",
-//       //                                   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                               ),
-//       //                             ],
-//       //                           ),
-//       //                         ),
-//       //                       ],
-//       //                     ),
-//       //                   ),
-//       //                   Expanded(
-//       //                     flex: 5,
-//       //                     child: Column(
-//       //                       crossAxisAlignment: CrossAxisAlignment.end,
-//       //                       children: [
-//       //                         RichText(
-//       //                           text: TextSpan(
-//       //                             text: 'Sales By:',
-//       //                             style: const TextStyle(
-//       //                                 color: Colors.black,
-//       //                                 fontSize: 10,
-//       //                                 fontWeight: FontWeight.w700
-//       //                             ),
-//       //                             children: <TextSpan>[
-//       //                               TextSpan(
-//       //                                   text: snapshot.data?.sales[0].addedBy??"",
-//       //                                   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                               ),
-//       //                             ],
-//       //                           ),
-//       //                         ),
-//       //                         RichText(
-//       //                           text: TextSpan(
-//       //                             text: 'Invoice No:',
-//       //                             style: const TextStyle(
-//       //                                 color: Colors.black,
-//       //                                 fontSize: 10,
-//       //                                 fontWeight: FontWeight.w700
-//       //                             ),
-//       //                             children: <TextSpan>[
-//       //                               TextSpan(
-//       //                                   text: snapshot.data?.sales[0].saleMasterInvoiceNo??"",
-//       //                                   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                               ),
-//       //                             ],
-//       //                           ),
-//       //                         ),
-//       //                         RichText(
-//       //                           text: TextSpan(
-//       //                             text: 'Sales Date:',
-//       //                             style: const TextStyle(
-//       //                                 color: Colors.black,
-//       //                                 fontSize: 10,
-//       //                                 fontWeight: FontWeight.w700
-//       //                             ),
-//       //                             children: <TextSpan>[
-//       //                               TextSpan(
-//       //                                   text: Utils.formatFrontEndDate("${snapshot.data?.sales[0].saleMasterSaleDate}"),
-//       //                                   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                               ),
-//       //                             ],
-//       //                           ),
-//       //                         ),
-//       //                         // RichText(
-//       //                         //   text: TextSpan(
-//       //                         //     text: 'Employee:',
-//       //                         //     style: const TextStyle(
-//       //                         //         color: Colors.black,
-//       //                         //         fontSize: 10,
-//       //                         //         fontWeight: FontWeight.w700
-//       //                         //     ),
-//       //                         //     children: <TextSpan>[
-//       //                         //       TextSpan(
-//       //                         //           text: "${snapshot.data?.sales[0].employeeName}",
-//       //                         //           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                         //       ),
-//       //                         //     ],
-//       //                         //   ),
-//       //                         // ),
-//       //                       ],
-//       //                     ),
-//       //                   ),
-//       //                 ],
-//       //               ),
-//       //               RichText(
-//       //                 text: TextSpan(
-//       //                   text: 'Address : ',
-//       //                   style: const TextStyle(
-//       //                       color: Colors.black,
-//       //                       fontSize: 10,
-//       //                       fontWeight: FontWeight.w700
-//       //                   ),
-//       //                   children: <TextSpan>[
-//       //                     TextSpan(
-//       //                         text: snapshot.data?.sales[0].customerAddress??"",
-//       //                         style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w400)
-//       //                     ),
-//       //                   ],
-//       //                 ),
-//       //               ),
-//       //               const Padding(padding: EdgeInsets.symmetric(vertical: 5),child: Divider()),
-//       //               SingleChildScrollView(
-//       //                 scrollDirection: Axis.horizontal,
-//       //                 child: DataTable(
-//       //                   headingRowHeight: 20.0,
-//       //                   dataRowHeight: 20.0,
-//       //                   showCheckboxColumn: true,
-//       //                   border: TableBorder.all(color: Colors.black54, width: 1),
-//       //                   dataTextStyle: const TextStyle(fontSize: 10, color: Colors.black),
-//       //                   columns: const [
-//       //                     DataColumn(label: Center(child: Text('SL',style: TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                     DataColumn(label: Padding(
-//       //                       padding: EdgeInsets.only(left: 40.0),
-//       //                       child: Text('Description',style: TextStyle(fontSize: 10, color: Colors.black)),
-//       //                     )),
-//       //                     DataColumn(label: Center(child: Text('Qnty',style: TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                     DataColumn(label: Center(child: Text('Unit Price',style: TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                     DataColumn(label: Center(child: Text('Total',style: TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                   ],
-//       //                   rows: List.generate(
-//       //                     snapshot.data?.saleDetails.length ?? 0,
-//       //                         (int index) {
-//       //                       return DataRow(cells: <DataCell>[
-//       //                         DataCell(Center(child: Text("${index + 1}"))),
-//       //                         DataCell(Center(child: Text(snapshot.data?.saleDetails[index].productName ?? '',style: const TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                         DataCell(Center(child: Text("${snapshot.data?.saleDetails[index].saleDetailsTotalQuantity ?? ''} ${snapshot.data?.saleDetails[index].unitName??""}",style: const TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                         DataCell(Center(child: Text(snapshot.data?.saleDetails[index].saleDetailsRate ?? '',style: const TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                         DataCell(Center(child: Text(snapshot.data?.saleDetails[index].saleDetailsTotalAmount ?? '',style: const TextStyle(fontSize: 10, color: Colors.black)))),
-//       //                       ]);
-//       //                     },
-//       //                   ),
-//       //                 ),
-//       //               ),
-//       //               const SizedBox(height: 10),
-//       //               Row(
-//       //                 crossAxisAlignment: CrossAxisAlignment.start,
-//       //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       //                 children: [
-//       //                   const Expanded(
-//       //                     flex: 5,
-//       //                     child: Column(
-//       //                       crossAxisAlignment: CrossAxisAlignment.start,
-//       //                       children: [
-//       //                         // Text(
-//       //                         //   "Previous Due: ${snapshot.data?.sales[0].saleMasterPreviousDue??""}",
-//       //                         //   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         // ),
-//       //                         // Text(
-//       //                         //   "Current Due: ${snapshot.data?.sales[0].saleMasterDueAmount??""}",
-//       //                         //   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         // ),
-//       //                         // const Divider(color: Colors.black, endIndent: 60),
-//       //                         // Text(
-//       //                         //   "Total Due: ${double.parse("${double.parse(snapshot.data?.sales[0].saleMasterPreviousDue??"0.0") + double.parse(snapshot.data?.sales[0].saleMasterDueAmount??"0.0")}").toStringAsFixed(2)}",
-//       //                         //   style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         // ),
-//       //                       ],
-//       //                     ),
-//       //                   ),
-//       //                   Expanded(
-//       //                     flex: 5,
-//       //                     child: Column(
-//       //                       crossAxisAlignment: CrossAxisAlignment.end,
-//       //                       children: [
-//       //                         Text(
-//       //                           "Sub Total:  ${snapshot.data?.sales[0].saleMasterSubTotalAmount??""}",
-//       //                           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         ),
-//       //                         Text(
-//       //                           "Vat: ${snapshot.data?.sales[0].saleMasterTaxAmount??""}",
-//       //                           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         ),
-//       //                         Text(
-//       //                           "Discount: ${snapshot.data?.sales[0].saleMasterTotalDiscountAmount??""}",
-//       //                           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         ),
-//       //                         Text(
-//       //                           "Transport Cost: ${snapshot.data?.sales[0].saleMasterFreight??""}",
-//       //                           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         ),
-//       //                         // Text(
-//       //                         //   "Previous Due: ${allSalesInvoicesModelData.sales[0].saleMasterPreviousDue}",
-//       //                         //   style: const TextStyle(fontSize: 12,fontWeight: FontWeight.w500),
-//       //                         // ),
-//       //                         const Divider(color: Colors.black,height: 2, indent: 80),
-//       //                         Text(
-//       //                           "Total: ${double.parse(snapshot.data?.sales[0].saleMasterTotalSaleAmount??"0.0")}",
-//       //                           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         ),
-//       //                         Text(
-//       //                           "Paid:  ${snapshot.data?.sales[0].saleMasterPaidAmount??""}",
-//       //                           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         ),
-//       //                         const Divider(color: Colors.black,height: 2, indent: 80),
-//       //                         Text(
-//       //                           "Due: ${(double.parse(snapshot.data?.sales[0].saleMasterTotalSaleAmount??"0.0")) - double.parse(snapshot.data?.sales[0].saleMasterPaidAmount??"0.0")}",
-//       //                           style: const TextStyle(fontSize: 10,fontWeight: FontWeight.w500),
-//       //                         ),
-//       //                       ],
-//       //                     ),
-//       //                   ),
-//       //                 ],
-//       //               ),
-//       //               const SizedBox(height: 20),
-//       //               SelectableText(
-//       //                 "In Word: ${converter.convertDouble(double.parse(double.parse(snapshot.data?.sales[0].saleMasterTotalSaleAmount??"0.0").toStringAsFixed(2)))}".toUpperCase(),
-//       //                 style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10),
-//       //               ),
-//       //               const SizedBox(height: 10),
-//       //               Text("Note: ${snapshot.data?.sales[0].saleMasterDescription??""}",
-//       //                   style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10)),
-//       //               const SizedBox(height: 10),
-//       //             ],),
-//       //         ),
-//       //       );
-//       //     } else {
-//       //       return Container();
-//       //     }
-//       //   },
-//       // ),
-//     );
-//   }
-// }

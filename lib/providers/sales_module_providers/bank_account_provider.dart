@@ -5,20 +5,20 @@ import 'package:barishal_surgical/models/sales_module_models/bank_account_model.
 class BankAccountProvider extends ChangeNotifier {
   static bool isBankAccountLoading = false;
   List<BankAccountModel> bankAccountList = [];
-  getBankAccount(BuildContext context) async {
-    bankAccountList = await ApiService.fetchBankAccount(context);
-    off();
-    notifyListeners();
+  Future<void> getBankAccount(BuildContext context) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      bankAccountList = await ApiService.fetchBankAccount(context) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isBankAccountLoading = false;
-      notifyListeners();
-    });
+    isBankAccountLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isBankAccountLoading = true;
     notifyListeners();
   }

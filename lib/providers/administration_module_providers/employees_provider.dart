@@ -4,7 +4,7 @@ import '../../models/administration_module_models/employees_model.dart';
 
 class EmployeesProvider extends ChangeNotifier {
   List<EmployeesModel> employeesList = [];
-  getEmployees(BuildContext context) async {
-    employeesList = await ApiService.fetchEmployeesApi(context);
+  Future<void> getEmployees(BuildContext context) async {
+    employeesList = await ApiService.fetchEmployeesApi(context) ?? [];
     notifyListeners();
   }}

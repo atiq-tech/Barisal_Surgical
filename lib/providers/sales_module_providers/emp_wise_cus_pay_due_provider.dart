@@ -5,33 +5,33 @@ import 'package:flutter/material.dart';
 class EmpWiseCusPayDueProvider extends ChangeNotifier {
   static bool isEmpWiseCusPayDueLoading = false;
   List<EmpWiseCusPayDueModel> empWiseCusPayDuelist = [];
-  getEmpWiseCusPayDue(BuildContext context, 
+  Future<void> getEmpWiseCusPayDue(BuildContext context, 
     String? customerId,
     String? employeeId,
     String? searchType,
     String? paymentType,
     String? dateFrom,
     String? dateTo) async {
-    empWiseCusPayDuelist = await ApiService.fetchEmpWiseCusPayDueApi(context, 
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      empWiseCusPayDuelist = await ApiService.fetchEmpWiseCusPayDueApi(context, 
         customerId, 
         employeeId, 
         searchType, 
         paymentType, 
         dateFrom, 
         dateTo
-    );
-    off();
-    notifyListeners();
+      ) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isEmpWiseCusPayDueLoading = false;
-      notifyListeners();
-    });
+    isEmpWiseCusPayDueLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isEmpWiseCusPayDueLoading = true;
     notifyListeners();
   }

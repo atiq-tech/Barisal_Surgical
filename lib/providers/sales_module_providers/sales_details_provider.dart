@@ -5,20 +5,20 @@ import '../../models/sales_module_models/sales_details_model.dart';
 class SalesDetailsProvider extends ChangeNotifier {
   static bool isSalesDetailsLoading = false;
   List<SalesDetailsModel> salesDetailslist = [];
-  getSalesDetails(BuildContext context,String? categoryId,String? productId,String? employeeId, String? dateFrom, String? dateTo) async {
-    salesDetailslist = await ApiService.fetchSalesDetails(context,categoryId,productId,employeeId,dateFrom,dateTo);
-    off();
-    notifyListeners();
+  Future<void> getSalesDetails(BuildContext context,String? categoryId,String? productId,String? employeeId, String? dateFrom, String? dateTo) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      salesDetailslist = await ApiService.fetchSalesDetails(context,categoryId,productId,employeeId,dateFrom,dateTo) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('off');
-      isSalesDetailsLoading = false;
-      notifyListeners();
-    });
+    isSalesDetailsLoading = false;
+    notifyListeners();
   }
   on(){
-    print('on');
     isSalesDetailsLoading = true;
     notifyListeners();
   }

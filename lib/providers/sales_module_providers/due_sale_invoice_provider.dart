@@ -5,20 +5,20 @@ import 'package:flutter/material.dart';
 class DueSaleInvoiceProvider extends ChangeNotifier {
   static bool isDueSaleInvoiceLoading = false;
   List<DueSaleInvoiceModel> dueSaleInvoicelist = [];
-  getDueSaleInvoice(BuildContext context, String? customerId) async {
-    dueSaleInvoicelist = await ApiService.fetchDueSaleInvoiceApi(context, customerId);
-    off();
-    notifyListeners();
+  Future<void> getDueSaleInvoice(BuildContext context, String? customerId) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      dueSaleInvoicelist = await ApiService.fetchDueSaleInvoiceApi(context, customerId) ?? [];
+    } finally {
+      off();
+    }
   }
   off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isDueSaleInvoiceLoading = false;
-      notifyListeners();
-    });
+    isDueSaleInvoiceLoading = false;
+    notifyListeners();
   }
   on(){
-    print('onnn');
     isDueSaleInvoiceLoading = true;
     notifyListeners();
   }

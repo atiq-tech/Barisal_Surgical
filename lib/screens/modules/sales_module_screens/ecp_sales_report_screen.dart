@@ -116,7 +116,6 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
       userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
       userType = sharedPreferences?.getString('userType') ?? "";
     });
-    print("userType======$userType");
     _loadCustomerData();
   }
 
@@ -133,7 +132,6 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
   String companyName = "";
   String repotHeading = "";
   String companyLogothumb = "";
-
    void getCompanyProfile() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     try {
@@ -153,15 +151,10 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
           companyName = data['Company_Name'] ?? "";
           companyLogothumb = data['Company_Logo_thum'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_company_profile-------Company_Name======$companyName");
-    print("companyLogothumb-------Company_Logo_thumb======$companyLogothumb");
   }
 
   void getCurrentBranch() async {
@@ -182,15 +175,12 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
         setState(() {
           repotHeading = data['Repot_Heading'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_current_branch-------Repot_Heading======$repotHeading");
   }
+  
   bool isPrinting = false;
   @override
   void initState() {
@@ -214,13 +204,9 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ///get Customer
      final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
-    /// Get Employee
      final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
-    /// Get Product
      final allProductData = Provider.of<ProductListProvider>(context).productsList;
-    /// Get Product
      final allEcpWiseSalesReportData = Provider.of<EcpWiseSaleReportProvider>(context).ecpWiseSalesReportlist;
      allEcpWiseSalesReportData.sort((a, b) {
       int cus = (a.customerName ?? "").compareTo(b.customerName ?? "");
@@ -360,10 +346,8 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                             );
                           },
                           suggestionsCallback: (pattern) async {
-                            return Future.delayed(const Duration(seconds: 1), () {
-                              return allGetEmployeesData.where((element) =>
+                            return allGetEmployeesData.where((element) =>
                                   element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                            });
                           },
                           itemBuilder: (context, EmployeesModel suggestion) {
                             return Padding(
@@ -438,10 +422,8 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allCustomerData.where((element) =>
+                              return allCustomerData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, CustomerListModel suggestion) {
                               return Padding(
@@ -508,10 +490,8 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allProductData.where((element) =>
+                              return allProductData.where((element) =>
                                     element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, ProductListModel suggestion) {
                               return Padding(

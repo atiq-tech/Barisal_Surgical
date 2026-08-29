@@ -5,21 +5,20 @@ import 'package:flutter/material.dart';
 class OrdersProvider extends ChangeNotifier {
   static bool isOrdersLoading = false;
   List<OrdersModel> orderslist = [];
-  getOrders(BuildContext context,String? userId, String? customerId, String? employeeId, String? dateFrom, String? dateTo) async {
-    orderslist = await ApiService.fetchOrders(context,userId,customerId,employeeId,dateFrom,dateTo);
-    off();
+  Future<void> getOrders(BuildContext context,String? userId, String? customerId, String? employeeId, String? dateFrom, String? dateTo) async {
+    await Future<void>.delayed(Duration.zero);
+    on();
+    try {
+      orderslist = await ApiService.fetchOrders(context,userId,customerId,employeeId,dateFrom,dateTo) ?? [];
+    } finally {
+      off();
+    }
+  }
+  off(){
+    isOrdersLoading = false;
     notifyListeners();
   }
-
-  off(){
-    Future.delayed(const Duration(seconds: 1),() {
-      print('offff');
-      isOrdersLoading = false;
-      notifyListeners();
-    });
-  }
   on(){
-    print('onnn');
     isOrdersLoading = true;
     notifyListeners();
   }

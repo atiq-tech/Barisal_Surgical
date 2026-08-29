@@ -34,6 +34,16 @@ class OrderRecordScreen extends StatefulWidget {
   State<OrderRecordScreen> createState() => _OrderRecordScreenState();
 }
 
+class _OrderTotals {
+  double subTotal = 0;
+  double vatTotal = 0;
+  double discountTotal = 0;
+  double transferCost = 0;
+  double totalAmount = 0;
+  double paidTotal = 0;
+  double dueTotal = 0;
+}
+
 class _OrderRecordScreenState extends State<OrderRecordScreen> {
   int? decimal = 0;
   String userName = "";
@@ -375,7 +385,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     double? myLat, myLong;
     Future<void> _initLocation() async {
     var result = await LocationService.fetchAndUploadLocation();
-    if (result != null) {
+    if (result != null && mounted) {
       setState(() {
         myLat = result['lat'];
         myLong = result['long'];
@@ -403,6 +413,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
       if (response.statusCode == 200) {
         var data = response.data is List ? response.data[0] : response.data;
 
+        if (!mounted) return;
         setState(() {
           companyName = data['Company_Name'] ?? "";
           companyLogothumb = data['Company_Logo_thum'] ?? "";
@@ -433,6 +444,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
       if (response.statusCode == 200) {
         var data = response.data is List ? response.data[0] : response.data;
 
+        if (!mounted) return;
         setState(() {
           repotHeading = data['Repot_Heading'] ?? "";
         });
@@ -486,6 +498,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
 bool isPrinting = false;
   @override
   void initState() {
+    super.initState();
     getCompanyProfile();
     getCurrentBranch();
     _initLocation();
@@ -500,9 +513,6 @@ bool isPrinting = false;
     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
     Provider.of<UsersProvider>(context,listen: false).getUsers(context);
     Provider.of<OrdersProvider>(context, listen: false).orderslist = [];
-    Provider.of<OrdersRecordProvider>(context,listen: false).getOrdersRecord(context,"", "", "", "", "");
-    Provider.of<OrdersDetailsProvider>(context,listen: false).getOrdersDetails(context,"", "", "", "");
-    super.initState();
   }
 
   var customerController = TextEditingController();
@@ -510,6 +520,18 @@ bool isPrinting = false;
   var employeeController = TextEditingController();
   var categoryController = TextEditingController();
   var userController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchOverlayEntry?.remove();
+    _recordOverlayEntry?.remove();
+    customerController.dispose();
+    productController.dispose();
+    employeeController.dispose();
+    categoryController.dispose();
+    userController.dispose();
+    super.dispose();
+  }
 
   emtyMethod() {
     setState(() {
@@ -525,20 +547,148 @@ bool isPrinting = false;
     });
   }
 
+  double _asDouble(dynamic value) {
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  _OrderTotals _calculateOrderTotals(List allOrdersData) {
+    final totals = _OrderTotals();
+    for (final order in allOrdersData) {
+      totals.subTotal += _asDouble(order.saleMasterSubTotalAmount);
+      totals.vatTotal += _asDouble(order.saleMasterTaxAmount);
+      totals.discountTotal += _asDouble(order.saleMasterTotalDiscountAmount);
+      totals.transferCost += _asDouble(order.saleMasterFreight);
+      totals.totalAmount += _asDouble(order.saleMasterTotalSaleAmount);
+      totals.paidTotal += _asDouble(order.saleMasterPaidAmount);
+      totals.dueTotal += _asDouble(order.saleMasterDueAmount);
+    }
+    return totals;
+  }
+
+  Future<void> _showReport() async {
+    String nextData = data;
+    Future<void>? request;
+
+    if (isAllTypeClicked && isWithoutDetailsClicked) {
+      nextData = 'showAllWithoutDetails';
+      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+        context,
+        "",
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isAllTypeClicked && isWithDetailsClicked) {
+      nextData = 'showAllWithDetails';
+      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+        context,
+        "",
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isCustomerWiseClicked && isWithoutDetailsClicked) {
+      nextData = 'showByCustomerWithoutDetails';
+      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+        context,
+        "",
+        _selectCustomerId,
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isCustomerWiseClicked && isWithDetailsClicked) {
+      nextData = 'showByCustomerWithDetails';
+      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+        context,
+        "",
+        _selectCustomerId,
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isEmployeeWiseClicked && isWithoutDetailsClicked) {
+      nextData = 'showByEmployeeWithoutDetails';
+      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+        context,
+        "",
+        "",
+        userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isEmployeeWiseClicked && isWithDetailsClicked) {
+      nextData = 'showByEmployeeWithDetails';
+      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+        context,
+        "",
+        "",
+        userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isCategoryWiseClicked) {
+      nextData = 'showByCategoryDetails';
+      request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(
+        context,
+        "$_selectCategoryId",
+        "",
+        "$backEndFirstDate",
+        "$backEndSecondtDate",
+      );
+    } else if (isQuantityWiseClicked) {
+      nextData = 'showByQuantityDetails';
+      request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(
+        context,
+        "",
+        _selectQtyProductId,
+        "$backEndFirstDate",
+        "$backEndSecondtDate",
+      );
+    } else if (isUserWiseClicked && isWithoutDetailsClicked) {
+      nextData = 'showByUserWithoutDetails';
+      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+        context,
+        userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    } else if (isUserWiseClicked && isWithDetailsClicked) {
+      nextData = 'showByUserWithDetails';
+      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+        context,
+        userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
+        "",
+        "",
+        backEndFirstDate,
+        backEndSecondtDate,
+      );
+    }
+
+    if (nextData != data && mounted) {
+      setState(() {
+        data = nextData;
+      });
+    }
+    await request;
+  }
+
   @override
   Widget build(BuildContext context) {
     ///get Orders
     final allOrdersData = Provider.of<OrdersProvider>(context).orderslist;
-    subTotal = allOrdersData.map((e) => e.saleMasterSubTotalAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    vatTotal = allOrdersData.map((e) => e.saleMasterTaxAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    discountTotal = allOrdersData.map((e) => e.saleMasterTotalDiscountAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    transferCost = allOrdersData.fold(0.0, (p, e) {
-      double value = double.tryParse(e.saleMasterFreight?.toString() ?? '0') ?? 0.0;
-      return p! + value;
-    });
-    totalAmount = allOrdersData.map((e) => e.saleMasterTotalSaleAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    paidTotal = allOrdersData.map((e) => e.saleMasterPaidAmount).fold(0.0, (p, element) => p!+double.parse(element));
-    dueTotal = allOrdersData.map((e) => e.saleMasterDueAmount).fold(0.0, (p, element) => p!+double.parse(element));
+    final orderTotals = _calculateOrderTotals(allOrdersData);
+    subTotal = orderTotals.subTotal;
+    vatTotal = orderTotals.vatTotal;
+    discountTotal = orderTotals.discountTotal;
+    transferCost = orderTotals.transferCost;
+    totalAmount = orderTotals.totalAmount;
+    paidTotal = orderTotals.paidTotal;
+    dueTotal = orderTotals.dueTotal;
     ///get Orders
     final allOrdersRecordData = Provider.of<OrdersRecordProvider>(context).ordersRecordlist;
     ///get Customer
@@ -652,10 +802,8 @@ bool isPrinting = false;
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allCustomerData.where((element) =>
+                              return allCustomerData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, CustomerListModel suggestion) {
                               return Padding(
@@ -720,10 +868,8 @@ bool isPrinting = false;
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allGetEmployeesData.where((element) =>
+                              return allGetEmployeesData.where((element) =>
                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, EmployeesModel suggestion) {
                               return Padding(
@@ -797,10 +943,8 @@ bool isPrinting = false;
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allCategoriesData.where((element) =>
+                              return allCategoriesData.where((element) =>
                                     element.productCategoryName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, CategoriesModel suggestion) {
                               return Padding(
@@ -864,10 +1008,8 @@ bool isPrinting = false;
                                   );
                                 },
                                 suggestionsCallback: (pattern) async {
-                                  return Future.delayed(const Duration(seconds: 1), () {
-                                    return allProductsData.where((element) =>
+                                  return allProductsData.where((element) =>
                                         element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                  });
                                 },
                                 itemBuilder: (context, ProductListModel suggestion) {
                                   return Padding(
@@ -931,10 +1073,8 @@ bool isPrinting = false;
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return Future.delayed(const Duration(seconds: 1), () {
-                                return allUsersData.where((element) =>
+                              return allUsersData.where((element) =>
                                     element.fullName!.toLowerCase().contains(pattern.toLowerCase())).toList();
-                              });
                             },
                             itemBuilder: (context, UsersModel suggestion) {
                               return Padding(
@@ -1083,127 +1223,7 @@ bool isPrinting = false;
                     child: Container(
                       padding: EdgeInsets.all(1.0.r),
                       child: InkWell(
-                        onTap: () async {
-                            OrdersProvider().on();
-                            OrdersRecordProvider().on();
-                            OrdersDetailsProvider().on();
-                            setState(() {
-                              if (isAllTypeClicked && isWithoutDetailsClicked) {
-                                data = 'showAllWithoutDetails';
-                                ///get sale AllType
-                                Provider.of<OrdersProvider>(context, listen: false).getOrders(context,
-                                    "",
-                                    "",
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              else if (isAllTypeClicked && isWithDetailsClicked) {
-                                data = 'showAllWithDetails';
-                                ///get sale api AllType
-                                Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context,
-                                    "",
-                                    "",
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              /// By Customer
-                              else if (isCustomerWiseClicked && isWithoutDetailsClicked) {
-                                data = 'showByCustomerWithoutDetails';
-                                ///get sale CustomerType
-                                Provider.of<OrdersProvider>(context, listen: false).getOrders(context,
-                                    "",
-                                    _selectCustomerId,
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              else if (isCustomerWiseClicked && isWithDetailsClicked) {
-                                data = 'showByCustomerWithDetails';
-                                ///get sales Record api CustomerType
-                                Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context,
-                                    "",
-                                    _selectCustomerId,
-                                    "",
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              /// By Employee
-                              else if (isEmployeeWiseClicked && isWithoutDetailsClicked) {
-                                data = 'showByEmployeeWithoutDetails';
-                                ///get sales api EmployeeType
-                                Provider.of<OrdersProvider>(context, listen: false).getOrders(context,
-                                    "",
-                                    "",
-                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
-                                    backEndFirstDate,
-                                    backEndSecondtDate,
-                                );
-                              }
-                              else if (isEmployeeWiseClicked && isWithDetailsClicked) {
-                                data = 'showByEmployeeWithDetails';
-                                ///get sales Record api  EmployeeType
-                                Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context,
-                                    "",
-                                    "",
-                                    userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
-                                    backEndFirstDate,
-                                    backEndSecondtDate
-                                );
-                              }
-                              /// By Category
-                              else if (isCategoryWiseClicked) {
-                                data = 'showByCategoryDetails';
-                                ///get sale_details categoryType
-                                Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(context,
-                                  "$_selectCategoryId",
-                                  "",
-                                  "$backEndFirstDate",
-                                  "$backEndSecondtDate",
-                                  
-                                );
-                              }
-                              // By Quantity
-                              else if (isQuantityWiseClicked) {
-                                data = 'showByQuantityDetails';
-                                ///get sale_details QuantityType
-                                Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(context,
-                                  "",
-                                  _selectQtyProductId,
-                                  "$backEndFirstDate",
-                                  "$backEndSecondtDate",
-                                );
-                              }
-                              // By User
-                              else if (isUserWiseClicked && isWithoutDetailsClicked) {
-                                data = 'showByUserWithoutDetails';
-                                ///get sales api UserType
-                                Provider.of<OrdersProvider>(context, listen: false).getOrders(context,
-                                  userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
-                                  "",
-                                  "",
-                                  backEndFirstDate,
-                                  backEndSecondtDate,
-                                );
-                              }
-                              else if (isUserWiseClicked && isWithDetailsClicked) {
-                                data = 'showByUserWithDetails';
-                                ///get sales Record api UserType
-                                Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context,
-                                 userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
-                                  "",
-                                  "",
-                                  backEndFirstDate,
-                                  backEndSecondtDate,
-                                );
-                              }
-                            });
-                        },
+                        onTap: _showReport,
                         child: Container(
                           height: 28.0.h,
                           width: 102.0.w,
