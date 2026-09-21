@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:barishal_surgical/common_widget/common_location.dart';
+import 'package:barishal_surgical/common_widget/custom_btmnbar/custom_navbar.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/invoice_due_provider.dart';
 import 'package:barishal_surgical/providers/sales_module_providers/sales_invoice_provider.dart';
 import 'package:barishal_surgical/screens/modules/sales_module_screens/sales_invoice_screen.dart';
@@ -16,7 +17,6 @@ import 'package:barishal_surgical/utils/animation_snackbar.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../common_widget/custom_appbar.dart';
 import '../../../models/administration_module_models/customer_list_model.dart';
 import '../../../models/administration_module_models/employees_model.dart';
 import '../../../models/administration_module_models/product_list_model.dart';
@@ -371,7 +371,20 @@ String myAddress = "Loading...";
     print("allInvoiceDueData========${allInvoiceDueData.length}");
     
     return Scaffold(
-        appBar: CustomAppBar(title: 'Sales Entry'),
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: AppColors.appColor,
+          title: const Text("Sales Entry",style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white),),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back,color: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const BottomNavigationBarView()),
+              );
+            },
+          ),
+        ),
         body: ModalProgressHUD(
           blur: 2,
           inAsyncCall: CustomerListProvider.isCustomerListloading,
