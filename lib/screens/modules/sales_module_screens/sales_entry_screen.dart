@@ -572,7 +572,7 @@ String myAddress = "Loading...";
                                 margin: EdgeInsets.only(bottom: 4.h),
                                 decoration:ContDecoration.contDecoration,
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                                   child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
                                 )
                               ),
@@ -821,101 +821,9 @@ String myAddress = "Loading...";
                                   ),
                                 ),
                               )
-                                // Expanded(
-                                //   flex: 5,
-                                //   child: Container(
-                                //     margin: EdgeInsets.only(bottom: 4.h),
-                                //     height: 25.0.h,
-                                //     decoration: ContDecoration.contDecoration,
-                                //     child: TypeAheadField<CustomerListModel>(
-                                //       controller: customerController,
-                                //       builder: (context, controller, focusNode) {
-                                //         return TextField(
-                                //           controller: controller,
-                                //           focusNode: focusNode,
-                                //           style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
-                                //           decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
-                                //             isDense: true,
-                                //             hintText: 'Select Customer',
-                                //             hintStyle: TextStyle(fontSize: 13.sp),
-                                //             suffixIcon: _selectedCustomer == '' || _selectedCustomer == 'null' || _selectedCustomer == null || controller.text == '' ? null
-                                //                 : GestureDetector(
-                                //               onTap: () {
-                                //                 setState(() {
-                                //                   customerController.clear();
-                                //                   controller.clear();
-                                //                   _selectedCustomer = null;
-                                //                   customerController.text="";
-                                //                   _selectedCustomer = "";
-                                //                   _nameController.text = '';
-                                //                   _mobileNumberController.text = '';
-                                //                   _addressController.text = '';
-                                //                 });
-                                //               },
-                                //               child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
-                                //             ),
-                                //             suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
-                                //             filled: true,
-                                //             fillColor: Colors.white,
-                                //             border: InputBorder.none,
-                                //             focusedBorder: TextFieldInputBorder.focusEnabledBorder,
-                                //             enabledBorder: TextFieldInputBorder.focusEnabledBorder,
-                                //           ),
-                                //         );
-                                //       },
-                                //       suggestionsCallback: (pattern) async {
-                                //         return Future.delayed(const Duration(seconds: 1), () {
-                                //           return allCustomerList.where((element) =>
-                                //               element.customerName.toLowerCase().contains(pattern.toLowerCase())).toList();
-                                //         });
-                                //       },
-                                //       itemBuilder: (context, CustomerListModel suggestion) {
-                                //         return Padding(
-                                //           padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
-                                //           child: Text(suggestion.displayName??"",
-                                //             style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
-                                //           ),
-                                //         );
-                                //       },
-                                //       onSelected: (CustomerListModel suggestion) {
-                                //         customerController.text = suggestion.displayName;
-                                //             setState(() {
-                                //               _selectedCustomer = suggestion.customerSlNo.toString();
-                                //               customerSlNo = suggestion.customerSlNo.toString();
-                                //               customerType = suggestion.customerType.toString();
-                                //               employeeNameController.text = suggestion.employeeName.toString();
-                                //               employeeSlNo = suggestion.employeeId.toString();
-                                //               if (_selectedCustomer == "0") {
-                                //                 isVisible = true;
-                                //                 isEnabled = true;
-                                //                 _nameController.text = '';
-                                //                 _mobileNumberController.text = '';
-                                //                 _addressController.text = '';
-                                //               } else {
-                                //                 isEnabled = false;
-                                //                 isVisible = false;
-                                //                 _nameController.text = suggestion.customerName.toString();
-                                //                 _mobileNumberController.text = suggestion.customerMobile.toString();
-                                //                 _addressController.text = suggestion.customerAddress.toString();
-                                //                 creditLimit = suggestion.customerCreditLimit.toString();
-                                //               }
-                                //               if (customerType == "N") {
-                                //                 _nameController.text = allCustomerList.first.customerName ?? '';
-                                //               }
-                                //             });
-                                //             previousDueAmount(_selectedCustomer);
-                                //             print("CustomerId========$_selectedCustomer");
-                                //             print("customerType========$customerType");
-                                //             print("employeeSlNo========$employeeSlNo");
-                                //             InvoiceDueProvider().on();
-                                //             Provider.of<InvoiceDueProvider>(context, listen: false).getInvoiceDue(context,_selectedCustomer);
-                                //       },
-                                //     ),
-                                //   ),
-                                // ),
                               ],
                             ),
-                            Row(
+                           userType == "a" || userType == "m" ? Row(
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(left: 28.w),
@@ -955,8 +863,8 @@ String myAddress = "Loading...";
                                   ),
                                 ),
                               ],
-                            ),
-                            Row(
+                            ):SizedBox(height: 0.h),
+                            userType == "a" || userType == "m" ? Row(
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(left: 22.w),
@@ -994,7 +902,7 @@ String myAddress = "Loading...";
                                   ),
                                 ),
                               ],
-                            ),
+                            ):SizedBox(height: 0.h),
                             Row(
                               children: [
                                 Padding(
@@ -1033,7 +941,7 @@ String myAddress = "Loading...";
                               ],
                             ),
                             SizedBox(height: 4.h),
-                            Row(
+                            userType == "a" || userType == "m" ? Row(
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(left: 3.w),
@@ -1068,7 +976,7 @@ String myAddress = "Loading...";
                                   ),
                                 ),
                               ],
-                            ),
+                            ):SizedBox(height: 0.h),
                             // Checkbox এবং Label এর অংশ
                             Row(
                               children: [
@@ -1078,11 +986,13 @@ String myAddress = "Loading...";
                                       isInvoiceDue = !isInvoiceDue;
                                     });
                                   },
-                                  child: Text("Invoice Due :", style: AllTextStyle.textFieldHeadStyle),
+                                  child: Text("Invoice Due :  ", style: AllTextStyle.textFieldHeadStyle),
                                 ),
                                 Transform.scale(
                                   scale: 1.1,
                                   child: Checkbox(
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    visualDensity: VisualDensity(horizontal: -4, vertical: -4),
                                     value: isInvoiceDue,
                                     activeColor: Colors.teal.shade900,
                                     onChanged: (bool? value) {
@@ -1270,6 +1180,7 @@ String myAddress = "Loading...";
                                           mfgPickedDate = suggestion.productManufactureDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productManufactureDate!)) : null;
                                           expPickedDate = suggestion.productExpireDate != null ? Utils.formatFrontEndDate(DateTime.parse(suggestion.productExpireDate!)) : null;
                                         });
+                                        print("cvat========$cvat");
                                         Future.delayed(Duration(milliseconds: 100), () {
                                           quantityFocusNode.requestFocus();
                                         });
@@ -1366,7 +1277,7 @@ String myAddress = "Loading...";
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5.0.r),
                                     ),
-                                    child: Container(
+                                    child: SizedBox(
                                       height: 25.h,
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1384,7 +1295,7 @@ String myAddress = "Loading...";
                                 ),
                               ],
                             ),
-                            Row(
+                            userType == "a" || userType == "m" ? Row(
                             children: [
                               Expanded(flex: 3,child: Text("Lot No.",style: AllTextStyle.textFieldHeadStyle)),
                               Expanded(
@@ -1414,8 +1325,8 @@ String myAddress = "Loading...";
                                 ),
                               ),
                             ],
-                          ),
-                          Row(
+                          ):SizedBox(height: 0.h),
+                          userType == "a" || userType == "m" ? Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
@@ -1448,9 +1359,9 @@ String myAddress = "Loading...";
                                 ),
                               ),
                             ],
-                          ),
-                          SizedBox(height: 4.h),  
-                          Row(
+                          ):SizedBox(height: 0.h),
+                          SizedBox(height: userType == "a" || userType == "m" ? 4.h : 0.h),  
+                          userType == "a" || userType == "m" ? Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
@@ -1483,7 +1394,7 @@ String myAddress = "Loading...";
                                 ),
                               ),
                             ],
-                          ),
+                          ):SizedBox(height: 0.h),
                           ]),
                         ),
                         
@@ -1491,13 +1402,13 @@ String myAddress = "Loading...";
                           alignment: Alignment.bottomRight,
                           child: GestureDetector(
                             onTap: () {
-                              quantity = int.parse(_quantityController.text);
                               if (productController.text != '' || productController.text.isNotEmpty) {
-                                if (availableStock >= quantity) {
+                               // if (availableStock >= quantity) {
                                 if (_quantityController.text == "") {
-                                  Utils.errorSnackBar(context, "Please Select Quantity");
+                                  Utils.showTopSnackBar(context, "Please Select Quantity");
                                 }
                                 else {
+                                  quantity = int.parse(_quantityController.text);
                                   setState(() {
                                     int findIndex = salesCartList.indexWhere((item) => item.productId == "$cproductId");
                                     if (findIndex > -1) {
@@ -1527,13 +1438,18 @@ String myAddress = "Loading...";
                                       mfgDate: mfgPickedDate
                                     ));
                                      calculateTotal();
+                                     productController.text = '';
+                                     _quantityController.text = '';
+                                     _salesRateController.text = '';
+                                     Total = 0;
+                                     availableStock = 0;
                                   });
                                 }
-                                } else {
-                                  Utils.errorSnackBar(context, "Stock Unavailable");
-                                }
+                                // } else {
+                                //   Utils.errorSnackBar(context, "Stock Unavailable");
+                                // }
                               } else {
-                                Utils.errorSnackBar(context, "Please Select Product");
+                                Utils.showTopSnackBar(context, "Please Select Product");
                               }
                             },
                             child: Card(
@@ -1596,8 +1512,8 @@ String myAddress = "Loading...";
                                   DataCell(Center(child: Text('${salesCartList[index].code}'))),
                                   DataCell(Center(child: Text('${salesCartList[index].name}'))),
                                   DataCell(Center(child: Text('${salesCartList[index].categoryName}'))),
-                                  DataCell(Center(child: Text('${salesCartList[index].lotNo}'))),
-                                  DataCell(Center(child: Text('${salesCartList[index].expDate}'))),
+                                  DataCell(Center(child: Text(salesCartList[index].lotNo??""))),
+                                  DataCell(Center(child: Text(salesCartList[index].expDate??""))),
                                   DataCell( Center(child: Text('${salesCartList[index].quantity}'))),
                                   DataCell(
                                     Center(
@@ -2225,264 +2141,283 @@ String myAddress = "Loading...";
                       ? const Center(
                       child: CircularProgressIndicator())
                       : SizedBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
+                      width: double.infinity,
+                      height: double.infinity,
                       child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            DataTable(
-                              headingRowHeight: 18.h,
-                              dataRowHeight: 18.h,
-                              headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
-                              showCheckboxColumn: true,
-                              border: TableBorder.all(color: Colors.blue.shade200, width: 1),
-                              columnSpacing: 100,
-                              columns: [
-                                DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
-                                DataColumn(label: Expanded(child: Center(child: Text('Due Amount',style:AllTextStyle.tableHeadTextStyle)))), 
-                                DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),                                                       
-                              ],
-                              rows: [
-                                ...List.generate(
-                                  allInvoiceDueData.length,
+                        scrollDirection: Axis.vertical,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DataTable(
+                                headingRowHeight: 18.h,
+                                dataRowHeight: 18.h,
+                                headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+                                showCheckboxColumn: true,
+                                border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+                                columnSpacing: 100,
+                                columns: [
+                                  DataColumn(label: Expanded(child: Center(child: Text('Invoice', style: AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Due Amount', style: AllTextStyle.tableHeadTextStyle)))),
+                                  DataColumn(label: Expanded(child: Center(child: Text('Action', style: AllTextStyle.tableHeadTextStyle)))),
+                                ],
+                                rows: [
+                                  ...List.generate(
+                                    allInvoiceDueData.length,
                                     (int index) => DataRow(
-                                    color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
-                                    cells: <DataCell>[
-                                      DataCell(Center(child: Text(allInvoiceDueData[index].saleMasterInvoiceNo))),
-                                      DataCell(Center(child: Text(allInvoiceDueData[index].dueAmount))),
-                                      DataCell(
-                                      Center(
-                                        child: IconButton(
-                                          icon: Icon(Icons.collections_bookmark, color: Colors.black,size: 10.r),
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  insetPadding: EdgeInsets.all(4.r),
-                                                  contentPadding: EdgeInsets.all(10.r),
-                                                  content: SizedBox(
-                                                    width: double.maxFinite,
-                                                    child: FutureBuilder(
-                                                      future: Provider.of<SalesInvoiceProvider>(context, listen: false).getSalesInvoice(context, allInvoiceDueData[index].saleMasterSlNo),
-                                                      builder: (context, snapshot) {
-                                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                                          return SizedBox(
-                                                            height: 200.h,
-                                                            child: Center(child: CircularProgressIndicator()),
-                                                          );
-                                                        } else if (snapshot.hasError) {
-                                                          return Center(child: Text("Error: ${snapshot.error}"));
-                                                        } else if (!snapshot.hasData || snapshot.data == null) {
-                                                          return const Center(child: Text("No Data Found"));
-                                                        } else {
-                                                          int totalQty = snapshot.data!.saleDetails.fold<int>(0,
-                                                             (sum, item) => sum + (int.tryParse(item.saleDetailsTotalQuantity.toString()) ?? 0));
-                                                             int totalReturnQty = snapshot.data!.saleDetails.fold<int>(0,
-                                                             (sum, item) => sum + (int.tryParse(item.returnQuantity.toString()) ?? 0));
-                                                          double totalAmount = snapshot.data!.saleDetails.fold<double>(0.0,
-                                                              (sum, item) => sum + (double.tryParse(item.saleDetailsTotalAmount.toString()) ?? 0.0));
-                                                              
+                                      color: index % 2 == 0
+                                          ? MaterialStateProperty.resolveWith(getColor)
+                                          : MaterialStateProperty.resolveWith(getColors),
+                                      cells: <DataCell>[
+                                        DataCell(Center(child: Text(allInvoiceDueData[index].saleMasterInvoiceNo))),
+                                        DataCell(Center(child: Text(allInvoiceDueData[index].dueAmount))),
+                                        DataCell(
+                                          Center(
+                                            child: IconButton(
+                                              icon: Icon(Icons.collections_bookmark, color: Colors.black, size: 10.r),
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      insetPadding: EdgeInsets.all(4.r),
+                                                      contentPadding: EdgeInsets.all(10.r),
+                                                      content: SizedBox(
+                                                        width: double.maxFinite,
+                                                        child: FutureBuilder(
+                                                          future: Provider.of<SalesInvoiceProvider>(context, listen: false)
+                                                              .getSalesInvoice(context, allInvoiceDueData[index].saleMasterSlNo),
+                                                          builder: (context, snapshot) {
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return SizedBox(
+                                                                height: 200.h,
+                                                                child: Center(child: CircularProgressIndicator()),
+                                                              );
+                                                            } else if (snapshot.hasError) {
+                                                              return Center(child: Text("Error: ${snapshot.error}"));
+                                                            } else if (!snapshot.hasData || snapshot.data == null) {
+                                                              return Center(child: Text("No Data Found",style: AllTextStyle.nofoundTextStyle));
+                                                            } else {
+                                                              // ★★★ FIXED: Empty list check
+                                                              final sales = snapshot.data!.sales;
+                                                              final saleDetails = snapshot.data!.saleDetails;
 
-                                                          return SizedBox(
-                                                            height: 400.h,
-                                                            child: SingleChildScrollView(
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                children: [
-                                                                  Row(
-                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                    children: [
-                                                                     Text("Invoice Details", style: TextStyle(fontSize: 14.sp,fontWeight: FontWeight.w700)),
-                                                                     InkWell(
-                                                                      borderRadius: BorderRadius.circular(3.r),
-                                                                      onTap: () => Navigator.pop(context),
-                                                                      child: Container(
-                                                                        decoration: BoxDecoration(
-                                                                          color: Colors.blueGrey.shade100,
-                                                                          borderRadius: BorderRadius.circular(100.r)
-                                                                        ),
-                                                                        child: Center(
-                                                                          child: Padding(
-                                                                            padding: EdgeInsets.all(4.r),
-                                                                            child: Icon(Icons.close,color: Colors.blueGrey,),
-                                                                          )
-                                                                        ),
-                                                                      ),
-                                                                    )
-                                                                    ],
-                                                                  ),
-                                                                  Divider(),
-                                                                  Align(
-                                                                    alignment: Alignment.center,
-                                                                    child: Container(
-                                                                      width: 100.w,
-                                                                      decoration: BoxDecoration(
-                                                                        borderRadius: BorderRadius.circular(3.r),
-                                                                        border: Border.all(color: Colors.black,width: 1.5.w)),
-                                                                      child: Center(child: Text("Sales Invoice",style: TextStyle(fontSize: 11.sp,fontWeight: FontWeight.bold)))),
-                                                                  ),
-                                                                  Row(
+                                                              if (sales.isEmpty) {
+                                                                return SizedBox(
+                                                                  height: 200.h,
+                                                                  child: Center(child: Text("No sales data found",style: AllTextStyle.nofoundTextStyle)),
+                                                                );
+                                                              }
+
+                                                              int totalQty = saleDetails.fold<int>(
+                                                                  0, (sum, item) => sum + (int.tryParse(item.saleDetailsTotalQuantity.toString()) ?? 0));
+                                                              int totalReturnQty = saleDetails.fold<int>(
+                                                                  0, (sum, item) => sum + (int.tryParse(item.returnQuantity.toString()) ?? 0));
+                                                              double totalAmount = saleDetails.fold<double>(
+                                                                  0.0, (sum, item) => sum + (double.tryParse(item.saleDetailsTotalAmount.toString()) ?? 0.0));
+
+                                                              return SizedBox(
+                                                                height: 400.h,
+                                                                child: SingleChildScrollView(
+                                                                  child: Column(
                                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                                     children: [
-                                                                      Expanded(
-                                                                        child: Column(
-                                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                                          children: [
-                                                                            infoText("Customer Id :", snapshot.data!.sales[0].customerCode??""),
-                                                                            infoText("Name :", snapshot.data!.sales[0].customerName??""),
-                                                                            infoText("Mobile :", snapshot.data!.sales[0].customerMobile??""),
-                                                                            infoText("Attention :", snapshot.data!.sales[0].customerComment??""),
-                                                                          ],
-                                                                        ),
-                                                                      ),
-
-                                                                      /// RIGHT
-                                                                      Expanded(
-                                                                        child: Column(
-                                                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                                                          children: [
-                                                                            infoText("Prepared By:", snapshot.data!.sales[0].addedBy??"", alignEnd: true),
-                                                                            infoText("Invoice No:", snapshot.data!.sales[0].saleMasterInvoiceNo??"", alignEnd: true),
-                                                                            infoText("Sales Date:", snapshot.data!.sales[0].saleMasterSaleDate??"", alignEnd: true),
-                                                                            infoText("Employee:", snapshot.data!.sales[0].employeeName ?? "", alignEnd: true),
-                                                                          ],
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  SizedBox(height: 1.h),
-                                                                  infoText("Address :", snapshot.data!.sales[0].customerAddress),
-                                                                  SizedBox(height: 4.h),
-                                                                  /// 🔹 TABLE
-                                                                  SingleChildScrollView(
-                                                                    scrollDirection: Axis.horizontal,
-                                                                    child: SingleChildScrollView(
-                                                                      scrollDirection: Axis.vertical,
-                                                                      child: DataTable(
-                                                                        headingRowHeight: 15.h,
-                                                                        dataRowHeight: 15.h,
-                                                                         headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.appColor),
-                                                                        border: TableBorder.all(color: Colors.blueGrey),
-                                                                        columns: [
-                                                                          DataColumn(label: Text('Sl.',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Product Code',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Description',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Category',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Quantity',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Return Qty',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Unit',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Unit Price',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                          DataColumn(label: Text('Total',style: TextStyle(color:Colors.white,fontSize: 10.sp))),
-                                                                        ],
-                                                                        rows: [
-                                                                          ...List.generate(snapshot.data!.saleDetails.length, (i) {
-                                                                            final item = snapshot.data!.saleDetails[i];
-                                                                            return DataRow(cells: [
-                                                                              DataCell(Text("${i + 1}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.productCode}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.productName}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.productCategoryName}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.saleDetailsTotalQuantity}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.returnQuantity}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.unitName}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.saleDetailsRate}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                              DataCell(Text("${item.saleDetailsTotalAmount}",style: TextStyle(color:Colors.black,fontSize: 10.sp))),
-                                                                            ]);
-                                                                          }),
-                                                                          /// TOTAL ROW
-                                                                          DataRow(cells: [
-                                                                            DataCell(Text("")),
-                                                                            DataCell(Text("")),
-                                                                            DataCell(Text("")),
-                                                                            DataCell(Text("Total", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
-                                                                            DataCell(Text("$totalQty", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
-                                                                            DataCell(Text("$totalReturnQty", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
-                                                                            DataCell(Text("")),
-                                                                            DataCell(Text("")),
-                                                                            DataCell(Text("$totalAmount", style: TextStyle(color:Colors.black,fontSize: 10.sp,fontWeight: FontWeight.bold))),
-                                                                          ]),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(height: 10.h),
-                                                                  /// 🔹 SUMMARY
-                                                                  Align(
-                                                                    alignment: Alignment.centerRight,
-                                                                    child: SizedBox(
-                                                                      width: 200.w,
-                                                                      child: Column(
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                         children: [
-                                                                          summaryRow("Sub Total", snapshot.data!.sales[0].saleMasterSubTotalAmount),
-                                                                          summaryRow("Discount", snapshot.data!.sales[0].saleMasterTotalDiscountAmount),
-                                                                          summaryRow("Vat", snapshot.data!.sales[0].saleMasterTaxAmount),
-                                                                          summaryRow("Transport", snapshot.data!.sales[0].saleMasterFreight),
-                                                                          Container(height: 1.h,color: Colors.black26),
-                                                                          summaryRow("Total", snapshot.data!.sales[0].saleMasterTotalSaleAmount),
-                                                                          summaryRow("Paid", snapshot.data!.sales[0].saleMasterPaidAmount),
-                                                                          Container(height: 1.h,color: Colors.black26),
-                                                                          summaryRow("Due", snapshot.data!.sales[0].saleMasterDueAmount, isBold: true),
+                                                                          Text("Invoice Details",
+                                                                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700)),
+                                                                          InkWell(
+                                                                            borderRadius: BorderRadius.circular(3.r),
+                                                                            onTap: () => Navigator.pop(context),
+                                                                            child: Container(
+                                                                              decoration: BoxDecoration(
+                                                                                  color: Colors.blueGrey.shade100,
+                                                                                  borderRadius: BorderRadius.circular(100.r)),
+                                                                              child: Center(
+                                                                                child: Padding(
+                                                                                  padding: EdgeInsets.all(4.r),
+                                                                                  child: Icon(Icons.close, color: Colors.blueGrey),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          )
                                                                         ],
                                                                       ),
-                                                                    ),
-                                                                  ),
-                                                                  Align(
-                                                                    alignment: Alignment.centerRight,
-                                                                    child: Container(
-                                                                      height: 25.h,
-                                                                      width: 70.w,
-                                                                      margin: EdgeInsets.only(top: 8.h),
-                                                                      decoration: BoxDecoration(
-                                                                        color: Colors.blueGrey,
-                                                                        borderRadius: BorderRadius.circular(3.r),
+                                                                      Divider(),
+                                                                      Align(
+                                                                        alignment: Alignment.center,
+                                                                        child: Container(
+                                                                          width: 100.w,
+                                                                          decoration: BoxDecoration(
+                                                                              borderRadius: BorderRadius.circular(3.r),
+                                                                              border: Border.all(color: Colors.black, width: 1.5.w)),
+                                                                          child: Center(
+                                                                              child: Text("Sales Invoice",
+                                                                                  style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.bold))),
+                                                                        ),
                                                                       ),
-                                                                      child: InkWell(
-                                                                        borderRadius: BorderRadius.circular(3.r),
-                                                                        onTap: () => Navigator.pop(context),
-                                                                        child: Center(
-                                                                          child: Text(
-                                                                            "Close",
-                                                                            style: TextStyle(
-                                                                              color: Colors.white,
-                                                                              fontSize: 11.sp,
-                                                                              fontWeight: FontWeight.w600,
+                                                                      Row(
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child: Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                infoText("Customer Id :", sales[0].customerCode ?? ""),
+                                                                                infoText("Name :", sales[0].customerName ?? ""),
+                                                                                infoText("Mobile :", sales[0].customerMobile ?? ""),
+                                                                                infoText("Attention :", sales[0].customerComment ?? ""),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+
+                                                                          /// RIGHT
+                                                                          Expanded(
+                                                                            child: Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                                                              children: [
+                                                                                infoText("Prepared By:", sales[0].addedBy ?? "", alignEnd: true),
+                                                                                infoText("Invoice No:", sales[0].saleMasterInvoiceNo ?? "", alignEnd: true),
+                                                                                infoText("Sales Date:", sales[0].saleMasterSaleDate ?? "", alignEnd: true),
+                                                                                infoText("Employee:", sales[0].employeeName ?? "", alignEnd: true),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      SizedBox(height: 1.h),
+                                                                      infoText("Address :", sales[0].customerAddress),
+                                                                      SizedBox(height: 4.h),
+
+                                                                      /// 🔹 TABLE
+                                                                      SingleChildScrollView(
+                                                                        scrollDirection: Axis.horizontal,
+                                                                        child: SingleChildScrollView(
+                                                                          scrollDirection: Axis.vertical,
+                                                                          child: DataTable(
+                                                                            headingRowHeight: 15.h,
+                                                                            dataRowHeight: 15.h,
+                                                                            headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.appColor),
+                                                                            border: TableBorder.all(color: Colors.blueGrey),
+                                                                            columns: [
+                                                                              DataColumn(label: Text('Sl.', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Product Code', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Description', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Category', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Quantity', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Return Qty', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Unit', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Unit Price', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                              DataColumn(label: Text('Total', style: TextStyle(color: Colors.white, fontSize: 10.sp))),
+                                                                            ],
+                                                                            rows: [
+                                                                              ...List.generate(saleDetails.length, (i) {
+                                                                                final item = saleDetails[i];
+                                                                                return DataRow(cells: [
+                                                                                  DataCell(Text("${i + 1}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.productCode}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.productName}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.productCategoryName}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.saleDetailsTotalQuantity}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.returnQuantity}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.unitName}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.saleDetailsRate}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                  DataCell(Text("${item.saleDetailsTotalAmount}", style: TextStyle(color: Colors.black, fontSize: 10.sp))),
+                                                                                ]);
+                                                                              }),
+
+                                                                              /// TOTAL ROW
+                                                                              DataRow(cells: [
+                                                                                DataCell(Text("")),
+                                                                                DataCell(Text("")),
+                                                                                DataCell(Text("")),
+                                                                                DataCell(Text("Total", style: TextStyle(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.bold))),
+                                                                                DataCell(Text("$totalQty", style: TextStyle(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.bold))),
+                                                                                DataCell(Text("$totalReturnQty", style: TextStyle(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.bold))),
+                                                                                DataCell(Text("")),
+                                                                                DataCell(Text("")),
+                                                                                DataCell(Text("$totalAmount", style: TextStyle(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.bold))),
+                                                                              ]),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      SizedBox(height: 10.h),
+
+                                                                      /// 🔹 SUMMARY
+                                                                      Align(
+                                                                        alignment: Alignment.centerRight,
+                                                                        child: SizedBox(
+                                                                          width: 200.w,
+                                                                          child: Column(
+                                                                            children: [
+                                                                              summaryRow("Sub Total", sales[0].saleMasterSubTotalAmount),
+                                                                              summaryRow("Discount", sales[0].saleMasterTotalDiscountAmount),
+                                                                              summaryRow("Vat", sales[0].saleMasterTaxAmount),
+                                                                              summaryRow("Transport", sales[0].saleMasterFreight),
+                                                                              Container(height: 1.h, color: Colors.black26),
+                                                                              summaryRow("Total", sales[0].saleMasterTotalSaleAmount),
+                                                                              summaryRow("Paid", sales[0].saleMasterPaidAmount),
+                                                                              Container(height: 1.h, color: Colors.black26),
+                                                                              summaryRow("Due", sales[0].saleMasterDueAmount, isBold: true),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Align(
+                                                                        alignment: Alignment.centerRight,
+                                                                        child: Container(
+                                                                          height: 25.h,
+                                                                          width: 70.w,
+                                                                          margin: EdgeInsets.only(top: 8.h),
+                                                                          decoration: BoxDecoration(
+                                                                            color: Colors.blueGrey,
+                                                                            borderRadius: BorderRadius.circular(3.r),
+                                                                          ),
+                                                                          child: InkWell(
+                                                                            borderRadius: BorderRadius.circular(3.r),
+                                                                            onTap: () => Navigator.pop(context),
+                                                                            child: Center(
+                                                                              child: Text(
+                                                                                "Close",
+                                                                                style: TextStyle(
+                                                                                  color: Colors.white,
+                                                                                  fontSize: 11.sp,
+                                                                                  fontWeight: FontWeight.w600,
+                                                                                ),
+                                                                              ),
                                                                             ),
                                                                           ),
                                                                         ),
                                                                       ),
-                                                                    ),
+                                                                    ],
                                                                   ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }
-                                                      },
-                                                    ),
-                                                  ),
+                                                                ),
+                                                              );
+                                                            }
+                                                          },
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
                                                 );
                                               },
-                                            );
-                                          },
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
                                       ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ), 
+                  ), 
                  SizedBox(height: 100.h),
                 ],
               ),

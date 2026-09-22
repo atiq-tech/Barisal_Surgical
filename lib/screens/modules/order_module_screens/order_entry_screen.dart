@@ -563,12 +563,12 @@ void calculateTotal() {
                                     });
                                   },
                                 ),
-                              ) : Container(
+                               ) : Container(
                                 height: 25.h,
                                 margin: EdgeInsets.only(bottom: 4.h),
                                 decoration:ContDecoration.contDecoration,
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                                   child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
                                 )
                               ),
@@ -808,7 +808,7 @@ void calculateTotal() {
                                 ),
                               ],
                             ), // drop down
-                            Row(
+                           userType == "a" || userType == "m" ? Row(
                               children: [
                                 Expanded(flex: 3,child: Text("Name", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
@@ -845,8 +845,8 @@ void calculateTotal() {
                                   ),
                                 ),
                               ],
-                            ),
-                            Row(
+                            ):SizedBox(height: 0.h),
+                           userType == "a" || userType == "m" ? Row(
                               children: [
                                 Expanded(flex: 3,child: Text("Mobile  No", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
@@ -882,7 +882,7 @@ void calculateTotal() {
                                   ),
                                 ),
                               ],
-                            ),
+                            ):SizedBox(height: 0.h),
                             Row(
                               children: [
                                 Expanded(flex: 3,child: Text("Address", style: AllTextStyle.textFieldHeadStyle)),
@@ -920,7 +920,7 @@ void calculateTotal() {
                                 ),
                               ],
                             ),
-                            Row(
+                            userType == "a" || userType == "m" ? Row(
                               children: [
                                 Expanded(flex: 3,child: Text("Comment", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
@@ -954,7 +954,7 @@ void calculateTotal() {
                                   ),
                                 ),
                               ],
-                            ),
+                            ):SizedBox(height: 0.h),
                           ]),
                         ),
                       ],
@@ -1156,7 +1156,7 @@ void calculateTotal() {
                                 ),
                               ],
                             ),
-                            Row(
+                          userType == "a" || userType == "m" ? Row(
                             children: [
                               Expanded(flex: 3,child: Text("Lot No.",style: AllTextStyle.textFieldHeadStyle)),
                               Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
@@ -1183,8 +1183,8 @@ void calculateTotal() {
                                 ),
                               ),
                             ],
-                          ),
-                          Row(
+                          ):SizedBox(height: 0.h),
+                          userType == "a" || userType == "m" ? Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(flex: 3,child: Text("Mfg.Date", style: AllTextStyle.textFieldHeadStyle)),
@@ -1211,9 +1211,9 @@ void calculateTotal() {
                                 ),
                               ),
                             ],
-                          ),
-                          SizedBox(height: 4.h),  
-                          Row(
+                          ):SizedBox(height: 0.h),
+                          SizedBox(height: userType == "a" || userType == "m" ? 4.h :0.h),  
+                          userType == "a" || userType == "m" ? Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(flex: 3,child: Text("Exp.Date", style: AllTextStyle.textFieldHeadStyle)),
@@ -1240,7 +1240,7 @@ void calculateTotal() {
                                 ),
                               ),
                             ],
-                           ),
+                           ):SizedBox(height: 0.h),
                           ]),
                         ),
                         
@@ -1248,13 +1248,12 @@ void calculateTotal() {
                           alignment: Alignment.bottomRight,
                           child: GestureDetector(
                             onTap: () {
-                              quantity = int.parse(_quantityController.text);
                               if (productController.text != '' || productController.text.isNotEmpty) {
-                                // if (availableStock >= quantity) {
                                 if (_quantityController.text == "") {
-                                  Utils.errorSnackBar(context, "Please Select Quantity");
+                                  Utils.showTopSnackBar(context, "Please Select Quantity");
                                 }
                                 else {
+                                  quantity = int.parse(_quantityController.text);
                                   setState(() {
                                     int findIndex = salesCartList.indexWhere((item) => item.productId == "$cproductId");
                                     if (findIndex > -1) {
@@ -1284,13 +1283,15 @@ void calculateTotal() {
                                       expDate: expPickedDate
                                     ));
                                      calculateTotal();
+                                     productController.text = '';
+                                     _quantityController.text = '';
+                                     _salesRateController.text = '';
+                                     Total = 0;
+
                                   });
                                 }
-                                // } else {
-                                //   Utils.errorSnackBar(context, "Stock Unavailable");
-                                // }
                               } else {
-                                Utils.errorSnackBar(context, "Please Select Product");
+                                Utils.showTopSnackBar(context, "Please Select Product");
                               }
                             },
                             child: Card(
