@@ -1403,7 +1403,6 @@ String myAddress = "Loading...";
                           child: GestureDetector(
                             onTap: () {
                               if (productController.text != '' || productController.text.isNotEmpty) {
-                               // if (availableStock >= quantity) {
                                 if (_quantityController.text == "") {
                                   Utils.showTopSnackBar(context, "Please Select Quantity");
                                 }
@@ -1445,9 +1444,6 @@ String myAddress = "Loading...";
                                      availableStock = 0;
                                   });
                                 }
-                                // } else {
-                                //   Utils.errorSnackBar(context, "Stock Unavailable");
-                                // }
                               } else {
                                 Utils.showTopSnackBar(context, "Please Select Product");
                               }
