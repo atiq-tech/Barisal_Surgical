@@ -351,6 +351,10 @@ class _CustomerPaymentDueScreenState extends State<CustomerPaymentDueScreen> {
       userEmployeeID = sharedPreferences?.getString('employeeId') ?? "";
       userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
       userType = sharedPreferences?.getString('userType') ?? "";
+       if (userType == "a" || userType == "m") {
+      } else {
+        employeeController.text = userEmployeeName ?? "";
+      }
     });
     _loadCustomerData();
   }
@@ -1701,7 +1705,7 @@ List<DataRow> _buildRows() {
                       ),
                     ],
                   ):SizedBox(),
-                employeeController.text.isEmpty ? SizedBox() : Row(
+                 isEmployeeWiseClicked == true ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(flex: 2, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
@@ -1743,8 +1747,7 @@ List<DataRow> _buildRows() {
                               );
                             },
                             suggestionsCallback: (pattern) async {
-                              return allCustomerData.where((element) =>
-                                    element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+                              return allCustomerData.where((element) => element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
                             },
                             itemBuilder: (context, CustomerListModel suggestion) {
                               return Padding(
@@ -1764,7 +1767,7 @@ List<DataRow> _buildRows() {
                         ),
                       ),
                     ],
-                  ),
+                  ):SizedBox(height: 0.h),
                   SizedBox(height: 4.h),
                   Row(
                     children: [

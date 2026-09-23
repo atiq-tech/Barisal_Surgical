@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:barishal_surgical/common_widget/common_location.dart';
+import 'package:barishal_surgical/utils/animation_snackbar.dart';
 import 'package:barishal_surgical/utils/app_colors.dart';
+import 'package:barishal_surgical/utils/utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +55,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   File? file;
   chooseImageFrom() async {
     ImagePicker picker = ImagePicker();
-    imageFile = await picker.pickImage(source: ImageSource.gallery);
+    imageFile = await picker.pickImage(source: ImageSource.camera);
     file = File("${imageFile?.path}");
     setState(() {
 
@@ -123,11 +125,20 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 if (imageFile == null) {
-                                  return CustomImage(
-                                    path: userImage == 'null' ? null : '${baseUrl}uploads/users/$userImage',
+                                  return Container(
                                     height: 120.h,
                                     width: 120.w,
-                                    fit: BoxFit.cover,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: ClipOval(
+                                      child: CustomImage(
+                                        path: userImage == 'null' ? null : '$imageBaseUrl$userImage',
+                                        height: 120.h,
+                                        width: 120.w,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
                                   );
                                 }
                                 return ClipRRect(
@@ -169,28 +180,49 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ),
                 ),
                 Align(
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      side: BorderSide(color: Colors.teal.shade900,width: 2.5.w),
-                        fixedSize: Size(double.infinity, 35.h),
-                        padding: EdgeInsets.all(5.r),
-                        backgroundColor: Colors.white,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      setState(() {
-                        changeProfile(image: file);
-                      });
-                    },
-                    child: isLoading ? const CircularProgressIndicator(color: Colors.white)
-                        : Padding(padding: EdgeInsets.symmetric(horizontal: 10.0.w),
-                      child: Text("Image Upload", style: AllTextStyle.menuHeadTextStyle),
-                    ),
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    side: BorderSide(color: Colors.teal.shade900, width: 2.5.w),
+                    fixedSize: Size(double.infinity, 35.h),
+                    padding: EdgeInsets.all(5.r),
+                    backgroundColor: Colors.white,
                   ),
+                  onPressed: isLoading
+                      ? null                          // লোডিং থাকলে আবার ক্লিক করতে দিবে না
+                      : () async {
+                          setState(() {
+                            isLoading = true;
+                          });
+
+                          try {
+                            await changeProfile(image: file);   // ← await দিন (যদি async হয়)
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
+                          }
+                        },
+                  child: isLoading
+                      ? SizedBox(
+                          height: 22.h,
+                          width: 22.w,
+                          child: CircularProgressIndicator(
+                            color: Colors.teal.shade900,     // ← সাদার বদলে টিল কালার দিন
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10.0.w),
+                          child: Text(
+                            "Image Upload",
+                            style: AllTextStyle.menuHeadTextStyle,
+                          ),
+                        ),
                 ),
+              ),
                 SizedBox(height: 5.h),
                 Container(
                     padding: EdgeInsets.all(10.0.r),
@@ -393,90 +425,128 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ),
                 ),
                 Align(
-                  alignment: Alignment.bottomRight,
-                  child: Container(
-                    padding: EdgeInsets.only(top: 20.0.h,bottom: 20.0.h),
-                    child: InkWell(
-                      onTap: () async {
-                        setState(() {
-                          isLoadingPChange = true;
-                        });
-                        fetchPasswordChange(
-                            _currentPController.text,
-                            _newPController.text,
-                            _confirmPController.text,
-                            context);
-                      },
-                      child:isLoadingPChange ? const CircularProgressIndicator(
-                        color: Colors.white,): Card(
-                        shape: RoundedRectangleBorder(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  padding: EdgeInsets.only(top: 20.0.h, bottom: 20.0.h),
+                  child: InkWell(
+                    onTap: () async {
+                      if (_newPController.text != _confirmPController.text) {
+                        Utils.showTopSnackBar(context, "New Password and Confirm Password do not match.");
+                        return;
+                      }
+                      setState(() {
+                        isLoadingPChange = true;
+                      });
+                      try {
+                        await fetchPasswordChange(          
+                          _currentPController.text,
+                          _newPController.text,
+                          _confirmPController.text,
+                          context,
+                        );
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            isLoadingPChange = false;
+                          });
+                        }
+                      }
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100.0.r),
+                      ),
+                      elevation: 9.0,
+                      child: Container(
+                        height: MediaQuery.of(context).size.width / 9,
+                        width: MediaQuery.of(context).size.width / 1,
+                        decoration: BoxDecoration(
+                          color: Colors.teal.shade900,
                           borderRadius: BorderRadius.circular(100.0.r),
                         ),
-                        elevation: 9.0,
-                        child: Container(
-                          height: MediaQuery.of(context).size.width/9,
-                          width: MediaQuery.of(context).size.width/1,
-                          decoration: BoxDecoration(
-                            color: Colors.teal.shade900,
-                            borderRadius: BorderRadius.circular(100.0.r),
-                          ),
-                          child: Center(child: Text("SAVE", style: AllTextStyle.saveButtonTextStyle)),
+                        child: Center(
+                          child: isLoadingPChange
+                              ? SizedBox(
+                                  height: 24.h,
+                                  width: 24.w,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,         
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text("SAVE",style: AllTextStyle.saveButtonTextStyle),
                         ),
                       ),
                     ),
                   ),
                 ),
+              ),
               ]),
         ),
       ),
     );
   }
   changeProfile({File? image}) async {
-    print("image======  $image");
-    SharedPreferences? sharedPreferences;
-    sharedPreferences = await SharedPreferences.getInstance();
-    String link = "${baseUrl}uploadUserImage";
-    try {
-      final formData = FormData.fromMap({
-        'image': image == "" || image == null || image == 'null' ? null : await MultipartFile.fromFile(
-            image.path, filename: "${Random().nextInt(900000000)}.jpg"
-        )
-        /// "image": image ?? "",
-      });
-      final response = await Dio().post(link, data: formData,
-        options: Options(headers: {
-          "Content-Type": "application/json",
+  print("image======  $image");
+
+  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  String link = "${baseUrl}uploadUserImage";
+
+  try {
+    if (image == null) {
+      print("Image is null");
+      return "false";
+    }
+
+    final formData = FormData.fromMap({
+      'user_image': await MultipartFile.fromFile(
+        image.path,
+        filename: "${Random().nextInt(900000000)}.jpg",
+      ),
+    });
+
+    final response = await Dio().post(
+      link,
+      data: formData,
+      options: Options(
+        headers: {
+          // Content-Type দিবেন না
           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
-        }),
-      );
-      var item = response.data;
-      print("image ===== response == $item");
-      if (item == "Image uploaded") {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-            content: Center(child: Text("Image uploaded",style: TextStyle(color: Colors.white)))));
-        return "true";
-        /// Navigator.pop(context);
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.black,
-            duration: Duration(seconds: 2),
-            content: Center(child: Text("Image uploaded",style: TextStyle(color: Colors.red)))));
-        return "false";
-      }
-    } catch (e) {
-      print("Error message $e");
-      return e.toString();
+        },
+        responseType: ResponseType.plain,   // ← এটাই মূল সমাধান
+      ),
+    );
+
+    print("Status Code: ${response.statusCode}");
+    print("Response: ${response.data}");
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
+
+    if (response.statusCode == 200 && response.data.toString().trim() == "Image uploaded") {
+      CustomSnackBar.showTopSnackBar(context, "Image uploaded");
+      return "true";
+    } else {
+      CustomSnackBar.showTopSnackBar(context, "Upload failed");
+      return "false";
+    }
+  } catch (e) {
+    print("Error message $e");
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+
+    Utils.showTopSnackBar(context, "Something went wrong");
+    return e.toString();
   }
+}
 
   fetchPasswordChange(String oldPass,String newPass,String confirmPass,  BuildContext context) async {
 
@@ -497,28 +567,23 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       }),);
     var item = response.data;
     print("change password====$item");
-    if (item == "successfully update password") {
+    if (item["success"] == true) {
       setState(() {
         isLoadingPChange = false;
       });
       emptyMethod();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-          content: Center(child: Text("Password Update Successfully!",style: TextStyle(color: Colors.white)))));
+      CustomSnackBar.showTopSnackBar(context, "${item["message"]}");
       return "true";
       // Navigator.pop(context);
     } else {
       setState(() {
         isLoadingPChange = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-          content: Center(child: Text("Password Update Successfully!",style: TextStyle(color: Colors.white)))));
+      CustomSnackBar.showTopSnackBar(context, "${item["message"]}");
       return "false";
     }
     } catch (e) {
+      Utils.showTopSnackBar(context, "Something went wrong: $e");
       print("Error change password message $e");
       return e.toString();
     }

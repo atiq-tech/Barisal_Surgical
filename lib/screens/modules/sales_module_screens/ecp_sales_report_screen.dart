@@ -115,6 +115,11 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
       userEmployeeID = sharedPreferences?.getString('employeeId') ?? "";
       userEmployeeName = sharedPreferences?.getString('employeeName') ?? "";
       userType = sharedPreferences?.getString('userType') ?? "";
+      if (userType == "a" || userType == "m") {
+      } else {
+        employeeController.text = userEmployeeName ?? "";
+      }
+      
     });
     _loadCustomerData();
   }
@@ -313,8 +318,7 @@ class _ECPSalesReportScreenState extends State<ECPSalesReportScreen> {
                         child: Container(
                           height: 25.0.h,
                           margin: EdgeInsets.only(top: 4.h),
-                          child: userType == "a" || userType == "m"
-                            ? TypeAheadField<EmployeesModel>(
+                          child: userType == "a" || userType == "m" ? TypeAheadField<EmployeesModel>(
                                 controller: employeeController,
                                 builder: (context, controller, focusNode) {
                                   return TextField(

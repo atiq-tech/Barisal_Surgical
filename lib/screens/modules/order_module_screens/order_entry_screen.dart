@@ -2026,7 +2026,7 @@ void _expDate() async {
         "temporary_rate": e.temporaryRate,
         "salesRate": e.salesRate,
         "temporary_vat": e.temporaryVat ?? 0,
-        "vat": e.vat ?? 0,
+        "vat": "0",
         "total": e.total,
         "Product_LotNo": e.lotNo ?? "",
         "Product_ManufactureDate": e.mfgDate ?? "",

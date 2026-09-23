@@ -1,10 +1,10 @@
 
-String imageBaseUrl = "https://api.swiftsurgical.net/";//imgUrlbase
-String baseUrl = "https://api.swiftsurgical.net/api/v1/";//sub
+// String imageBaseUrl = "https://api.swiftsurgical.net/";//imgUrlbase
+// String baseUrl = "https://api.swiftsurgical.net/api/v1/";//sub
 
 
-// String imageBaseUrl = "https://soft.swiftsurgical.net/";//imgUrlbase
-// String baseUrl = "https://soft.swiftsurgical.net/api/v1/";//main
+String imageBaseUrl = "https://soft.swiftsurgical.net/";//imgUrlbase
+String baseUrl = "https://soft.swiftsurgical.net/api/v1/";//main
 String hrUrl = "https://hr.swiftsurgical.net/public/api/";  //hr
 String apiSecretKey = 'BSHR210';
 

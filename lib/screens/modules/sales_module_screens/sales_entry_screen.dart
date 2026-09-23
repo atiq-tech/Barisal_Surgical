@@ -2542,7 +2542,7 @@ void _expDate() async {
         "salesRate": e.salesRate.toString(),
         "temporary_rate": e.temporaryRate.toString(),
         "temporary_vat": e.temporaryVat.toString(),
-        "vat": e.vat?.toString() ?? "0",
+        "vat": "0",
         "total": e.total.toString(),
         "Product_LotNo": e.lotNo,
         "Product_ManufactureDate": e.mfgDate,
