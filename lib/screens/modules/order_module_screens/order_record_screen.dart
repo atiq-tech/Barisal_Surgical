@@ -52,6 +52,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
   String? userEmployeeName = "";
   String? userType = "";
   SharedPreferences? sharedPreferences;
+
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
     userName = "${sharedPreferences?.getString('userName')}";
@@ -59,43 +60,27 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
     userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
     userType = "${sharedPreferences?.getString('userType')}";
-    print("userName======$userName");
-    print("userId======$userId");
-    print("userEmployeeID======$userEmployeeID");
-    print("userEmployeeName======$userEmployeeName");
-    print("userType======$userType");
   }
 
-  Color getColor(Set<MaterialState> states) {
-    return Colors.blue.shade100;
-  }
-  Color getColors(Set<MaterialState> states) {
-    return Colors.white;
-  }
-  Color getColorWithDetails(Set<MaterialState> states) {
-    return Colors.purple.shade100;
-  }
-  Color getColorTotal(Set<MaterialState> states) {
-    return Colors.blue.shade900;
-  }
+  Color getColor(Set<MaterialState> states) => Colors.blue.shade100;
+  Color getColors(Set<MaterialState> states) => Colors.white;
+  Color getColorWithDetails(Set<MaterialState> states) => Colors.purple.shade100;
+  Color getColorTotal(Set<MaterialState> states) => Colors.blue.shade900;
+
   String? firstPickedDate;
   var backEndFirstDate;
   var backEndSecondtDate;
-
   var toDay = DateTime.now();
+
   void _firstSelectedDate() async {
     final selectedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1950),
-        lastDate: DateTime(2050));
+        context: context, initialDate: DateTime.now(), firstDate: DateTime(1950), lastDate: DateTime(2050));
     if (selectedDate != null) {
       setState(() {
         firstPickedDate = Utils.formatFrontEndDate(selectedDate);
         backEndFirstDate = Utils.formatBackEndDate(selectedDate);
       });
-    }
-    else{
+    } else {
       setState(() {
         firstPickedDate = Utils.formatFrontEndDate(toDay);
         backEndFirstDate = Utils.formatBackEndDate(toDay);
@@ -106,16 +91,13 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
   String? secondPickedDate;
   void _secondSelectedDate() async {
     final selectedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1950),
-        lastDate: DateTime(2050));
+        context: context, initialDate: DateTime.now(), firstDate: DateTime(1950), lastDate: DateTime(2050));
     if (selectedDate != null) {
       setState(() {
         secondPickedDate = Utils.formatFrontEndDate(selectedDate);
         backEndSecondtDate = Utils.formatBackEndDate(selectedDate);
       });
-    }else{
+    } else {
       setState(() {
         secondPickedDate = Utils.formatFrontEndDate(toDay);
         backEndSecondtDate = Utils.formatBackEndDate(toDay);
@@ -138,15 +120,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
 
   bool _isSearchDropdownOpen = false;
   String? _selectedSearchTypes = 'All';
-  
-  final List<String> _searchTypes = [
-    'All',
-    'By Customer',
-    'By Employee',
-    'By Category',
-    'By Quantity',
-    'By User',
-  ];
+  final List<String> _searchTypes = ['All', 'By Customer', 'By Employee', 'By Category', 'By Quantity', 'By User'];
 
   final LayerLink _searchLayerLink = LayerLink();
   OverlayEntry? _searchOverlayEntry;
@@ -155,9 +129,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
 
   void _getSearchDropdownSize() {
     final RenderBox? renderBox = _searchKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox != null) {
-      _searchDropdownSize = renderBox.size;
-    }
+    if (renderBox != null) _searchDropdownSize = renderBox.size;
   }
 
   void _toggleSearchDropdown() {
@@ -172,17 +144,13 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
   void _showSearchDropdown() {
     _searchOverlayEntry = _createSearchOverlayEntry();
     Overlay.of(context).insert(_searchOverlayEntry!);
-    setState(() {
-      _isSearchDropdownOpen = true;
-    });
+    setState(() => _isSearchDropdownOpen = true);
   }
 
   void _removeSearchDropdown() {
     _searchOverlayEntry?.remove();
     _searchOverlayEntry = null;
-    setState(() {
-      _isSearchDropdownOpen = false;
-    });
+    setState(() => _isSearchDropdownOpen = false);
   }
 
   OverlayEntry _createSearchOverlayEntry() {
@@ -197,7 +165,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
               child: CompositedTransformFollower(
                 link: _searchLayerLink,
                 showWhenUnlinked: false,
-                offset: Offset(0.0, _searchDropdownSize.height + 5), 
+                offset: Offset(0.0, _searchDropdownSize.height + 5),
                 child: Material(
                   elevation: 9.0,
                   color: Colors.teal.shade50,
@@ -218,10 +186,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             Container(
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                              child: Text(
-                                type,
-                                style: AllTextStyle.dateFormatStyle,
-                              ),
+                              child: Text(type, style: AllTextStyle.dateFormatStyle),
                             ),
                             if (index != _searchTypes.length - 1)
                               Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
@@ -248,25 +213,16 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
       isCategoryWiseClicked = (selectedValue == "By Category");
       isQuantityWiseClicked = (selectedValue == "By Quantity");
       isUserWiseClicked = (selectedValue == "By User");
-
-      emtyMethod(); 
+      emtyMethod();
     });
   }
 
   String data = '';
-  bool selectArea = false;
-  bool isCategorySelect = false;
-  bool isQuantitySelect = false;
-
   bool isWithoutDetailsClicked = true;
   bool isWithDetailsClicked = false;
   bool _isRecordDropdownOpen = false;
-
   String? _selectedRecordTypes = 'Without Details';
-  final List<String> _recordType = [
-    'Without Details',
-    'With Details',
-  ];
+  final List<String> _recordType = ['Without Details', 'With Details'];
 
   final LayerLink _recordLayerLink = LayerLink();
   OverlayEntry? _recordOverlayEntry;
@@ -275,9 +231,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
 
   void _getRecordDropdownSize() {
     final RenderBox? renderBox = _recordKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox != null) {
-      _recordDropdownSize = renderBox.size;
-    }
+    if (renderBox != null) _recordDropdownSize = renderBox.size;
   }
 
   void _toggleRecordDropdown() {
@@ -292,17 +246,13 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
   void _showRecordDropdown() {
     _recordOverlayEntry = _createRecordOverlayEntry();
     Overlay.of(context).insert(_recordOverlayEntry!);
-    setState(() {
-      _isRecordDropdownOpen = true;
-    });
+    setState(() => _isRecordDropdownOpen = true);
   }
 
   void _removeRecordDropdown() {
     _recordOverlayEntry?.remove();
     _recordOverlayEntry = null;
-    setState(() {
-      _isRecordDropdownOpen = false;
-    });
+    setState(() => _isRecordDropdownOpen = false);
   }
 
   OverlayEntry _createRecordOverlayEntry() {
@@ -338,10 +288,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
                             Container(
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                              child: Text(
-                                type,
-                                style: AllTextStyle.dateFormatStyle,
-                              ),
+                              child: Text(type, style: AllTextStyle.dateFormatStyle),
                             ),
                             if (index != _recordType.length - 1)
                               Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
@@ -367,23 +314,18 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
     });
   }
 
-  ///Sub total
-  double? subTotal;
-  double? vatTotal;
-  double? discountTotal;
-  double? transferCost;
-  double? totalAmount;
-  double? paidTotal;
-  double? dueTotal;
-  double? soldQuantity;
-  double? totalQuantity;
-  double? totalQuantitySD;
-  double? totalAmountSD;
-  double? totalQuantitySbS;
+  double? subTotal, vatTotal, discountTotal, transferCost, totalAmount, paidTotal, dueTotal;
+
+  // ===== Performance + Pagination =====
+  _OrderTotals? _cachedTotals;
+  List? _cachedGroupedList;
+  String _lastDataKey = '';
+  int _currentPage = 0;
+  final int _rowsPerPage = 50;
 
   String myAddress = "Loading...";
-    double? myLat, myLong;
-    Future<void> _initLocation() async {
+  double? myLat, myLong;
+  Future<void> _initLocation() async {
     var result = await LocationService.fetchAndUploadLocation();
     if (result != null && mounted) {
       setState(() {
@@ -398,7 +340,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
   String repotHeading = "";
   String companyLogothumb = "";
 
-   void getCompanyProfile() async {
+  void getCompanyProfile() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     try {
       final response = await Dio().get(
@@ -409,24 +351,17 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }),
       );
-
       if (response.statusCode == 200) {
         var data = response.data is List ? response.data[0] : response.data;
-
         if (!mounted) return;
         setState(() {
           companyName = data['Company_Name'] ?? "";
           companyLogothumb = data['Company_Logo_thum'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_company_profile-------Company_Name======$companyName");
-    print("companyLogothumb-------Company_Logo_thumb======$companyLogothumb");
   }
 
   void getCurrentBranch() async {
@@ -440,62 +375,50 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
         }),
       );
-
       if (response.statusCode == 200) {
         var data = response.data is List ? response.data[0] : response.data;
-
         if (!mounted) return;
         setState(() {
           repotHeading = data['Repot_Heading'] ?? "";
         });
-
-        /// START AUTO TIME CHECK EVERY 1 SECOND
-        //startAutoStartTimeChecker();
       }
     } catch (e) {
       print("Error fetching company profile: $e");
     }
-    print("get_current_branch-------Repot_Heading======$repotHeading");
   }
 
   bool deleteBtnClk = false;
-  Future<String> deleteOrder(BuildContext context,int saleId) async {
-  String link = "${baseUrl}delete_order";
-  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  try {
-    var response = await Dio().post(link,
-      data: {
-        "saleId": saleId,
-      },
-      options: Options(
-        headers: {
+  Future<String> deleteOrder(BuildContext context, int saleId) async {
+    String link = "${baseUrl}delete_order";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    try {
+      var response = await Dio().post(link,
+        data: {"saleId": saleId},
+        options: Options(headers: {
           "Content-Type": "application/json",
-          'Cookie':'ci_session=${sharedPreferences.getString("sessionId")}',
-          "Authorization":"Bearer ${sharedPreferences.getString("token")}",
-        },
-      ),
-    );
-    print("Deleting ID => $saleId");
-    var item = response.data;
-    print("Delete API Response => $item");
-
-    if (item["success"] == true) {
+          'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+          "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+        }),
+      );
+      var item = response.data;
+      if (item["success"] == true) {
+        deleteBtnClk = false;
+        CustomSnackBar.showTopSnackBar(context, item["message"] ?? "Order Deleted Successfully");
+        return "true";
+      } else {
+        deleteBtnClk = false;
+        Utils.showTopSnackBar(context, item["message"] ?? "Delete Failed");
+        return "false";
+      }
+    } catch (e) {
       deleteBtnClk = false;
-      CustomSnackBar.showTopSnackBar(context,item["message"] ?? "Order Deleted Successfully");
-      return "true";
-    } else {
-      deleteBtnClk = false;
-      Utils.showTopSnackBar(context,item["message"] ?? "Delete Failed");
+      Utils.showTopSnackBar(context, "Something went wrong: $e");
       return "false";
     }
-  } catch (e) {
-    deleteBtnClk = false;
-    print("Delete Exception => $e");
-    Utils.showTopSnackBar(context,"Something went wrong: $e");
-    return "false";
   }
-}
-bool isPrinting = false;
+
+  bool isPrinting = false;
+
   @override
   void initState() {
     super.initState();
@@ -507,11 +430,11 @@ bool isPrinting = false;
     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
     secondPickedDate = Utils.formatFrontEndDate(DateTime.now());
     backEndSecondtDate = Utils.formatBackEndDate(DateTime.now());
-    Provider.of<ProductListProvider>(context, listen: false).getProductList(context,"");
+    Provider.of<ProductListProvider>(context, listen: false).getProductList(context, "");
     Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);
     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
-    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
-    Provider.of<UsersProvider>(context,listen: false).getUsers(context);
+    Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context, "", "");
+    Provider.of<UsersProvider>(context, listen: false).getUsers(context);
     Provider.of<OrdersProvider>(context, listen: false).orderslist = [];
   }
 
@@ -535,21 +458,19 @@ bool isPrinting = false;
 
   emtyMethod() {
     setState(() {
-      customerController.text= "";
-      employeeController.text="";
-      categoryController.text="";
-      productController.text= "";
+      customerController.text = "";
+      employeeController.text = "";
+      categoryController.text = "";
+      productController.text = "";
       userController.text = "";
       _selectCustomerId = "";
       _selectEmployeeId = "";
-      _selectQtyProductId ="";
+      _selectQtyProductId = "";
       _selectUserId = "";
     });
   }
 
-  double _asDouble(dynamic value) {
-    return double.tryParse(value?.toString() ?? '') ?? 0;
-  }
+  double _asDouble(dynamic value) => double.tryParse(value?.toString() ?? '') ?? 0;
 
   _OrderTotals _calculateOrderTotals(List allOrdersData) {
     final totals = _OrderTotals();
@@ -571,161 +492,423 @@ bool isPrinting = false;
 
     if (isAllTypeClicked && isWithoutDetailsClicked) {
       nextData = 'showAllWithoutDetails';
-      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
-        context,
-        "",
-        "",
-        "",
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(context, "", "", "", backEndFirstDate, backEndSecondtDate);
     } else if (isAllTypeClicked && isWithDetailsClicked) {
       nextData = 'showAllWithDetails';
-      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
-        context,
-        "",
-        "",
-        "",
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context, "", "", "", backEndFirstDate, backEndSecondtDate);
     } else if (isCustomerWiseClicked && isWithoutDetailsClicked) {
       nextData = 'showByCustomerWithoutDetails';
-      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
-        context,
-        "",
-        _selectCustomerId,
-        "",
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+      request = Provider.of<OrdersProvider>(context, listen: false).getOrders(context, "", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
     } else if (isCustomerWiseClicked && isWithDetailsClicked) {
       nextData = 'showByCustomerWithDetails';
-      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
-        context,
-        "",
-        _selectCustomerId,
-        "",
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+      request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(context, "", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
     } else if (isEmployeeWiseClicked && isWithoutDetailsClicked) {
       nextData = 'showByEmployeeWithoutDetails';
       request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
-        context,
-        "",
-        "",
-        userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+          context, "", "", userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID, backEndFirstDate, backEndSecondtDate);
     } else if (isEmployeeWiseClicked && isWithDetailsClicked) {
       nextData = 'showByEmployeeWithDetails';
       request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
-        context,
-        "",
-        "",
-        userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+          context, "", "", userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID, backEndFirstDate, backEndSecondtDate);
     } else if (isCategoryWiseClicked) {
       nextData = 'showByCategoryDetails';
-      request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(
-        context,
-        "$_selectCategoryId",
-        "",
-        "$backEndFirstDate",
-        "$backEndSecondtDate",
-      );
+      request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(context, "$_selectCategoryId", "", "$backEndFirstDate", "$backEndSecondtDate");
     } else if (isQuantityWiseClicked) {
       nextData = 'showByQuantityDetails';
-      request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(
-        context,
-        "",
-        _selectQtyProductId,
-        "$backEndFirstDate",
-        "$backEndSecondtDate",
-      );
+      request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(context, "", _selectQtyProductId, "$backEndFirstDate", "$backEndSecondtDate");
     } else if (isUserWiseClicked && isWithoutDetailsClicked) {
       nextData = 'showByUserWithoutDetails';
       request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
-        context,
-        userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
-        "",
-        "",
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+          context, userType == "m" || userType == "a" ? _selectUserId ?? "" : userId, "", "", backEndFirstDate, backEndSecondtDate);
     } else if (isUserWiseClicked && isWithDetailsClicked) {
       nextData = 'showByUserWithDetails';
       request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
-        context,
-        userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
-        "",
-        "",
-        backEndFirstDate,
-        backEndSecondtDate,
-      );
+          context, userType == "m" || userType == "a" ? _selectUserId ?? "" : userId, "", "", backEndFirstDate, backEndSecondtDate);
     }
 
     if (nextData != data && mounted) {
       setState(() {
         data = nextData;
+        _cachedTotals = null;
+        _cachedGroupedList = null;
+        _lastDataKey = '';
+        _currentPage = 0;
       });
     }
     await request;
   }
 
+  List _getPagedList(List fullList) {
+    final start = _currentPage * _rowsPerPage;
+    if (start >= fullList.length) return [];
+    final end = (start + _rowsPerPage).clamp(0, fullList.length);
+    return fullList.sublist(start, end);
+  }
+
+  int _totalPages(int totalItems) {
+    if (totalItems == 0) return 1;
+    return (totalItems / _rowsPerPage).ceil();
+  }
+
+  Widget _buildPaginationBar(int totalItems) {
+    final totalPages = _totalPages(totalItems);
+    if (totalPages <= 1) return const SizedBox.shrink();
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 8.w),
+      color: Colors.grey.shade100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null,
+          ),
+          Text(
+            "Page ${_currentPage + 1} of $totalPages  ($totalItems records)",
+            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===================== WITHOUT DETAILS TABLE BUILDER =====================
+  Widget _buildWithoutDetailsTable(List allOrdersData, {required Future<void> Function() onDeleteRefresh}) {
+    final paged = _getPagedList(allOrdersData);
+
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowHeight: 20.0,
+                dataRowHeight: 20.0,
+                headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+                showCheckboxColumn: true,
+                border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+                columns: [
+                  DataColumn(label: Expanded(child: Center(child: Text('Sl.', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Invoice No', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Date', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Customer Name', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Employee Name', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Saved By', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Sub Total', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Vat', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Discount', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Transport Cost', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Total', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Paid', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Due', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Note', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Status', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Action', style: AllTextStyle.tableHeadTextStyle)))),
+                ],
+                rows: [
+                  ...List.generate(paged.length, (int index) {
+                    final actualIndex = _currentPage * _rowsPerPage + index;
+                    final item = allOrdersData[actualIndex];
+                    return DataRow(
+                      color: actualIndex % 2 == 0
+                          ? MaterialStateProperty.resolveWith(getColor)
+                          : MaterialStateProperty.resolveWith(getColors),
+                      cells: [
+                        DataCell(Center(child: Text("${actualIndex + 1}"))),
+                        DataCell(Center(child: Text(item.saleMasterInvoiceNo ?? ""))),
+                        DataCell(Center(child: Text(item.saleMasterSaleDate ?? ""))),
+                        DataCell(Center(child: Text(item.customerNameMaster ?? ""))),
+                        DataCell(Center(child: Text(item.employeeName ?? ""))),
+                        DataCell(Center(child: Text(item.addedBy ?? ""))),
+                        DataCell(Center(child: Text(double.parse(item.saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
+                        DataCell(Center(child: Text(double.parse(item.saleMasterTaxAmount).toStringAsFixed(decimal!)))),
+                        DataCell(Center(child: Text(double.parse(item.saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
+                        DataCell(Center(child: Text(double.parse(item.saleMasterFreight).toStringAsFixed(decimal!)))),
+                        DataCell(Center(child: Text(double.parse(item.saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
+                        DataCell(Center(child: Text(double.parse(item.saleMasterPaidAmount).toStringAsFixed(decimal!)))),
+                        DataCell(Center(child: Text(double.parse(item.saleMasterDueAmount).toStringAsFixed(decimal!)))),
+                        DataCell(Center(child: Text(item.saleMasterDescription ?? ""))),
+                        DataCell(Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: item.status == "a" ? Colors.teal : Colors.yellow.shade900,
+                              borderRadius: BorderRadius.circular(100.r),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10.w),
+                              child: Text(
+                                item.status == "a" ? "Approved" : "Pending",
+                                style: TextStyle(color: Colors.white, fontSize: 11.sp, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        )),
+                        DataCell(Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => OrdersInvoiceScreen(salesId: item.saleMasterSlNo),
+                                  ));
+                                },
+                                child: Icon(Icons.collections_bookmark, size: 15.r),
+                              ),
+                              SizedBox(width: 10.w),
+                              GestureDetector(
+                                onTap: () {
+                                  final parentContext = context;
+                                  showDialog(
+                                    context: context,
+                                    builder: (dialogContext) {
+                                      return AlertDialog(
+                                        title: const Text("Delete Order"),
+                                        content: const Text("Are you sure?"),
+                                        actions: [
+                                          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text("Cancel")),
+                                          TextButton(
+                                            onPressed: () async {
+                                              Navigator.pop(dialogContext);
+                                              await deleteOrder(parentContext, int.parse(item.saleMasterSlNo.toString()));
+                                              await onDeleteRefresh();
+                                              setState(() {});
+                                            },
+                                            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Icon(Icons.delete, color: Colors.red, size: 18.r),
+                              ),
+                            ],
+                          ),
+                        )),
+                      ],
+                    );
+                  }),
+                  // Total footer (আগের মতোই)
+                  DataRow(cells: [
+                    const DataCell(SizedBox()),
+                    const DataCell(SizedBox()),
+                    const DataCell(SizedBox()),
+                    const DataCell(SizedBox()),
+                    const DataCell(SizedBox()),
+                    const DataCell(Center(child: Text('Total', style: TextStyle(fontWeight: FontWeight.bold)))),
+                    DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                    DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                    DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                    DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                    DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                    DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                    DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                    const DataCell(SizedBox()),
+                    const DataCell(SizedBox()),
+                    const DataCell(SizedBox()),
+                  ]),
+                ],
+              ),
+            ),
+          ),
+        ),
+        _buildPaginationBar(allOrdersData.length),
+      ],
+    );
+  }
+
+  // ===================== WITH DETAILS TABLE BUILDER =====================
+  Widget _buildWithDetailsTable(List allOrdersRecordData, {required Future<void> Function() onDeleteRefresh}) {
+    final paged = _getPagedList(allOrdersRecordData);
+
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowHeight: 20.0,
+                dataRowMaxHeight: double.infinity,
+                headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
+                showCheckboxColumn: true,
+                border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+                columns: [
+                  DataColumn(label: Expanded(child: Center(child: Text('Sl.', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Invoice No', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Date', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Customer Name', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Employee Name', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Saved By', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Product Name', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Price', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Quantity', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Total', style: AllTextStyle.tableHeadTextStyle)))),
+                  DataColumn(label: Expanded(child: Center(child: Text('Action', style: AllTextStyle.tableHeadTextStyle)))),
+                ],
+                rows: List.generate(paged.length, (int index) {
+                  final actualIndex = _currentPage * _rowsPerPage + index;
+                  final item = allOrdersRecordData[actualIndex];
+                  return DataRow(
+                    color: actualIndex % 2 == 0
+                        ? MaterialStateProperty.resolveWith(getColorWithDetails)
+                        : MaterialStateProperty.resolveWith(getColors),
+                    cells: [
+                      DataCell(Center(child: Text("${actualIndex + 1}"))),
+                      DataCell(Center(child: Text(item.saleMasterInvoiceNo ?? ""))),
+                      DataCell(Center(child: Text(item.saleMasterSaleDate ?? ""))),
+                      DataCell(SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: Center(child: Text(item.customerNameMaster ?? "", overflow: TextOverflow.ellipsis)),
+                      )),
+                      DataCell(Center(child: Text(item.employeeName ?? ""))),
+                      DataCell(Center(child: Text(item.addedBy ?? ""))),
+                      DataCell(SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: Center(
+                          child: Column(
+                            children: List.generate(item.saleDetails!.length, (j) {
+                              return Center(child: Text(item.saleDetails![j].productName, overflow: TextOverflow.ellipsis));
+                            }),
+                          ),
+                        ),
+                      )),
+                      DataCell(Center(
+                        child: Column(
+                          children: List.generate(item.saleDetails!.length, (j) {
+                            return Center(child: Text(double.parse(item.saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)));
+                          }),
+                        ),
+                      )),
+                      DataCell(Center(
+                        child: Column(
+                          children: List.generate(item.saleDetails!.length, (j) {
+                            return Center(child: Text("${item.saleDetails![j].orderQuantity}"));
+                          }),
+                        ),
+                      )),
+                      DataCell(Center(
+                        child: Column(
+                          children: List.generate(item.saleDetails!.length, (j) {
+                            double totalAmt = double.tryParse(item.saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
+                            return Center(child: Text(totalAmt.toStringAsFixed(decimal!)));
+                          }),
+                        ),
+                      )),
+                      DataCell(Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => OrdersInvoiceScreen(salesId: item.saleMasterSlNo),
+                                ));
+                              },
+                              child: Icon(Icons.collections_bookmark, size: 15.r),
+                            ),
+                            SizedBox(width: 10.w),
+                            GestureDetector(
+                              onTap: () {
+                                final parentContext = context;
+                                showDialog(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertDialog(
+                                      title: const Text("Delete Order"),
+                                      content: const Text("Are you sure?"),
+                                      actions: [
+                                        TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text("Cancel")),
+                                        TextButton(
+                                          onPressed: () async {
+                                            Navigator.pop(dialogContext);
+                                            await deleteOrder(parentContext, int.parse(item.saleMasterSlNo.toString()));
+                                            await onDeleteRefresh();
+                                            setState(() {});
+                                          },
+                                          child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Icon(Icons.delete, color: Colors.red, size: 18.r),
+                            ),
+                          ],
+                        ),
+                      )),
+                    ],
+                  );
+                }),
+              ),
+            ),
+          ),
+        ),
+        _buildPaginationBar(allOrdersRecordData.length),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    ///get Orders
     final allOrdersData = Provider.of<OrdersProvider>(context).orderslist;
-    final orderTotals = _calculateOrderTotals(allOrdersData);
-    subTotal = orderTotals.subTotal;
-    vatTotal = orderTotals.vatTotal;
-    discountTotal = orderTotals.discountTotal;
-    transferCost = orderTotals.transferCost;
-    totalAmount = orderTotals.totalAmount;
-    paidTotal = orderTotals.paidTotal;
-    dueTotal = orderTotals.dueTotal;
-    ///get Orders
     final allOrdersRecordData = Provider.of<OrdersRecordProvider>(context).ordersRecordlist;
-    ///get Customer
-     final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
-    ///Categories list
-     final allCategoriesData = Provider.of<CategoriesProvider>(context).categoriesList;
-    /// Get Employees
-     final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
-    ///get Sale_details
+    final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((e) => e.customerSlNo != 0).toList();
+    final allCategoriesData = Provider.of<CategoriesProvider>(context).categoriesList;
+    final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
     final allOrdersDetailsData = Provider.of<OrdersDetailsProvider>(context).ordersDetailslist;
-    /// all products list
     final allProductsData = Provider.of<ProductListProvider>(context).productsList;
-    /// get user
     final allUsersData = Provider.of<UsersProvider>(context).usersList;
+
+    // Totals cache for Without Details
+    if (data.contains('WithoutDetails')) {
+      final key = '${allOrdersData.length}_${allOrdersData.isNotEmpty ? allOrdersData.first.saleMasterSlNo : 0}';
+      if (_cachedTotals == null || _lastDataKey != key) {
+        _cachedTotals = _calculateOrderTotals(allOrdersData);
+        _lastDataKey = key;
+      }
+      subTotal = _cachedTotals!.subTotal;
+      vatTotal = _cachedTotals!.vatTotal;
+      discountTotal = _cachedTotals!.discountTotal;
+      transferCost = _cachedTotals!.transferCost;
+      totalAmount = _cachedTotals!.totalAmount;
+      paidTotal = _cachedTotals!.paidTotal;
+      dueTotal = _cachedTotals!.dueTotal;
+    }
+
     return Scaffold(
       appBar: CustomAppBar(title: "Order Record"),
       body: Container(
-        padding: EdgeInsets.only(left: 8.0.w, right: 8.0.w, top: 8.0.h,bottom: 10.h),
+        padding: EdgeInsets.only(left: 8.0.w, right: 8.0.w, top: 8.0.h, bottom: 10.h),
         child: Column(
           children: [
+            // ================= FILTER SECTION (আগের মতোই) =================
             Container(
-              padding: EdgeInsets.only(left: 4.0.w, right: 4.0.w,top: 4.0.h,bottom: 4.0.h),
+              padding: EdgeInsets.only(left: 4.0.w, right: 4.0.w, top: 4.0.h, bottom: 4.0.h),
               decoration: BoxDecoration(
                 color: Colors.blue.shade100,
                 borderRadius: BorderRadius.circular(10.0.r),
-                border: Border.all(color: const Color.fromARGB(255, 7, 125, 180),width: 1.0.w),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.6), spreadRadius: 2, blurRadius: 5, offset: const Offset(0, 3)),
-                ],
+                border: Border.all(color: const Color.fromARGB(255, 7, 125, 180), width: 1.0.w),
+                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.6), spreadRadius: 2, blurRadius: 5, offset: const Offset(0, 3))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Search Type
                   Row(
                     children: [
                       Expanded(flex: 1, child: Text("Search Type", style: AllTextStyle.textFieldHeadStyle)),
-                      Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+                      Text(":   ", style: AllTextStyle.textFieldHeadStyle),
                       Expanded(
                         flex: 3,
                         child: CompositedTransformTarget(
@@ -743,24 +926,20 @@ bool isPrinting = false;
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
-                                    _selectedSearchTypes ?? 'All',
-                                    style: AllTextStyle.dateFormatStyle,
-                                  ),
+                                  Text(_selectedSearchTypes ?? 'All', style: AllTextStyle.dateFormatStyle),
                                   Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
                                 ],
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ),
                     ],
                   ),
 
                   isCustomerWiseClicked == true
-                      ? Row(
+                     ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(flex: 1, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
@@ -1141,75 +1320,62 @@ bool isPrinting = false;
                         )
                       ),
                     ],
-                  )
-                      : Container(),
+                  ) : Container(),
+                  // Date range + Show Report — আগের মতোই
                   SizedBox(
                     height: 35.h,
                     width: double.infinity,
                     child: Row(
                       children: [
                         Expanded(
-                          flex: 1,
                           child: Container(
                             margin: EdgeInsets.only(right: 5.w, top: 5.h, bottom: 5.h),
                             height: 25.0.h,
                             padding: EdgeInsets.all(5.0.r),
-                            decoration:ContDecoration.contDecoration,
+                            decoration: ContDecoration.contDecoration,
                             child: GestureDetector(
-                              onTap: (() {_firstSelectedDate();}),
+                              onTap: _firstSelectedDate,
                               child: TextFormField(
                                 style: AllTextStyle.dateFormatStyle,
                                 enabled: false,
-                                decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 5.w),
-                                    filled: true,
-                                    suffixIcon: Padding(
-                                      padding: EdgeInsets.only(left: 25.w),
-                                      child: Icon(Icons.calendar_month, color: Color.fromARGB(221, 22, 51, 95), size: 16.r),
-                                    ),
-                                    border: const OutlineInputBorder(borderSide: BorderSide.none),
-                                    hintText: firstPickedDate ,
-                                    hintStyle: AllTextStyle.dateFormatStyle
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.only(left: 5.w),
+                                  filled: true,
+                                  suffixIcon: Padding(
+                                    padding: EdgeInsets.only(left: 25.w),
+                                    child: Icon(Icons.calendar_month, color: Color.fromARGB(221, 22, 51, 95), size: 16.r),
+                                  ),
+                                  border: const OutlineInputBorder(borderSide: BorderSide.none),
+                                  hintText: firstPickedDate,
+                                  hintStyle: AllTextStyle.dateFormatStyle,
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return null;
-                                  }
-                                  return null;
-                                },
                               ),
                             ),
                           ),
                         ),
                         const Text("To"),
                         Expanded(
-                          flex: 1,
                           child: Container(
                             margin: EdgeInsets.only(left: 5.w, top: 5.h, bottom: 5.h),
                             height: 25.0.h,
                             padding: EdgeInsets.all(5.0.r),
-                            decoration:ContDecoration.contDecoration,
+                            decoration: ContDecoration.contDecoration,
                             child: GestureDetector(
-                              onTap: (() {_secondSelectedDate();
-                              }),
+                              onTap: _secondSelectedDate,
                               child: TextFormField(
                                 style: AllTextStyle.dateFormatStyle,
                                 enabled: false,
-                                decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 5.w),
-                                    filled: true,
-                                    suffixIcon: Padding(
-                                      padding: EdgeInsets.only(left: 25.w),
-                                      child: Icon(Icons.calendar_month, color: Color.fromARGB(221, 22, 51, 95), size: 16.r),
-                                    ),
-                                    border: const OutlineInputBorder(borderSide: BorderSide.none),
-                                    hintText: secondPickedDate,
-                                    hintStyle: AllTextStyle.dateFormatStyle
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.only(left: 5.w),
+                                  filled: true,
+                                  suffixIcon: Padding(
+                                    padding: EdgeInsets.only(left: 25.w),
+                                    child: Icon(Icons.calendar_month, color: Color.fromARGB(221, 22, 51, 95), size: 16.r),
+                                  ),
+                                  border: const OutlineInputBorder(borderSide: BorderSide.none),
+                                  hintText: secondPickedDate,
+                                  hintStyle: AllTextStyle.dateFormatStyle,
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return null;
-                                  }
-                                  return null;
-                                },
                               ),
                             ),
                           ),
@@ -1217,30 +1383,19 @@ bool isPrinting = false;
                       ],
                     ),
                   ),
-                  /// Date Picker
                   Align(
                     alignment: Alignment.bottomRight,
-                    child: Container(
-                      padding: EdgeInsets.all(1.0.r),
-                      child: InkWell(
-                        onTap: _showReport,
-                        child: Container(
-                          height: 28.0.h,
-                          width: 102.0.w,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 4, 113, 185),
-                            borderRadius: BorderRadius.circular(5.0.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.6),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Center(child: Text("Show Report", style:AllTextStyle.saveButtonTextStyle)),
+                    child: InkWell(
+                      onTap: _showReport,
+                      child: Container(
+                        height: 28.0.h,
+                        width: 102.0.w,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 4, 113, 185),
+                          borderRadius: BorderRadius.circular(5.0.r),
+                          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.6), spreadRadius: 2, blurRadius: 5, offset: const Offset(0, 3))],
                         ),
+                        child: Center(child: Text("Show Report", style: AllTextStyle.saveButtonTextStyle)),
                       ),
                     ),
                   ),
@@ -1248,1519 +1403,3075 @@ bool isPrinting = false;
               ),
             ),
             SizedBox(height: 10.h),
-            allOrdersData.isNotEmpty?Row(
-               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () async {
-                    await exportOrdersExcel(
-                      context: context,
-                      allOrdersData: allOrdersData,
-                      subTotal: subTotal!,
-                      vatTotal: vatTotal!,
-                      discountTotal: discountTotal!,
-                      transferCost: transferCost!,
-                      totalAmount: totalAmount!,
-                      paidTotal: paidTotal!,
-                      dueTotal: dueTotal!,
-                    );
-                  },
-                  child: Card(
-                    color: Colors.green.shade700,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                      child: Row(
-                        children: [
-                          Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
-                          Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
-                        ],
-                      ),
-                    )
-                  ),
-                ),
-                GestureDetector(
-                onTap: isPrinting ? null : () async {
-                    setState(() {
-                      isPrinting = true;
-                    });
 
-                    try {
-                      await exportOrdersPdf(
-                        context: context,
-                        allOrdersData: allOrdersData,
-                        subTotal: subTotal!,
-                        vatTotal: vatTotal!,
-                        discountTotal: discountTotal!,
-                        transferCost: transferCost!,
-                        totalAmount: totalAmount!,
-                        paidTotal: paidTotal!,
-                        dueTotal: dueTotal!,
-                        companyName: companyName,
-                        repotHeading: repotHeading, 
-                        companyLogothumb: companyLogothumb,
-                        firstDate: "$firstPickedDate",
-                        secondDate: "$secondPickedDate",
-                      );
-                    } catch (e) {
-                      debugPrint("Print Error => $e");
-                    }
-
-                    setState(() {
-                      isPrinting = false;
-                    });
-                  },
-                child: Card(
-                  color: Colors.indigo.shade700,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                    child: isPrinting
-                    ? SizedBox(
-                        width: 16.w,
-                        height: 16.h,
-                        child: Padding(
-                          padding: EdgeInsets.all(2.r),
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+            // Excel / Print
+            allOrdersData.isNotEmpty
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          await exportOrdersExcel(
+                            context: context,
+                            allOrdersData: allOrdersData,
+                            subTotal: subTotal!,
+                            vatTotal: vatTotal!,
+                            discountTotal: discountTotal!,
+                            transferCost: transferCost!,
+                            totalAmount: totalAmount!,
+                            paidTotal: paidTotal!,
+                            dueTotal: dueTotal!,
+                          );
+                        },
+                        child: Card(
+                          color: Colors.green.shade700,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                            child: Row(
+                              children: [
+                                Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
+                                Text(" Excel", style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+                              ],
+                            ),
                           ),
                         ),
-                      )
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.print,color: Colors.white,size: 15.r),
-                          Text(" Print",
-                            style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500),
+                      ),
+                      GestureDetector(
+                        onTap: isPrinting
+                            ? null
+                            : () async {
+                                setState(() => isPrinting = true);
+                                try {
+                                  await exportOrdersPdf(
+                                    context: context,
+                                    allOrdersData: allOrdersData,
+                                    subTotal: subTotal!,
+                                    vatTotal: vatTotal!,
+                                    discountTotal: discountTotal!,
+                                    transferCost: transferCost!,
+                                    totalAmount: totalAmount!,
+                                    paidTotal: paidTotal!,
+                                    dueTotal: dueTotal!,
+                                    companyName: companyName,
+                                    repotHeading: repotHeading,
+                                    companyLogothumb: companyLogothumb,
+                                    firstDate: "$firstPickedDate",
+                                    secondDate: "$secondPickedDate",
+                                  );
+                                } catch (e) {
+                                  debugPrint("Print Error => $e");
+                                }
+                                setState(() => isPrinting = false);
+                              },
+                        child: Card(
+                          color: Colors.indigo.shade700,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                            child: isPrinting
+                                ? SizedBox(
+                                    width: 16.w,
+                                    height: 16.h,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(2),
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.print, color: Colors.white, size: 15.r),
+                                      Text(" Print", style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+                                    ],
+                                  ),
                           ),
-                        ],
-                      ),
-                  ),
-                ),
-               )
-              ],
-            ):SizedBox(),
-            data == 'showAllWithoutDetails'
-              ? Expanded(
-              child: OrdersProvider.isOrdersLoading ? const Center(child: CircularProgressIndicator())
-               :allOrdersData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [ 
-                        DataTable(
-                          headingRowHeight: 20.0,
-                          dataRowHeight: 20.0,
-                          headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
-                          showCheckboxColumn: true,
-                          border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
-                          columns: [
-                            DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
-                          ],
-                          rows: [
-                            ...List.generate(
-                              allOrdersData.length,
-                                  (int index) => DataRow(
-                                color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
-                                cells: <DataCell>[
-                                  DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
-                                  DataCell(Center(child: Container(
-                                  decoration: BoxDecoration(
-                                      color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
-                                      borderRadius: BorderRadius.circular(100.r)
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                    child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
-                                  )))),
-                                  DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
-                                            )));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
-                                                      );
-
-                                                      await Provider.of<OrdersProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrders(context,"", "", "", backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                ],
-                              ),
-                            ),
-                            // Footer row
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                                const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                              ],
-                            ),
-                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ): const Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style: TextStyle(fontSize: 16,color: Colors.red)))),
-            )
-                : data == 'showAllWithDetails'
-                ? Expanded(
-              child: OrdersRecordProvider.isOrdersRecordLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersRecordData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingRowHeight: 20.0,
-                      dataRowMaxHeight: double.infinity,
-                      headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
-                      showCheckboxColumn: true,
-                      border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
-                      columns: [
-                        DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
-                      ],
-                      rows:
-                      List.generate(
-                        allOrdersRecordData.length,
-                            (int index) =>
-                            DataRow(
-                              color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
-                              cells: <DataCell>[
-                                DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
-                                  ),
-                                ),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(
-                                      child:Column(
-                                          children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                            return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
-                                            );
-                                          })),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
-                                          );
-                                        })),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
-                                          );
-                                        })),
-                                  ),
-                                ),
-                               DataCell(
-                                Center(
-                                child: Column(
-                                  children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                    double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
-                                    return Center(
-                                      child: Text(totalAmount.toStringAsFixed(decimal!)),
-                                    );
-                                  }),
-                                ),
-                                ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
-                                            )));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
-                                                      );
-
-                                                      await Provider.of<OrdersProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrders(context,"", "", "", backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
                       ),
-                    ),
-                  ),
-                ),
-              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
-            )
-                : data == 'showByCustomerWithoutDetails'
-                ? Expanded(
-              child: OrdersProvider.isOrdersLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DataTable(
-                          headingRowHeight: 20.0,
-                          dataRowHeight: 20.0,
-                          headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
-                          showCheckboxColumn: true,
-                          border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
-                          columns: [
-                            DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
-                          ],
-                          rows: [
-                            ...List.generate(
-                              allOrdersData.length,
-                                  (int index) => DataRow(
-                                color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
-                                cells: <DataCell>[
-                                  DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
-                                  DataCell(Center(child: Container(
-                                    decoration: BoxDecoration(
-                                      color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
-                                      borderRadius: BorderRadius.circular(100.r)
-                                    ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                        child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
-                                      )))),
-                                  DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
-                                            )));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
-                                                      );
+                    ],
+                  )
+                : const SizedBox.shrink(),
 
-                                                      await Provider.of<OrdersProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrders(context,"", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                ],
-                              ),
-                            ),
-                            // Footer row
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                                const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
-            )
-                : data == 'showByCustomerWithDetails'
-                ? Expanded(
-              child: OrdersRecordProvider.isOrdersRecordLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersRecordData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingRowHeight: 20.0,
-                      dataRowMaxHeight: double.infinity,
-                      headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
-                      showCheckboxColumn: true,
-                      border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
-                      columns: [
-                        DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
-                      ],
-                      rows:
-                      List.generate(
-                        allOrdersRecordData.length,
-                            (int index) =>
-                            DataRow(
-                              color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
-                              cells: <DataCell>[
-                                DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
-                                  ),
-                                ),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(
-                                      child:Column(
-                                          children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                            return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
-                                            );
-                                          })),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
-                                          );
-                                        })),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
-                                          );
-                                        })),
-                                  ),
-                                ),
-                                DataCell(
-                                Center(
-                                child: Column(
-                                  children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                    double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
-                                    return Center(
-                                      child: Text(totalAmount.toStringAsFixed(decimal!)),
-                                    );
-                                  }),
-                                ),
-                                ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
-                                                      );
+            // ================= TABLES =================
+            // Without Details (All / Customer / Employee / User)
+            if (data == 'showAllWithoutDetails' ||
+                data == 'showByCustomerWithoutDetails' ||
+                data == 'showByEmployeeWithoutDetails' ||
+                data == 'showByUserWithoutDetails')
+              Expanded(
+                child: OrdersProvider.isOrdersLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : allOrdersData.isNotEmpty
+                        ? _buildWithoutDetailsTable(
+                            allOrdersData,
+                            onDeleteRefresh: () async {
+                              if (data == 'showAllWithoutDetails') {
+                                await Provider.of<OrdersProvider>(context, listen: false)
+                                    .getOrders(context, "", "", "", backEndFirstDate, backEndSecondtDate);
+                              } else if (data == 'showByCustomerWithoutDetails') {
+                                await Provider.of<OrdersProvider>(context, listen: false)
+                                    .getOrders(context, "", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
+                              } else if (data == 'showByEmployeeWithoutDetails') {
+                                await Provider.of<OrdersProvider>(context, listen: false).getOrders(
+                                    context, "", "", userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+                                    backEndFirstDate, backEndSecondtDate);
+                              } else if (data == 'showByUserWithoutDetails') {
+                                await Provider.of<OrdersProvider>(context, listen: false).getOrders(
+                                    context, userType == "m" || userType == "a" ? _selectUserId ?? "" : userId, "", "",
+                                    backEndFirstDate, backEndSecondtDate);
+                              }
+                            },
+                          )
+                        : const Align(
+                            alignment: Alignment.center,
+                            child: Text("No Data Found", style: TextStyle(fontSize: 16, color: Colors.red)),
+                          ),
+              )
 
-                                                      await Provider.of<OrdersRecordProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrdersRecord(context,"", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                      ),
-                    ),
-                  ),
-                ),
-              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
-            )
-                : data == 'showByEmployeeWithoutDetails'
-                ? Expanded(
-              child: OrdersProvider.isOrdersLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DataTable(
-                          headingRowHeight: 20.0,
-                          dataRowHeight: 20.0,
-                          headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
-                          showCheckboxColumn: true,
-                          border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
-                          columns: [
-                            DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
-                          ],
-                          rows: [
-                            ...List.generate(
-                              allOrdersData.length,
-                                  (int index) => DataRow(
-                                color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
-                                cells: <DataCell>[
-                                  DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
-                                  DataCell(Center(child: Container(
-                                      decoration: BoxDecoration(
-                                          color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
-                                          borderRadius: BorderRadius.circular(100.r)
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                        child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
-                                      )))),
-                                  DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
-                                            )));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
-                                                      );
+            // With Details (All / Customer / Employee / User)
+            else if (data == 'showAllWithDetails' ||
+                data == 'showByCustomerWithDetails' ||
+                data == 'showByEmployeeWithDetails' ||
+                data == 'showByUserWithDetails')
+              Expanded(
+                child: OrdersRecordProvider.isOrdersRecordLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : allOrdersRecordData.isNotEmpty
+                        ? _buildWithDetailsTable(
+                            allOrdersRecordData,
+                            onDeleteRefresh: () async {
+                              if (data == 'showAllWithDetails') {
+                                await Provider.of<OrdersRecordProvider>(context, listen: false)
+                                    .getOrdersRecord(context, "", "", "", backEndFirstDate, backEndSecondtDate);
+                              } else if (data == 'showByCustomerWithDetails') {
+                                await Provider.of<OrdersRecordProvider>(context, listen: false)
+                                    .getOrdersRecord(context, "", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
+                              } else if (data == 'showByEmployeeWithDetails') {
+                                await Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+                                    context, "", "", userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+                                    backEndFirstDate, backEndSecondtDate);
+                              } else if (data == 'showByUserWithDetails') {
+                                await Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+                                    context, userType == "m" || userType == "a" ? _selectUserId ?? "" : userId, "", "",
+                                    backEndFirstDate, backEndSecondtDate);
+                              }
+                            },
+                          )
+                        : Align(
+                            alignment: Alignment.center,
+                            child: Text("No Data Found", style: AllTextStyle.nofoundTextStyle),
+                          ),
+              )
 
-                                                      await Provider.of<OrdersProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrders(context,"", "",_selectEmployeeId, backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                ],
-                              ),
-                            ),
-                            // Footer row
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                                const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
-            )
-                : data == 'showByEmployeeWithDetails'
-                ? Expanded(
-              child: OrdersRecordProvider.isOrdersRecordLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersRecordData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingRowHeight: 20.0,
-                      dataRowMaxHeight: double.infinity,
-                      headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
-                      showCheckboxColumn: true,
-                      border: TableBorder.all(color: Colors.blue.shade200, width: 1),
-                      columns: [
-                        DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
-                      ],
-                      rows:
-                      List.generate(
-                        allOrdersRecordData.length,
-                            (int index) =>
-                            DataRow(
-                              color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
-                              cells: <DataCell>[
-                                DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
-                                  ),
-                                ),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(
-                                      child:Column(
-                                          children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                            return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
-                                            );
-                                          })),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
-                                          );
-                                        })),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
-                                          );})),
-                                  ),
-                                ),
-                                DataCell(
-                                Center(
-                                child: Column(
-                                  children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                    double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
-                                    return Center(
-                                      child: Text(totalAmount.toStringAsFixed(decimal!)),
-                                    );
-                                  }),
-                                 ),
-                                ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
-                                                      );
-
-                                                      await Provider.of<OrdersRecordProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrdersRecord(context,"", "", _selectEmployeeId, backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                      ),
-                    ),
-                  ),
-                ),
-              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
-            )
-                : data == 'showByCategoryDetails'
-                ? Expanded(
+            // Category (আগের মতোই)
+            else if (data == 'showByCategoryDetails')
+              Expanded(
                 child: OrdersDetailsProvider.isOrdersDetailsLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : LayoutBuilder(
-                        builder: (context, constraints) {
-                          // --- Logic: Same Product Grouping Start ---
-                          // Prottek product-er ID ke key hishebe dhore quantity ebong amount jog kora hochche
-                          Map<String, Map<String, dynamic>> groupedMap = {};
-
-                          for (var item in allOrdersDetailsData) {
-                            String id = item.productCode;
-
-                            if (groupedMap.containsKey(id)) {
-                              // Jodi product-ti agei map-e thake, tar quantity ar amount jog korun
-                              double oldQty = double.parse(groupedMap[id]!['quantity'].toString());
-                              double newQty = oldQty + double.parse(item.saleDetailsTotalQuantity);
-
-                              double oldAmt = double.parse(groupedMap[id]!['amount'].toString());
-                              double newAmt = oldAmt + double.parse(item.saleDetailsTotalAmount.toString());
-
-                              groupedMap[id]!['quantity'] = newQty;
-                              groupedMap[id]!['amount'] = newAmt;
-                            } else {
-                              // Jodi product-ti prothom-bar ashe, notun entry create korun
-                              groupedMap[id] = {
-                                'productCode': item.productCode,
-                                'productName': item.productName,
-                                'productCategoryName': item.productCategoryName,
-                                'quantity': double.parse(item.saleDetailsTotalQuantity),
-                                'amount': double.parse(item.saleDetailsTotalAmount.toString()),
-                              };
+                    : Builder(
+                        builder: (context) {
+                          final key = 'cat_${allOrdersDetailsData.length}';
+                          if (_cachedGroupedList == null || _lastDataKey != key) {
+                            Map<String, Map<String, dynamic>> groupedMap = {};
+                            for (var item in allOrdersDetailsData) {
+                              String id = item.productCode;
+                              if (groupedMap.containsKey(id)) {
+                                double oldQty = double.parse(groupedMap[id]!['quantity'].toString());
+                                double newQty = oldQty + double.parse(item.saleDetailsTotalQuantity);
+                                double oldAmt = double.parse(groupedMap[id]!['amount'].toString());
+                                double newAmt = oldAmt + double.parse(item.saleDetailsTotalAmount.toString());
+                                groupedMap[id]!['quantity'] = newQty;
+                                groupedMap[id]!['amount'] = newAmt;
+                              } else {
+                                groupedMap[id] = {
+                                  'productCode': item.productCode,
+                                  'productName': item.productName,
+                                  'productCategoryName': item.productCategoryName,
+                                  'quantity': double.parse(item.saleDetailsTotalQuantity),
+                                  'amount': double.parse(item.saleDetailsTotalAmount.toString()),
+                                };
+                              }
                             }
+                            _cachedGroupedList = groupedMap.values.toList();
+                            _lastDataKey = key;
                           }
+                          final groupedList = _cachedGroupedList!;
 
-                          // Map-tike List-e convert korlam jate DataTable-e show kora jay
-                          List groupedList = groupedMap.values.toList();
-                          // --- Logic: Grouping End ---
-
-                          return SizedBox(
-                            width: double.infinity,
-                            height: double.infinity,
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
                             child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    DataTable(
-                                      headingRowHeight: 20.h,
-                                      dataRowHeight: 20.h, // Height ektu bariyechi readability-r jonno
-                                      headingRowColor: MaterialStateColor.resolveWith(
-                                          (states) => Colors.indigo.shade900),
-                                      showCheckboxColumn: true,
-                                      border: TableBorder.all(
-                                          color: Colors.blue.shade200, width: 1),
-                                      columns: [
-                                        DataColumn(label: Text('Sl.', style: AllTextStyle.tableHeadTextStyle)),
-                                        DataColumn(label: Text('Product Id', style: AllTextStyle.tableHeadTextStyle)),
-                                        DataColumn(label: Text('Product Name', style: AllTextStyle.tableHeadTextStyle)),
-                                        DataColumn(label: Text('Category Name', style: AllTextStyle.tableHeadTextStyle)),
-                                        DataColumn(label: Text('Quantity', style: AllTextStyle.tableHeadTextStyle)),
-                                        DataColumn(label: Text('Amount', style: AllTextStyle.tableHeadTextStyle)),
-                                      ],
-                                      rows: List.generate(
-                                        groupedList.length,
-                                        (int index) {
-                                          final item = groupedList[index];
-                                          return DataRow(
-                                            color: index % 2 == 0
-                                                ? MaterialStateProperty.resolveWith(getColor)
-                                                : MaterialStateProperty.resolveWith(getColors),
-                                            cells: <DataCell>[
-                                              DataCell(Center(child: Text("${index + 1}"))),
-                                              DataCell(Center(child: Text(item['productCode']))),
-                                              DataCell(Center(child: Text(item['productName']))),
-                                              DataCell(Center(child: Text(item['productCategoryName']))),
-                                              // Quantity formatting
-                                              DataCell(Center(
-                                                  child: Text(item['quantity'].toStringAsFixed(decimal!)))),
-                                              // Amount display
-                                              DataCell(Center(
-                                                  child: Text('${item['amount']}'))),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              scrollDirection: Axis.horizontal,
+                              child: DataTable(
+                                headingRowHeight: 20.h,
+                                dataRowHeight: 20.h,
+                                headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+                                showCheckboxColumn: true,
+                                border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+                                columns: [
+                                  DataColumn(label: Text('Sl.', style: AllTextStyle.tableHeadTextStyle)),
+                                  DataColumn(label: Text('Product Id', style: AllTextStyle.tableHeadTextStyle)),
+                                  DataColumn(label: Text('Product Name', style: AllTextStyle.tableHeadTextStyle)),
+                                  DataColumn(label: Text('Category Name', style: AllTextStyle.tableHeadTextStyle)),
+                                  DataColumn(label: Text('Quantity', style: AllTextStyle.tableHeadTextStyle)),
+                                  DataColumn(label: Text('Amount', style: AllTextStyle.tableHeadTextStyle)),
+                                ],
+                                rows: List.generate(groupedList.length, (index) {
+                                  final item = groupedList[index];
+                                  return DataRow(
+                                    color: index % 2 == 0
+                                        ? MaterialStateProperty.resolveWith(getColor)
+                                        : MaterialStateProperty.resolveWith(getColors),
+                                    cells: [
+                                      DataCell(Center(child: Text("${index + 1}"))),
+                                      DataCell(Center(child: Text(item['productCode']))),
+                                      DataCell(Center(child: Text(item['productName']))),
+                                      DataCell(Center(child: Text(item['productCategoryName']))),
+                                      DataCell(Center(child: Text(item['quantity'].toStringAsFixed(decimal!)))),
+                                      DataCell(Center(child: Text('${item['amount']}'))),
+                                    ],
+                                  );
+                                }),
                               ),
                             ),
                           );
                         },
                       ),
               )
-                : data == 'showByQuantityDetails'
-                ? Expanded(
-              child: OrdersDetailsProvider.isOrdersDetailsLoading
-                  ? const Center(
-                  child: CircularProgressIndicator())
-                  : SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DataTable(
-                          headingRowHeight: 20.0,
-                          dataRowHeight: 20.0,
-                          headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
-                          showCheckboxColumn: true,
-                          border: TableBorder.all(color: Colors.blue.shade200, width: 1),
-                          columns: [
-                            DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Product Id',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Category Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Amount',style:AllTextStyle.tableHeadTextStyle)))),
-                          ],
-                          rows: [
-                            ...List.generate(
-                              allOrdersDetailsData.length,
-                                  (int index) => DataRow(
-                                color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
-                                cells: <DataCell>[
-                                  DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersDetailsData[index].productCode))),
-                                  DataCell(Center(child: Text(allOrdersDetailsData[index].productName))),
-                                  DataCell(Center(child: Text(allOrdersDetailsData[index].productCategoryName))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersDetailsData[index].saleDetailsTotalQuantity).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text('${allOrdersDetailsData[index].saleDetailsTotalAmount}'))),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            )
-                
-                : data == 'showByUserWithoutDetails'
-                ? Expanded(
-              child: OrdersProvider.isOrdersLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DataTable(
-                          headingRowHeight: 20.0,
-                          dataRowHeight: 20.0,
-                          headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
-                          showCheckboxColumn: true,
-                          border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
-                          columns: [
-                            DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
-                            DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
-                          ],
-                          rows: [
-                            ...List.generate(
-                              allOrdersData.length,
-                                  (int index) => DataRow(
-                                color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
-                                cells: <DataCell>[
-                                  DataCell(Center(child: Text("${index+1}"))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
-                                  DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
-                                  DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
-                                  DataCell(Center(child: Container(
-                                      decoration: BoxDecoration(
-                                          color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
-                                          borderRadius: BorderRadius.circular(100.r)
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                        child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
-                                      )))),
-                                  DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
-                                            )));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersData[index].saleMasterSlNo.toString()),
-                                                      );
 
-                                                      await Provider.of<OrdersProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrders(context,_selectUserId, "", "", backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+            // Quantity (আগের মতোই)
+            else if (data == 'showByQuantityDetails')
+              Expanded(
+                child: OrdersDetailsProvider.isOrdersDetailsLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            headingRowHeight: 20.0,
+                            dataRowHeight: 20.0,
+                            headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+                            showCheckboxColumn: true,
+                            border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+                            columns: [
+                              DataColumn(label: Expanded(child: Center(child: Text('Sl.', style: AllTextStyle.tableHeadTextStyle)))),
+                              DataColumn(label: Expanded(child: Center(child: Text('Product Id', style: AllTextStyle.tableHeadTextStyle)))),
+                              DataColumn(label: Expanded(child: Center(child: Text('Product Name', style: AllTextStyle.tableHeadTextStyle)))),
+                              DataColumn(label: Expanded(child: Center(child: Text('Category Name', style: AllTextStyle.tableHeadTextStyle)))),
+                              DataColumn(label: Expanded(child: Center(child: Text('Quantity', style: AllTextStyle.tableHeadTextStyle)))),
+                              DataColumn(label: Expanded(child: Center(child: Text('Amount', style: AllTextStyle.tableHeadTextStyle)))),
+                            ],
+                            rows: List.generate(allOrdersDetailsData.length, (index) {
+                              final item = allOrdersDetailsData[index];
+                              return DataRow(
+                                color: index % 2 == 0
+                                    ? MaterialStateProperty.resolveWith(getColor)
+                                    : MaterialStateProperty.resolveWith(getColors),
+                                cells: [
+                                  DataCell(Center(child: Text("${index + 1}"))),
+                                  DataCell(Center(child: Text(item.productCode))),
+                                  DataCell(Center(child: Text(item.productName))),
+                                  DataCell(Center(child: Text(item.productCategoryName))),
+                                  DataCell(Center(child: Text(double.parse(item.saleDetailsTotalQuantity).toStringAsFixed(decimal!)))),
+                                  DataCell(Center(child: Text('${item.saleDetailsTotalAmount}'))),
                                 ],
-                              ),
-                            ),
-                            // Footer row
-                            DataRow(
-                              cells: <DataCell>[
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                                const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
-                                const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
-                              ],
-                            ),
-                          ],
+                              );
+                            }),
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
-            )
-                : data == 'showByUserWithDetails'
-                ? Expanded(
-              child: OrdersRecordProvider.isOrdersRecordLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  :allOrdersRecordData.isNotEmpty?
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingRowHeight: 20.0,
-                      dataRowMaxHeight: double.infinity,
-                      headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
-                      showCheckboxColumn: true,
-                      border: TableBorder.all(color: Colors.blue.shade200, width: 1),
-                      columns: [
-                        DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
-                        DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
-                      ],
-                      rows:
-                      List.generate(
-                        allOrdersRecordData.length,
-                            (int index) =>
-                            DataRow(
-                              color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
-                              cells: <DataCell>[
-                                DataCell(Center(child: Text("${index+1}"))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
-                                  ),
-                                ),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
-                                DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
-                                DataCell(
-                                  SizedBox(
-                                    width:MediaQuery.of(context).size.width/2.5,
-                                    child: Center(
-                                      child:Column(
-                                          children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                            return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
-                                            );
-                                          })),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
-                                          );
-                                        })),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Column(
-                                        children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                          return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
-                                          );})),
-                                  ),
-                                ),
-                                DataCell(
-                                Center(
-                                child: Column(
-                                  children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
-                                    double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
-                                    return Center(
-                                      child: Text(totalAmount.toStringAsFixed(decimal!)),
-                                    );
-                                  }),
-                                 ),
-                                ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
-                                          },
-                                          child: Icon(Icons.collections_bookmark,size: 15.r),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                        onTap: () {
-                                          final parentContext = context;
-                                          showDialog(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertDialog(
-                                                title: const Text("Delete Order"),
-                                                content: const Text("Are you sure?"),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(dialogContext),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(dialogContext);
-                                                      await deleteOrder(
-                                                        parentContext,
-                                                        int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
-                                                      );
-
-                                                      await Provider.of<OrdersRecordProvider>(
-                                                        parentContext,
-                                                        listen: false,
-                                                      ).getOrdersRecord(context,_selectUserId, "", "", backEndFirstDate, backEndSecondtDate);
-                                                      setState(() {});
-                                                    },
-                                                    child: const Text(
-                                                      "Delete",
-                                                      style: TextStyle(color: Colors.red),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 18.r,
-                                        ),
-                                      ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
                       ),
-                    ),
-                  ),
-                ),
-              ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
-            ) : Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
+              )
+            else
+              const Align(
+                alignment: Alignment.center,
+                child: Text("No Data Found", style: TextStyle(fontSize: 16, color: Colors.red)),
+              ),
           ],
         ),
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///=================main code==========
+// import 'package:barishal_surgical/common_widget/common_location.dart';
+// import 'package:barishal_surgical/models/administration_module_models/users_model.dart';
+// import 'package:barishal_surgical/providers/administration_module_providers/users_provider.dart';
+// import 'package:barishal_surgical/providers/order_module_providers/orders_details_provider.dart';
+// import 'package:barishal_surgical/providers/order_module_providers/orders_provider.dart';
+// import 'package:barishal_surgical/providers/order_module_providers/orders_record_provider.dart';
+// import 'package:barishal_surgical/screens/modules/order_module_screens/order_invoice_screen.dart';
+// import 'package:barishal_surgical/utils/animation_snackbar.dart';
+// import 'package:barishal_surgical/utils/const_model.dart';
+// import 'package:barishal_surgical/utils/export_orders_excel_funtion.dart';
+// import 'package:barishal_surgical/utils/export_orders_pdf_funtion.dart';
+// import 'package:dio/dio.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:flutter_typeahead/flutter_typeahead.dart';
+// import 'package:barishal_surgical/utils/all_textstyle.dart';
+// import 'package:provider/provider.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+
+// import '../../../common_widget/custom_appbar.dart';
+// import '../../../models/administration_module_models/categories_model.dart';
+// import '../../../models/administration_module_models/customer_list_model.dart';
+// import '../../../models/administration_module_models/employees_model.dart';
+// import '../../../models/administration_module_models/product_list_model.dart';
+// import '../../../providers/administration_module_providers/categories_provider.dart';
+// import '../../../providers/administration_module_providers/customer_list_provider.dart';
+// import '../../../providers/administration_module_providers/employees_provider.dart';
+// import '../../../providers/administration_module_providers/products_list_provider.dart';
+// import '../../../utils/utils.dart';
+
+// class OrderRecordScreen extends StatefulWidget {
+//   const OrderRecordScreen({super.key});
+//   @override
+//   State<OrderRecordScreen> createState() => _OrderRecordScreenState();
+// }
+
+// class _OrderTotals {
+//   double subTotal = 0;
+//   double vatTotal = 0;
+//   double discountTotal = 0;
+//   double transferCost = 0;
+//   double totalAmount = 0;
+//   double paidTotal = 0;
+//   double dueTotal = 0;
+// }
+
+// class _OrderRecordScreenState extends State<OrderRecordScreen> {
+//   int? decimal = 0;
+//   String userName = "";
+//   String userId = "";
+//   String? userEmployeeID = "";
+//   String? userEmployeeName = "";
+//   String? userType = "";
+//   SharedPreferences? sharedPreferences;
+//   Future<void> _initializeData() async {
+//     sharedPreferences = await SharedPreferences.getInstance();
+//     userName = "${sharedPreferences?.getString('userName')}";
+//     userId = "${sharedPreferences?.getString('userId')}";
+//     userEmployeeID = "${sharedPreferences?.getString('employeeId')}";
+//     userEmployeeName = "${sharedPreferences?.getString('employeeName')}";
+//     userType = "${sharedPreferences?.getString('userType')}";
+//     print("userName======$userName");
+//     print("userId======$userId");
+//     print("userEmployeeID======$userEmployeeID");
+//     print("userEmployeeName======$userEmployeeName");
+//     print("userType======$userType");
+//   }
+
+//   Color getColor(Set<MaterialState> states) {
+//     return Colors.blue.shade100;
+//   }
+//   Color getColors(Set<MaterialState> states) {
+//     return Colors.white;
+//   }
+//   Color getColorWithDetails(Set<MaterialState> states) {
+//     return Colors.purple.shade100;
+//   }
+//   Color getColorTotal(Set<MaterialState> states) {
+//     return Colors.blue.shade900;
+//   }
+//   String? firstPickedDate;
+//   var backEndFirstDate;
+//   var backEndSecondtDate;
+
+//   var toDay = DateTime.now();
+//   void _firstSelectedDate() async {
+//     final selectedDate = await showDatePicker(
+//         context: context,
+//         initialDate: DateTime.now(),
+//         firstDate: DateTime(1950),
+//         lastDate: DateTime(2050));
+//     if (selectedDate != null) {
+//       setState(() {
+//         firstPickedDate = Utils.formatFrontEndDate(selectedDate);
+//         backEndFirstDate = Utils.formatBackEndDate(selectedDate);
+//       });
+//     }
+//     else{
+//       setState(() {
+//         firstPickedDate = Utils.formatFrontEndDate(toDay);
+//         backEndFirstDate = Utils.formatBackEndDate(toDay);
+//       });
+//     }
+//   }
+
+//   String? secondPickedDate;
+//   void _secondSelectedDate() async {
+//     final selectedDate = await showDatePicker(
+//         context: context,
+//         initialDate: DateTime.now(),
+//         firstDate: DateTime(1950),
+//         lastDate: DateTime(2050));
+//     if (selectedDate != null) {
+//       setState(() {
+//         secondPickedDate = Utils.formatFrontEndDate(selectedDate);
+//         backEndSecondtDate = Utils.formatBackEndDate(selectedDate);
+//       });
+//     }else{
+//       setState(() {
+//         secondPickedDate = Utils.formatFrontEndDate(toDay);
+//         backEndSecondtDate = Utils.formatBackEndDate(toDay);
+//       });
+//     }
+//   }
+
+//   String? _selectCustomerId;
+//   String? _selectEmployeeId;
+//   String? _selectCategoryId;
+//   String? _selectQtyProductId;
+//   String? _selectUserId;
+
+//   bool isAllTypeClicked = true;
+//   bool isCustomerWiseClicked = false;
+//   bool isEmployeeWiseClicked = false;
+//   bool isCategoryWiseClicked = false;
+//   bool isQuantityWiseClicked = false;
+//   bool isUserWiseClicked = false;
+
+//   bool _isSearchDropdownOpen = false;
+//   String? _selectedSearchTypes = 'All';
+  
+//   final List<String> _searchTypes = [
+//     'All',
+//     'By Customer',
+//     'By Employee',
+//     'By Category',
+//     'By Quantity',
+//     'By User',
+//   ];
+
+//   final LayerLink _searchLayerLink = LayerLink();
+//   OverlayEntry? _searchOverlayEntry;
+//   final GlobalKey _searchKey = GlobalKey();
+//   Size _searchDropdownSize = Size.zero;
+
+//   void _getSearchDropdownSize() {
+//     final RenderBox? renderBox = _searchKey.currentContext?.findRenderObject() as RenderBox?;
+//     if (renderBox != null) {
+//       _searchDropdownSize = renderBox.size;
+//     }
+//   }
+
+//   void _toggleSearchDropdown() {
+//     if (_isSearchDropdownOpen) {
+//       _removeSearchDropdown();
+//     } else {
+//       _getSearchDropdownSize();
+//       _showSearchDropdown();
+//     }
+//   }
+
+//   void _showSearchDropdown() {
+//     _searchOverlayEntry = _createSearchOverlayEntry();
+//     Overlay.of(context).insert(_searchOverlayEntry!);
+//     setState(() {
+//       _isSearchDropdownOpen = true;
+//     });
+//   }
+
+//   void _removeSearchDropdown() {
+//     _searchOverlayEntry?.remove();
+//     _searchOverlayEntry = null;
+//     setState(() {
+//       _isSearchDropdownOpen = false;
+//     });
+//   }
+
+//   OverlayEntry _createSearchOverlayEntry() {
+//     return OverlayEntry(
+//       builder: (context) => GestureDetector(
+//         onTap: _removeSearchDropdown,
+//         behavior: HitTestBehavior.translucent,
+//         child: Stack(
+//           children: [
+//             Positioned(
+//               width: _searchDropdownSize.width,
+//               child: CompositedTransformFollower(
+//                 link: _searchLayerLink,
+//                 showWhenUnlinked: false,
+//                 offset: Offset(0.0, _searchDropdownSize.height + 5), 
+//                 child: Material(
+//                   elevation: 9.0,
+//                   color: Colors.teal.shade50,
+//                   borderRadius: BorderRadius.circular(5.r),
+//                   child: Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: _searchTypes.asMap().entries.map((entry) {
+//                       final index = entry.key;
+//                       final type = entry.value;
+//                       return InkWell(
+//                         onTap: () {
+//                           _onSearchTypeSelected(type);
+//                           _removeSearchDropdown();
+//                         },
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             Container(
+//                               width: double.infinity,
+//                               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+//                               child: Text(
+//                                 type,
+//                                 style: AllTextStyle.dateFormatStyle,
+//                               ),
+//                             ),
+//                             if (index != _searchTypes.length - 1)
+//                               Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+//                           ],
+//                         ),
+//                       );
+//                     }).toList(),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _onSearchTypeSelected(String selectedValue) {
+//     setState(() {
+//       _selectedSearchTypes = selectedValue;
+//       isAllTypeClicked = (selectedValue == "All");
+//       isCustomerWiseClicked = (selectedValue == "By Customer");
+//       isEmployeeWiseClicked = (selectedValue == "By Employee");
+//       isCategoryWiseClicked = (selectedValue == "By Category");
+//       isQuantityWiseClicked = (selectedValue == "By Quantity");
+//       isUserWiseClicked = (selectedValue == "By User");
+
+//       emtyMethod(); 
+//     });
+//   }
+
+//   String data = '';
+//   bool selectArea = false;
+//   bool isCategorySelect = false;
+//   bool isQuantitySelect = false;
+
+//   bool isWithoutDetailsClicked = true;
+//   bool isWithDetailsClicked = false;
+//   bool _isRecordDropdownOpen = false;
+
+//   String? _selectedRecordTypes = 'Without Details';
+//   final List<String> _recordType = [
+//     'Without Details',
+//     'With Details',
+//   ];
+
+//   final LayerLink _recordLayerLink = LayerLink();
+//   OverlayEntry? _recordOverlayEntry;
+//   final GlobalKey _recordKey = GlobalKey();
+//   Size _recordDropdownSize = Size.zero;
+
+//   void _getRecordDropdownSize() {
+//     final RenderBox? renderBox = _recordKey.currentContext?.findRenderObject() as RenderBox?;
+//     if (renderBox != null) {
+//       _recordDropdownSize = renderBox.size;
+//     }
+//   }
+
+//   void _toggleRecordDropdown() {
+//     if (_isRecordDropdownOpen) {
+//       _removeRecordDropdown();
+//     } else {
+//       _getRecordDropdownSize();
+//       _showRecordDropdown();
+//     }
+//   }
+
+//   void _showRecordDropdown() {
+//     _recordOverlayEntry = _createRecordOverlayEntry();
+//     Overlay.of(context).insert(_recordOverlayEntry!);
+//     setState(() {
+//       _isRecordDropdownOpen = true;
+//     });
+//   }
+
+//   void _removeRecordDropdown() {
+//     _recordOverlayEntry?.remove();
+//     _recordOverlayEntry = null;
+//     setState(() {
+//       _isRecordDropdownOpen = false;
+//     });
+//   }
+
+//   OverlayEntry _createRecordOverlayEntry() {
+//     return OverlayEntry(
+//       builder: (context) => GestureDetector(
+//         onTap: _removeRecordDropdown,
+//         behavior: HitTestBehavior.translucent,
+//         child: Stack(
+//           children: [
+//             Positioned(
+//               width: _recordDropdownSize.width,
+//               child: CompositedTransformFollower(
+//                 link: _recordLayerLink,
+//                 showWhenUnlinked: false,
+//                 offset: Offset(0.0, _recordDropdownSize.height + 5),
+//                 child: Material(
+//                   elevation: 9.0,
+//                   color: Colors.teal.shade50,
+//                   borderRadius: BorderRadius.circular(5.r),
+//                   child: Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: _recordType.asMap().entries.map((entry) {
+//                       final index = entry.key;
+//                       final type = entry.value;
+//                       return InkWell(
+//                         onTap: () {
+//                           _onRecordTypeSelected(type);
+//                           _removeRecordDropdown();
+//                         },
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             Container(
+//                               width: double.infinity,
+//                               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+//                               child: Text(
+//                                 type,
+//                                 style: AllTextStyle.dateFormatStyle,
+//                               ),
+//                             ),
+//                             if (index != _recordType.length - 1)
+//                               Divider(height: 1.h, thickness: 0.8, color: Colors.grey.shade400),
+//                           ],
+//                         ),
+//                       );
+//                     }).toList(),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _onRecordTypeSelected(String selectedValue) {
+//     setState(() {
+//       _selectedRecordTypes = selectedValue;
+//       isWithoutDetailsClicked = (selectedValue == "Without Details");
+//       isWithDetailsClicked = (selectedValue == "With Details");
+//     });
+//   }
+
+//   ///Sub total
+//   double? subTotal;
+//   double? vatTotal;
+//   double? discountTotal;
+//   double? transferCost;
+//   double? totalAmount;
+//   double? paidTotal;
+//   double? dueTotal;
+//   double? soldQuantity;
+//   double? totalQuantity;
+//   double? totalQuantitySD;
+//   double? totalAmountSD;
+//   double? totalQuantitySbS;
+
+//   String myAddress = "Loading...";
+//     double? myLat, myLong;
+//     Future<void> _initLocation() async {
+//     var result = await LocationService.fetchAndUploadLocation();
+//     if (result != null && mounted) {
+//       setState(() {
+//         myLat = result['lat'];
+//         myLong = result['long'];
+//         myAddress = result['address'];
+//       });
+//     }
+//   }
+
+//   String companyName = "";
+//   String repotHeading = "";
+//   String companyLogothumb = "";
+
+//    void getCompanyProfile() async {
+//     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+//     try {
+//       final response = await Dio().get(
+//         "${baseUrl}get_company_profile",
+//         options: Options(headers: {
+//           "Content-Type": "application/json",
+//           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+//           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+//         }),
+//       );
+
+//       if (response.statusCode == 200) {
+//         var data = response.data is List ? response.data[0] : response.data;
+
+//         if (!mounted) return;
+//         setState(() {
+//           companyName = data['Company_Name'] ?? "";
+//           companyLogothumb = data['Company_Logo_thum'] ?? "";
+//         });
+
+//         /// START AUTO TIME CHECK EVERY 1 SECOND
+//         //startAutoStartTimeChecker();
+//       }
+//     } catch (e) {
+//       print("Error fetching company profile: $e");
+//     }
+//     print("get_company_profile-------Company_Name======$companyName");
+//     print("companyLogothumb-------Company_Logo_thumb======$companyLogothumb");
+//   }
+
+//   void getCurrentBranch() async {
+//     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+//     try {
+//       final response = await Dio().get(
+//         "${baseUrl}get_current_branch",
+//         options: Options(headers: {
+//           "Content-Type": "application/json",
+//           'Cookie': 'ci_session=${sharedPreferences.getString("sessionId")}',
+//           "Authorization": "Bearer ${sharedPreferences.getString("token")}",
+//         }),
+//       );
+
+//       if (response.statusCode == 200) {
+//         var data = response.data is List ? response.data[0] : response.data;
+
+//         if (!mounted) return;
+//         setState(() {
+//           repotHeading = data['Repot_Heading'] ?? "";
+//         });
+
+//         /// START AUTO TIME CHECK EVERY 1 SECOND
+//         //startAutoStartTimeChecker();
+//       }
+//     } catch (e) {
+//       print("Error fetching company profile: $e");
+//     }
+//     print("get_current_branch-------Repot_Heading======$repotHeading");
+//   }
+
+//   bool deleteBtnClk = false;
+//   Future<String> deleteOrder(BuildContext context,int saleId) async {
+//   String link = "${baseUrl}delete_order";
+//   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+//   try {
+//     var response = await Dio().post(link,
+//       data: {
+//         "saleId": saleId,
+//       },
+//       options: Options(
+//         headers: {
+//           "Content-Type": "application/json",
+//           'Cookie':'ci_session=${sharedPreferences.getString("sessionId")}',
+//           "Authorization":"Bearer ${sharedPreferences.getString("token")}",
+//         },
+//       ),
+//     );
+//     print("Deleting ID => $saleId");
+//     var item = response.data;
+//     print("Delete API Response => $item");
+
+//     if (item["success"] == true) {
+//       deleteBtnClk = false;
+//       CustomSnackBar.showTopSnackBar(context,item["message"] ?? "Order Deleted Successfully");
+//       return "true";
+//     } else {
+//       deleteBtnClk = false;
+//       Utils.showTopSnackBar(context,item["message"] ?? "Delete Failed");
+//       return "false";
+//     }
+//   } catch (e) {
+//     deleteBtnClk = false;
+//     print("Delete Exception => $e");
+//     Utils.showTopSnackBar(context,"Something went wrong: $e");
+//     return "false";
+//   }
+// }
+// bool isPrinting = false;
+//   @override
+//   void initState() {
+//     super.initState();
+//     getCompanyProfile();
+//     getCurrentBranch();
+//     _initLocation();
+//     _initializeData();
+//     firstPickedDate = Utils.formatFrontEndDate(DateTime.now());
+//     backEndFirstDate = Utils.formatBackEndDate(DateTime.now());
+//     secondPickedDate = Utils.formatFrontEndDate(DateTime.now());
+//     backEndSecondtDate = Utils.formatBackEndDate(DateTime.now());
+//     Provider.of<ProductListProvider>(context, listen: false).getProductList(context,"");
+//     Provider.of<CategoriesProvider>(context, listen: false).getCategoriesList(context);
+//     Provider.of<EmployeesProvider>(context, listen: false).getEmployees(context);
+//     Provider.of<CustomerListProvider>(context, listen: false).getCustomerList(context,"","");
+//     Provider.of<UsersProvider>(context,listen: false).getUsers(context);
+//     Provider.of<OrdersProvider>(context, listen: false).orderslist = [];
+//   }
+
+//   var customerController = TextEditingController();
+//   var productController = TextEditingController();
+//   var employeeController = TextEditingController();
+//   var categoryController = TextEditingController();
+//   var userController = TextEditingController();
+
+//   @override
+//   void dispose() {
+//     _searchOverlayEntry?.remove();
+//     _recordOverlayEntry?.remove();
+//     customerController.dispose();
+//     productController.dispose();
+//     employeeController.dispose();
+//     categoryController.dispose();
+//     userController.dispose();
+//     super.dispose();
+//   }
+
+//   emtyMethod() {
+//     setState(() {
+//       customerController.text= "";
+//       employeeController.text="";
+//       categoryController.text="";
+//       productController.text= "";
+//       userController.text = "";
+//       _selectCustomerId = "";
+//       _selectEmployeeId = "";
+//       _selectQtyProductId ="";
+//       _selectUserId = "";
+//     });
+//   }
+
+//   double _asDouble(dynamic value) {
+//     return double.tryParse(value?.toString() ?? '') ?? 0;
+//   }
+
+//   _OrderTotals _calculateOrderTotals(List allOrdersData) {
+//     final totals = _OrderTotals();
+//     for (final order in allOrdersData) {
+//       totals.subTotal += _asDouble(order.saleMasterSubTotalAmount);
+//       totals.vatTotal += _asDouble(order.saleMasterTaxAmount);
+//       totals.discountTotal += _asDouble(order.saleMasterTotalDiscountAmount);
+//       totals.transferCost += _asDouble(order.saleMasterFreight);
+//       totals.totalAmount += _asDouble(order.saleMasterTotalSaleAmount);
+//       totals.paidTotal += _asDouble(order.saleMasterPaidAmount);
+//       totals.dueTotal += _asDouble(order.saleMasterDueAmount);
+//     }
+//     return totals;
+//   }
+
+//   Future<void> _showReport() async {
+//     String nextData = data;
+//     Future<void>? request;
+
+//     if (isAllTypeClicked && isWithoutDetailsClicked) {
+//       nextData = 'showAllWithoutDetails';
+//       request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+//         context,
+//         "",
+//         "",
+//         "",
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     } else if (isAllTypeClicked && isWithDetailsClicked) {
+//       nextData = 'showAllWithDetails';
+//       request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+//         context,
+//         "",
+//         "",
+//         "",
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     } else if (isCustomerWiseClicked && isWithoutDetailsClicked) {
+//       nextData = 'showByCustomerWithoutDetails';
+//       request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+//         context,
+//         "",
+//         _selectCustomerId,
+//         "",
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     } else if (isCustomerWiseClicked && isWithDetailsClicked) {
+//       nextData = 'showByCustomerWithDetails';
+//       request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+//         context,
+//         "",
+//         _selectCustomerId,
+//         "",
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     } else if (isEmployeeWiseClicked && isWithoutDetailsClicked) {
+//       nextData = 'showByEmployeeWithoutDetails';
+//       request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+//         context,
+//         "",
+//         "",
+//         userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     } else if (isEmployeeWiseClicked && isWithDetailsClicked) {
+//       nextData = 'showByEmployeeWithDetails';
+//       request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+//         context,
+//         "",
+//         "",
+//         userType == "m" || userType == "a" ? _selectEmployeeId ?? "" : userEmployeeID,
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     } else if (isCategoryWiseClicked) {
+//       nextData = 'showByCategoryDetails';
+//       request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(
+//         context,
+//         "$_selectCategoryId",
+//         "",
+//         "$backEndFirstDate",
+//         "$backEndSecondtDate",
+//       );
+//     } else if (isQuantityWiseClicked) {
+//       nextData = 'showByQuantityDetails';
+//       request = Provider.of<OrdersDetailsProvider>(context, listen: false).getOrdersDetails(
+//         context,
+//         "",
+//         _selectQtyProductId,
+//         "$backEndFirstDate",
+//         "$backEndSecondtDate",
+//       );
+//     } else if (isUserWiseClicked && isWithoutDetailsClicked) {
+//       nextData = 'showByUserWithoutDetails';
+//       request = Provider.of<OrdersProvider>(context, listen: false).getOrders(
+//         context,
+//         userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
+//         "",
+//         "",
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     } else if (isUserWiseClicked && isWithDetailsClicked) {
+//       nextData = 'showByUserWithDetails';
+//       request = Provider.of<OrdersRecordProvider>(context, listen: false).getOrdersRecord(
+//         context,
+//         userType == "m" || userType == "a" ? _selectUserId ?? "" : userId,
+//         "",
+//         "",
+//         backEndFirstDate,
+//         backEndSecondtDate,
+//       );
+//     }
+
+//     if (nextData != data && mounted) {
+//       setState(() {
+//         data = nextData;
+//       });
+//     }
+//     await request;
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     ///get Orders
+//     final allOrdersData = Provider.of<OrdersProvider>(context).orderslist;
+//     final orderTotals = _calculateOrderTotals(allOrdersData);
+//     subTotal = orderTotals.subTotal;
+//     vatTotal = orderTotals.vatTotal;
+//     discountTotal = orderTotals.discountTotal;
+//     transferCost = orderTotals.transferCost;
+//     totalAmount = orderTotals.totalAmount;
+//     paidTotal = orderTotals.paidTotal;
+//     dueTotal = orderTotals.dueTotal;
+//     ///get Orders
+//     final allOrdersRecordData = Provider.of<OrdersRecordProvider>(context).ordersRecordlist;
+//     ///get Customer
+//      final allCustomerData = Provider.of<CustomerListProvider>(context).customerList.where((element) => element.customerSlNo !=0).toList();
+//     ///Categories list
+//      final allCategoriesData = Provider.of<CategoriesProvider>(context).categoriesList;
+//     /// Get Employees
+//      final allGetEmployeesData = Provider.of<EmployeesProvider>(context).employeesList;
+//     ///get Sale_details
+//     final allOrdersDetailsData = Provider.of<OrdersDetailsProvider>(context).ordersDetailslist;
+//     /// all products list
+//     final allProductsData = Provider.of<ProductListProvider>(context).productsList;
+//     /// get user
+//     final allUsersData = Provider.of<UsersProvider>(context).usersList;
+//     return Scaffold(
+//       appBar: CustomAppBar(title: "Order Record"),
+//       body: Container(
+//         padding: EdgeInsets.only(left: 8.0.w, right: 8.0.w, top: 8.0.h,bottom: 10.h),
+//         child: Column(
+//           children: [
+//             Container(
+//               padding: EdgeInsets.only(left: 4.0.w, right: 4.0.w,top: 4.0.h,bottom: 4.0.h),
+//               decoration: BoxDecoration(
+//                 color: Colors.blue.shade100,
+//                 borderRadius: BorderRadius.circular(10.0.r),
+//                 border: Border.all(color: const Color.fromARGB(255, 7, 125, 180),width: 1.0.w),
+//                 boxShadow: [
+//                   BoxShadow(color: Colors.grey.withOpacity(0.6), spreadRadius: 2, blurRadius: 5, offset: const Offset(0, 3)),
+//                 ],
+//               ),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Row(
+//                     children: [
+//                       Expanded(flex: 1, child: Text("Search Type", style: AllTextStyle.textFieldHeadStyle)),
+//                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+//                       Expanded(
+//                         flex: 3,
+//                         child: CompositedTransformTarget(
+//                           link: _searchLayerLink,
+//                           child: InkWell(
+//                             key: _searchKey,
+//                             onTap: _toggleSearchDropdown,
+//                             child: Container(
+//                               height: 25.0.h,
+//                               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+//                               decoration: BoxDecoration(
+//                                 color: Colors.white,
+//                                 border: Border.all(color: Colors.grey.shade300, width: 0.5.w),
+//                                 borderRadius: BorderRadius.circular(4.r),
+//                               ),
+//                               child: Row(
+//                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                                 mainAxisSize: MainAxisSize.min,
+//                                 children: [
+//                                   Text(
+//                                     _selectedSearchTypes ?? 'All',
+//                                     style: AllTextStyle.dateFormatStyle,
+//                                   ),
+//                                   Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
+//                                 ],
+//                               ),
+//                             ),
+//                           ),
+//                         )
+//                       ),
+//                     ],
+//                   ),
+
+//                   isCustomerWiseClicked == true
+//                       ? Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Expanded(flex: 1, child: Text("Customer",style:AllTextStyle.textFieldHeadStyle)),
+//                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+//                       Expanded(
+//                         flex: 3,
+//                         child: Container(
+//                           height: 25.0.h,
+//                           margin: EdgeInsets.only(top: 4.h),
+//                           child: TypeAheadField<CustomerListModel>(
+//                             controller: customerController,
+//                             builder: (context, controller, focusNode) {
+//                               return TextField(
+//                                 controller: controller,
+//                                 focusNode: focusNode,
+//                                 style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+//                                 decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+//                                   isDense: true,
+//                                   hintText: 'Select Customer',
+//                                   hintStyle: TextStyle(fontSize: 13.sp),
+//                                   suffixIcon: _selectCustomerId == '' || _selectCustomerId == 'null' || _selectCustomerId == null || controller.text == '' ? null
+//                                       : GestureDetector(
+//                                     onTap: () {
+//                                       setState(() {
+//                                         customerController.clear();
+//                                         controller.clear();
+//                                         _selectCustomerId = null;
+//                                       });
+//                                     },
+//                                     child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+//                                   ),
+//                                   suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+//                                   filled: true,
+//                                   fillColor: Colors.white,
+//                                   border: InputBorder.none,
+//                                   focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                   enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                 ),
+//                               );
+//                             },
+//                             suggestionsCallback: (pattern) async {
+//                               return allCustomerData.where((element) =>
+//                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+//                             },
+//                             itemBuilder: (context, CustomerListModel suggestion) {
+//                               return Padding(
+//                                 padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+//                                 child: Text(suggestion.displayName!,
+//                                   style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+//                                 ),
+//                               );
+//                             },
+//                             onSelected: (CustomerListModel suggestion) {
+//                               setState(() {
+//                                 customerController.text = suggestion.displayName!;
+//                                 _selectCustomerId = suggestion.customerSlNo.toString();
+//                               });
+//                             },
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ): Container(),
+
+//                   isEmployeeWiseClicked == true
+//                       ? Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Expanded(flex: 1, child: Text("Employee", style: AllTextStyle.textFieldHeadStyle)),
+//                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+//                       Expanded(
+//                         flex: 3,
+//                         child: userType == "a" || userType == "m" ? Container(
+//                           height: 25.0.h,
+//                           margin: EdgeInsets.only(top: 4.h),
+//                           child: TypeAheadField<EmployeesModel>(
+//                             controller: employeeController,
+//                             builder: (context, controller, focusNode) {
+//                               return TextField(
+//                                 controller: controller,
+//                                 focusNode: focusNode,
+//                                 style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+//                                 decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+//                                   isDense: true,
+//                                   hintText: 'Select Employee',
+//                                   hintStyle: TextStyle(fontSize: 13.sp),
+//                                   suffixIcon: _selectEmployeeId == '' || _selectEmployeeId == 'null' || _selectEmployeeId == null || controller.text == '' ? null
+//                                       : GestureDetector(
+//                                     onTap: () {
+//                                       setState(() {
+//                                         employeeController.clear();
+//                                         controller.clear();
+//                                         _selectEmployeeId = null;
+//                                       });
+//                                     },
+//                                     child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+//                                   ),
+//                                   suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+//                                   filled: true,
+//                                   fillColor: Colors.white,
+//                                   border: InputBorder.none,
+//                                   focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                   enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                 ),
+//                               );
+//                             },
+//                             suggestionsCallback: (pattern) async {
+//                               return allGetEmployeesData.where((element) =>
+//                                     element.displayName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+//                             },
+//                             itemBuilder: (context, EmployeesModel suggestion) {
+//                               return Padding(
+//                                 padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+//                                 child: Text(suggestion.displayName!,
+//                                   style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+//                                 ),
+//                               );
+//                             },
+//                             onSelected: (EmployeesModel suggestion) {
+//                               setState(() {
+//                                 employeeController.text = suggestion.displayName!;
+//                                 _selectEmployeeId = suggestion.employeeSlNo.toString();
+//                               });
+//                             },
+//                           ),
+//                         ):Container(
+//                           height: 25.h,
+//                           margin: EdgeInsets.only(top: 4.h),
+//                           decoration:ContDecoration.contDecoration,
+//                           child: Padding(
+//                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+//                             child: Text("$userEmployeeName",style: AllTextStyle.dateFormatStyle),
+//                           )
+//                         ),
+//                       ),
+//                     ],
+//                   )
+//                       : Container(),
+//                   ///by category
+//                   isCategoryWiseClicked == true
+//                       ? Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Expanded(flex: 1, child: Text("Category",style:AllTextStyle.textFieldHeadStyle)),
+//                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+//                       Expanded(
+//                         flex: 3,
+//                         child: Container(
+//                           height: 25.0.h,
+//                           margin: EdgeInsets.only(top: 4.h),
+//                           child: TypeAheadField<CategoriesModel>(
+//                             controller: categoryController,
+//                             builder: (context, controller, focusNode) {
+//                               return TextField(
+//                                 controller: controller,
+//                                 focusNode: focusNode,
+//                                 style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+//                                 decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+//                                   isDense: true,
+//                                   hintText: 'Select Category',
+//                                   hintStyle: TextStyle(fontSize: 13.sp),
+//                                   suffixIcon: _selectCategoryId == '' || _selectCategoryId == 'null' || _selectCategoryId == null || controller.text == '' ? null
+//                                       : GestureDetector(
+//                                     onTap: () {
+//                                       setState(() {
+//                                         categoryController.clear();
+//                                         controller.clear();
+//                                         _selectCategoryId = null;
+//                                       });
+//                                     },
+//                                     child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+//                                   ),
+//                                   suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+//                                   filled: true,
+//                                   fillColor: Colors.white,
+//                                   border: InputBorder.none,
+//                                   focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                   enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                 ),
+//                               );
+//                             },
+//                             suggestionsCallback: (pattern) async {
+//                               return allCategoriesData.where((element) =>
+//                                     element.productCategoryName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+//                             },
+//                             itemBuilder: (context, CategoriesModel suggestion) {
+//                               return Padding(
+//                                 padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+//                                 child: Text(suggestion.productCategoryName!,
+//                                   style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+//                                 ),
+//                               );
+//                             },
+//                             onSelected: (CategoriesModel suggestion) {
+//                               setState(() {
+//                                 categoryController.text = suggestion.productCategoryName!;
+//                                 _selectCategoryId = suggestion.productCategorySlNo.toString();
+//                               });
+//                             },
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ) : Container(),
+//                   isQuantityWiseClicked == true ?
+//                       Row(
+//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                         children: [
+//                           Expanded(flex: 1, child: Text("Product",style:AllTextStyle.textFieldHeadStyle)),
+//                           Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+//                           Expanded(
+//                             flex: 3,
+//                             child: Container(
+//                               height: 25.0.h,
+//                               margin: EdgeInsets.only(top: 4.h),
+//                               child: TypeAheadField<ProductListModel>(
+//                                 controller: productController,
+//                                 builder: (context, controller, focusNode) {
+//                                   return TextField(
+//                                     controller: controller,
+//                                     focusNode: focusNode,
+//                                     style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+//                                     decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+//                                       isDense: true,
+//                                       hintText: 'Select Product',
+//                                       hintStyle: TextStyle(fontSize: 13.sp),
+//                                       suffixIcon: _selectQtyProductId == '' || _selectQtyProductId == 'null' || _selectQtyProductId == null || controller.text == '' ? null
+//                                           : GestureDetector(
+//                                         onTap: () {
+//                                           setState(() {
+//                                             productController.clear();
+//                                             controller.clear();
+//                                             _selectQtyProductId = null;
+//                                           });
+//                                         },
+//                                         child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+//                                       ),
+//                                       suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+//                                       filled: true,
+//                                       fillColor: Colors.white,
+//                                       border: InputBorder.none,
+//                                       focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                       enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                     ),
+//                                   );
+//                                 },
+//                                 suggestionsCallback: (pattern) async {
+//                                   return allProductsData.where((element) =>
+//                                         element.displayText!.toLowerCase().contains(pattern.toLowerCase())).toList();
+//                                 },
+//                                 itemBuilder: (context, ProductListModel suggestion) {
+//                                   return Padding(
+//                                     padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+//                                     child: Text(suggestion.displayText!,
+//                                       style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+//                                     ),
+//                                   );
+//                                 },
+//                                 onSelected: (ProductListModel suggestion) {
+//                                   setState(() {
+//                                     productController.text = suggestion.displayText!;
+//                                     _selectQtyProductId = suggestion.productSlNo.toString();
+//                                   });
+//                                 },
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                       ): Container(),
+//                   isUserWiseClicked == true
+//                       ? Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Expanded(flex: 1, child: Text("User",style:AllTextStyle.textFieldHeadStyle)),
+//                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+//                       Expanded(
+//                         flex: 3,
+//                         child: userType == "a" || userType == "m" ? Container(
+//                           height: 25.0.h,
+//                           margin: EdgeInsets.only(top: 4.h),
+//                           child: TypeAheadField<UsersModel>(
+//                             controller: userController,
+//                             builder: (context, controller, focusNode) {
+//                               return TextField(
+//                                 controller: controller,
+//                                 focusNode: focusNode,
+//                                 style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade800, overflow: TextOverflow.ellipsis),
+//                                 decoration: InputDecoration(contentPadding: EdgeInsets.only(bottom: 10.h, left: 5.0.w),
+//                                   isDense: true,
+//                                   hintText: 'Select User',
+//                                   hintStyle: TextStyle(fontSize: 13.sp),
+//                                   suffixIcon: _selectUserId == '' || _selectUserId == 'null' || _selectUserId == null || controller.text == '' ? null
+//                                       : GestureDetector(
+//                                     onTap: () {
+//                                       setState(() {
+//                                         userController.clear();
+//                                         controller.clear();
+//                                         _selectUserId = null;
+//                                       });
+//                                     },
+//                                     child: Padding(padding: EdgeInsets.all(5.r), child: Icon(Icons.close, size: 16.r)),
+//                                   ),
+//                                   suffixIconConstraints: BoxConstraints(maxHeight: 30.h),
+//                                   filled: true,
+//                                   fillColor: Colors.white,
+//                                   border: InputBorder.none,
+//                                   focusedBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                   enabledBorder: TextFieldInputBorder.focusEnabledBorder,
+//                                 ),
+//                               );
+//                             },
+//                             suggestionsCallback: (pattern) async {
+//                               return allUsersData.where((element) =>
+//                                     element.fullName!.toLowerCase().contains(pattern.toLowerCase())).toList();
+//                             },
+//                             itemBuilder: (context, UsersModel suggestion) {
+//                               return Padding(
+//                                 padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 4.h),
+//                                 child: Text(suggestion.fullName!,
+//                                   style: TextStyle(fontSize: 12.sp), maxLines: 1, overflow: TextOverflow.ellipsis,
+//                                 ),
+//                               );
+//                             },
+//                             onSelected: (UsersModel suggestion) {
+//                               setState(() {
+//                                 userController.text = suggestion.fullName!;
+//                                 _selectUserId = suggestion.userSlNo.toString();
+//                               });
+//                             },
+//                           ),
+//                         ):Container(
+//                           height: 25.h,
+//                           margin: EdgeInsets.only(top: 4.h),
+//                           decoration:ContDecoration.contDecoration,
+//                           child: Padding(
+//                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+//                             child: Text(userName,style: AllTextStyle.dateFormatStyle),
+//                           )
+//                         ),
+//                       ),
+//                     ],
+//                   ): Container(),
+//                   isAllTypeClicked == true||isCustomerWiseClicked==true||isEmployeeWiseClicked==true||isUserWiseClicked==true
+//                       ? Row(
+//                     children: [
+//                       Expanded(flex: 1, child: Text("Record Type", style:AllTextStyle.textFieldHeadStyle)),
+//                       Text(":   ",style:AllTextStyle.textFieldHeadStyle),
+//                       Expanded(
+//                         flex: 3,
+//                         child: CompositedTransformTarget(
+//                           link: _recordLayerLink,
+//                           child: InkWell(
+//                             key: _recordKey,
+//                             onTap: _toggleRecordDropdown,
+//                             child: Container(
+//                               height: 25.0.h,
+//                               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+//                               margin: EdgeInsets.only(top: 4.h),
+//                               decoration: BoxDecoration(
+//                                 color: Colors.white,
+//                                 border: Border.all(color: Colors.grey.shade300, width: 0.5.w),
+//                                 borderRadius: BorderRadius.circular(4.r),
+//                               ),
+//                               child: Row(
+//                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                                 mainAxisSize: MainAxisSize.min,
+//                                 children: [
+//                                   Text(
+//                                     _selectedRecordTypes ?? 'Select',
+//                                     style: AllTextStyle.dateFormatStyle,
+//                                   ),
+//                                   SizedBox(width: 5.w),
+//                                   Icon(Icons.arrow_drop_down, color: Colors.black54, size: 18.r),
+//                                 ],
+//                               ),
+//                             ),
+//                           ),
+//                         )
+//                       ),
+//                     ],
+//                   )
+//                       : Container(),
+//                   SizedBox(
+//                     height: 35.h,
+//                     width: double.infinity,
+//                     child: Row(
+//                       children: [
+//                         Expanded(
+//                           flex: 1,
+//                           child: Container(
+//                             margin: EdgeInsets.only(right: 5.w, top: 5.h, bottom: 5.h),
+//                             height: 25.0.h,
+//                             padding: EdgeInsets.all(5.0.r),
+//                             decoration:ContDecoration.contDecoration,
+//                             child: GestureDetector(
+//                               onTap: (() {_firstSelectedDate();}),
+//                               child: TextFormField(
+//                                 style: AllTextStyle.dateFormatStyle,
+//                                 enabled: false,
+//                                 decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 5.w),
+//                                     filled: true,
+//                                     suffixIcon: Padding(
+//                                       padding: EdgeInsets.only(left: 25.w),
+//                                       child: Icon(Icons.calendar_month, color: Color.fromARGB(221, 22, 51, 95), size: 16.r),
+//                                     ),
+//                                     border: const OutlineInputBorder(borderSide: BorderSide.none),
+//                                     hintText: firstPickedDate ,
+//                                     hintStyle: AllTextStyle.dateFormatStyle
+//                                 ),
+//                                 validator: (value) {
+//                                   if (value == null || value.isEmpty) {
+//                                     return null;
+//                                   }
+//                                   return null;
+//                                 },
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                         const Text("To"),
+//                         Expanded(
+//                           flex: 1,
+//                           child: Container(
+//                             margin: EdgeInsets.only(left: 5.w, top: 5.h, bottom: 5.h),
+//                             height: 25.0.h,
+//                             padding: EdgeInsets.all(5.0.r),
+//                             decoration:ContDecoration.contDecoration,
+//                             child: GestureDetector(
+//                               onTap: (() {_secondSelectedDate();
+//                               }),
+//                               child: TextFormField(
+//                                 style: AllTextStyle.dateFormatStyle,
+//                                 enabled: false,
+//                                 decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 5.w),
+//                                     filled: true,
+//                                     suffixIcon: Padding(
+//                                       padding: EdgeInsets.only(left: 25.w),
+//                                       child: Icon(Icons.calendar_month, color: Color.fromARGB(221, 22, 51, 95), size: 16.r),
+//                                     ),
+//                                     border: const OutlineInputBorder(borderSide: BorderSide.none),
+//                                     hintText: secondPickedDate,
+//                                     hintStyle: AllTextStyle.dateFormatStyle
+//                                 ),
+//                                 validator: (value) {
+//                                   if (value == null || value.isEmpty) {
+//                                     return null;
+//                                   }
+//                                   return null;
+//                                 },
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                   /// Date Picker
+//                   Align(
+//                     alignment: Alignment.bottomRight,
+//                     child: Container(
+//                       padding: EdgeInsets.all(1.0.r),
+//                       child: InkWell(
+//                         onTap: _showReport,
+//                         child: Container(
+//                           height: 28.0.h,
+//                           width: 102.0.w,
+//                           decoration: BoxDecoration(
+//                             color: const Color.fromARGB(255, 4, 113, 185),
+//                             borderRadius: BorderRadius.circular(5.0.r),
+//                             boxShadow: [
+//                               BoxShadow(
+//                                 color: Colors.grey.withOpacity(0.6),
+//                                 spreadRadius: 2,
+//                                 blurRadius: 5,
+//                                 offset: const Offset(0, 3),
+//                               ),
+//                             ],
+//                           ),
+//                           child: Center(child: Text("Show Report", style:AllTextStyle.saveButtonTextStyle)),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             SizedBox(height: 10.h),
+//             allOrdersData.isNotEmpty?Row(
+//                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 GestureDetector(
+//                   onTap: () async {
+//                     await exportOrdersExcel(
+//                       context: context,
+//                       allOrdersData: allOrdersData,
+//                       subTotal: subTotal!,
+//                       vatTotal: vatTotal!,
+//                       discountTotal: discountTotal!,
+//                       transferCost: transferCost!,
+//                       totalAmount: totalAmount!,
+//                       paidTotal: paidTotal!,
+//                       dueTotal: dueTotal!,
+//                     );
+//                   },
+//                   child: Card(
+//                     color: Colors.green.shade700,
+//                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+//                     child: Padding(
+//                       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+//                       child: Row(
+//                         children: [
+//                           Icon(Icons.file_download_outlined, color: Colors.white, size: 15.r),
+//                           Text(" Excel",style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500)),
+//                         ],
+//                       ),
+//                     )
+//                   ),
+//                 ),
+//                 GestureDetector(
+//                 onTap: isPrinting ? null : () async {
+//                     setState(() {
+//                       isPrinting = true;
+//                     });
+
+//                     try {
+//                       await exportOrdersPdf(
+//                         context: context,
+//                         allOrdersData: allOrdersData,
+//                         subTotal: subTotal!,
+//                         vatTotal: vatTotal!,
+//                         discountTotal: discountTotal!,
+//                         transferCost: transferCost!,
+//                         totalAmount: totalAmount!,
+//                         paidTotal: paidTotal!,
+//                         dueTotal: dueTotal!,
+//                         companyName: companyName,
+//                         repotHeading: repotHeading, 
+//                         companyLogothumb: companyLogothumb,
+//                         firstDate: "$firstPickedDate",
+//                         secondDate: "$secondPickedDate",
+//                       );
+//                     } catch (e) {
+//                       debugPrint("Print Error => $e");
+//                     }
+
+//                     setState(() {
+//                       isPrinting = false;
+//                     });
+//                   },
+//                 child: Card(
+//                   color: Colors.indigo.shade700,
+//                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0.r)),
+//                   child: Padding(
+//                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+//                     child: isPrinting
+//                     ? SizedBox(
+//                         width: 16.w,
+//                         height: 16.h,
+//                         child: Padding(
+//                           padding: EdgeInsets.all(2.r),
+//                           child: const CircularProgressIndicator(
+//                             strokeWidth: 2,
+//                             color: Colors.white,
+//                           ),
+//                         ),
+//                       )
+//                     : Row(
+//                         mainAxisSize: MainAxisSize.min,
+//                         children: [
+//                           Icon(Icons.print,color: Colors.white,size: 15.r),
+//                           Text(" Print",
+//                             style: TextStyle(color: Colors.white,fontSize: 12.sp,fontWeight: FontWeight.w500),
+//                           ),
+//                         ],
+//                       ),
+//                   ),
+//                 ),
+//                )
+//               ],
+//             ):SizedBox(),
+//             data == 'showAllWithoutDetails'
+//               ? Expanded(
+//               child: OrdersProvider.isOrdersLoading ? const Center(child: CircularProgressIndicator())
+//                :allOrdersData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [ 
+//                         DataTable(
+//                           headingRowHeight: 20.0,
+//                           dataRowHeight: 20.0,
+//                           headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+//                           showCheckboxColumn: true,
+//                           border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+//                           columns: [
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
+//                           ],
+//                           rows: [
+//                             ...List.generate(
+//                               allOrdersData.length,
+//                                   (int index) => DataRow(
+//                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
+//                                 cells: <DataCell>[
+//                                   DataCell(Center(child: Text("${index+1}"))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
+//                                   DataCell(Center(child: Container(
+//                                   decoration: BoxDecoration(
+//                                       color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
+//                                       borderRadius: BorderRadius.circular(100.r)
+//                                   ),
+//                                   child: Padding(
+//                                     padding: EdgeInsets.symmetric(horizontal: 10.w),
+//                                     child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
+//                                   )))),
+//                                   DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context,
+//                                               MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+//                                             )));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrders(context,"", "", "", backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 ],
+//                               ),
+//                             ),
+//                             // Footer row
+//                             DataRow(
+//                               cells: <DataCell>[
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                                 const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                               ],
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//               ): const Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style: TextStyle(fontSize: 16,color: Colors.red)))),
+//             )
+//                 : data == 'showAllWithDetails'
+//                 ? Expanded(
+//               child: OrdersRecordProvider.isOrdersRecordLoading
+//                   ? const Center(child: CircularProgressIndicator())
+//                   :allOrdersRecordData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: DataTable(
+//                       headingRowHeight: 20.0,
+//                       dataRowMaxHeight: double.infinity,
+//                       headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
+//                       showCheckboxColumn: true,
+//                       border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+//                       columns: [
+//                         DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
+//                       ],
+//                       rows:
+//                       List.generate(
+//                         allOrdersRecordData.length,
+//                             (int index) =>
+//                             DataRow(
+//                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
+//                               cells: <DataCell>[
+//                                 DataCell(Center(child: Text("${index+1}"))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
+//                                   ),
+//                                 ),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(
+//                                       child:Column(
+//                                           children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                             return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
+//                                             );
+//                                           })),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
+//                                           );
+//                                         })),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
+//                                           );
+//                                         })),
+//                                   ),
+//                                 ),
+//                                DataCell(
+//                                 Center(
+//                                 child: Column(
+//                                   children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                     double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
+//                                     return Center(
+//                                       child: Text(totalAmount.toStringAsFixed(decimal!)),
+//                                     );
+//                                   }),
+//                                 ),
+//                                 ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context,
+//                                               MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+//                                             )));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrders(context,"", "", "", backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
+//             )
+//                 : data == 'showByCustomerWithoutDetails'
+//                 ? Expanded(
+//               child: OrdersProvider.isOrdersLoading
+//                   ? const Center(child: CircularProgressIndicator())
+//                   :allOrdersData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         DataTable(
+//                           headingRowHeight: 20.0,
+//                           dataRowHeight: 20.0,
+//                           headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+//                           showCheckboxColumn: true,
+//                           border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+//                           columns: [
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
+//                           ],
+//                           rows: [
+//                             ...List.generate(
+//                               allOrdersData.length,
+//                                   (int index) => DataRow(
+//                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
+//                                 cells: <DataCell>[
+//                                   DataCell(Center(child: Text("${index+1}"))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
+//                                   DataCell(Center(child: Container(
+//                                     decoration: BoxDecoration(
+//                                       color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
+//                                       borderRadius: BorderRadius.circular(100.r)
+//                                     ),
+//                                       child: Padding(
+//                                         padding: EdgeInsets.symmetric(horizontal: 10.w),
+//                                         child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
+//                                       )))),
+//                                   DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context,
+//                                               MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+//                                             )));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrders(context,"", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 ],
+//                               ),
+//                             ),
+//                             // Footer row
+//                             DataRow(
+//                               cells: <DataCell>[
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                                 const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                               ],
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//               ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
+//             )
+//                 : data == 'showByCustomerWithDetails'
+//                 ? Expanded(
+//               child: OrdersRecordProvider.isOrdersRecordLoading
+//                   ? const Center(child: CircularProgressIndicator())
+//                   :allOrdersRecordData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: DataTable(
+//                       headingRowHeight: 20.0,
+//                       dataRowMaxHeight: double.infinity,
+//                       headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
+//                       showCheckboxColumn: true,
+//                       border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+//                       columns: [
+//                         DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Invoice',style:AllTextStyle.tableHeadTextStyle)))),
+//                       ],
+//                       rows:
+//                       List.generate(
+//                         allOrdersRecordData.length,
+//                             (int index) =>
+//                             DataRow(
+//                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
+//                               cells: <DataCell>[
+//                                 DataCell(Center(child: Text("${index+1}"))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
+//                                   ),
+//                                 ),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(
+//                                       child:Column(
+//                                           children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                             return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
+//                                             );
+//                                           })),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
+//                                           );
+//                                         })),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
+//                                           );
+//                                         })),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                 Center(
+//                                 child: Column(
+//                                   children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                     double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
+//                                     return Center(
+//                                       child: Text(totalAmount.toStringAsFixed(decimal!)),
+//                                     );
+//                                   }),
+//                                 ),
+//                                 ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersRecordProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrdersRecord(context,"", _selectCustomerId, "", backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
+//             )
+//                 : data == 'showByEmployeeWithoutDetails'
+//                 ? Expanded(
+//               child: OrdersProvider.isOrdersLoading
+//                   ? const Center(child: CircularProgressIndicator())
+//                   :allOrdersData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         DataTable(
+//                           headingRowHeight: 20.0,
+//                           dataRowHeight: 20.0,
+//                           headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+//                           showCheckboxColumn: true,
+//                           border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+//                           columns: [
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
+//                           ],
+//                           rows: [
+//                             ...List.generate(
+//                               allOrdersData.length,
+//                                   (int index) => DataRow(
+//                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
+//                                 cells: <DataCell>[
+//                                   DataCell(Center(child: Text("${index+1}"))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
+//                                   DataCell(Center(child: Container(
+//                                       decoration: BoxDecoration(
+//                                           color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
+//                                           borderRadius: BorderRadius.circular(100.r)
+//                                       ),
+//                                       child: Padding(
+//                                         padding: EdgeInsets.symmetric(horizontal: 10.w),
+//                                         child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
+//                                       )))),
+//                                   DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context,
+//                                               MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+//                                             )));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrders(context,"", "",_selectEmployeeId, backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 ],
+//                               ),
+//                             ),
+//                             // Footer row
+//                             DataRow(
+//                               cells: <DataCell>[
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                                 const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                               ],
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//               ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
+//             )
+//                 : data == 'showByEmployeeWithDetails'
+//                 ? Expanded(
+//               child: OrdersRecordProvider.isOrdersRecordLoading
+//                   ? const Center(child: CircularProgressIndicator())
+//                   :allOrdersRecordData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: DataTable(
+//                       headingRowHeight: 20.0,
+//                       dataRowMaxHeight: double.infinity,
+//                       headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
+//                       showCheckboxColumn: true,
+//                       border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+//                       columns: [
+//                         DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
+//                       ],
+//                       rows:
+//                       List.generate(
+//                         allOrdersRecordData.length,
+//                             (int index) =>
+//                             DataRow(
+//                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
+//                               cells: <DataCell>[
+//                                 DataCell(Center(child: Text("${index+1}"))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
+//                                   ),
+//                                 ),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(
+//                                       child:Column(
+//                                           children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                             return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
+//                                             );
+//                                           })),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
+//                                           );
+//                                         })),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
+//                                           );})),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                 Center(
+//                                 child: Column(
+//                                   children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                     double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
+//                                     return Center(
+//                                       child: Text(totalAmount.toStringAsFixed(decimal!)),
+//                                     );
+//                                   }),
+//                                  ),
+//                                 ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersRecordProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrdersRecord(context,"", "", _selectEmployeeId, backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
+//             )
+//                 : data == 'showByCategoryDetails'
+//                 ? Expanded(
+//                 child: OrdersDetailsProvider.isOrdersDetailsLoading
+//                     ? const Center(child: CircularProgressIndicator())
+//                     : LayoutBuilder(
+//                         builder: (context, constraints) {
+//                           // --- Logic: Same Product Grouping Start ---
+//                           // Prottek product-er ID ke key hishebe dhore quantity ebong amount jog kora hochche
+//                           Map<String, Map<String, dynamic>> groupedMap = {};
+
+//                           for (var item in allOrdersDetailsData) {
+//                             String id = item.productCode;
+
+//                             if (groupedMap.containsKey(id)) {
+//                               // Jodi product-ti agei map-e thake, tar quantity ar amount jog korun
+//                               double oldQty = double.parse(groupedMap[id]!['quantity'].toString());
+//                               double newQty = oldQty + double.parse(item.saleDetailsTotalQuantity);
+
+//                               double oldAmt = double.parse(groupedMap[id]!['amount'].toString());
+//                               double newAmt = oldAmt + double.parse(item.saleDetailsTotalAmount.toString());
+
+//                               groupedMap[id]!['quantity'] = newQty;
+//                               groupedMap[id]!['amount'] = newAmt;
+//                             } else {
+//                               // Jodi product-ti prothom-bar ashe, notun entry create korun
+//                               groupedMap[id] = {
+//                                 'productCode': item.productCode,
+//                                 'productName': item.productName,
+//                                 'productCategoryName': item.productCategoryName,
+//                                 'quantity': double.parse(item.saleDetailsTotalQuantity),
+//                                 'amount': double.parse(item.saleDetailsTotalAmount.toString()),
+//                               };
+//                             }
+//                           }
+
+//                           // Map-tike List-e convert korlam jate DataTable-e show kora jay
+//                           List groupedList = groupedMap.values.toList();
+//                           // --- Logic: Grouping End ---
+
+//                           return SizedBox(
+//                             width: double.infinity,
+//                             height: double.infinity,
+//                             child: SingleChildScrollView(
+//                               scrollDirection: Axis.vertical,
+//                               child: SingleChildScrollView(
+//                                 scrollDirection: Axis.horizontal,
+//                                 child: Column(
+//                                   crossAxisAlignment: CrossAxisAlignment.start,
+//                                   children: [
+//                                     DataTable(
+//                                       headingRowHeight: 20.h,
+//                                       dataRowHeight: 20.h, // Height ektu bariyechi readability-r jonno
+//                                       headingRowColor: MaterialStateColor.resolveWith(
+//                                           (states) => Colors.indigo.shade900),
+//                                       showCheckboxColumn: true,
+//                                       border: TableBorder.all(
+//                                           color: Colors.blue.shade200, width: 1),
+//                                       columns: [
+//                                         DataColumn(label: Text('Sl.', style: AllTextStyle.tableHeadTextStyle)),
+//                                         DataColumn(label: Text('Product Id', style: AllTextStyle.tableHeadTextStyle)),
+//                                         DataColumn(label: Text('Product Name', style: AllTextStyle.tableHeadTextStyle)),
+//                                         DataColumn(label: Text('Category Name', style: AllTextStyle.tableHeadTextStyle)),
+//                                         DataColumn(label: Text('Quantity', style: AllTextStyle.tableHeadTextStyle)),
+//                                         DataColumn(label: Text('Amount', style: AllTextStyle.tableHeadTextStyle)),
+//                                       ],
+//                                       rows: List.generate(
+//                                         groupedList.length,
+//                                         (int index) {
+//                                           final item = groupedList[index];
+//                                           return DataRow(
+//                                             color: index % 2 == 0
+//                                                 ? MaterialStateProperty.resolveWith(getColor)
+//                                                 : MaterialStateProperty.resolveWith(getColors),
+//                                             cells: <DataCell>[
+//                                               DataCell(Center(child: Text("${index + 1}"))),
+//                                               DataCell(Center(child: Text(item['productCode']))),
+//                                               DataCell(Center(child: Text(item['productName']))),
+//                                               DataCell(Center(child: Text(item['productCategoryName']))),
+//                                               // Quantity formatting
+//                                               DataCell(Center(
+//                                                   child: Text(item['quantity'].toStringAsFixed(decimal!)))),
+//                                               // Amount display
+//                                               DataCell(Center(
+//                                                   child: Text('${item['amount']}'))),
+//                                             ],
+//                                           );
+//                                         },
+//                                       ),
+//                                     ),
+//                                   ],
+//                                 ),
+//                               ),
+//                             ),
+//                           );
+//                         },
+//                       ),
+//               )
+//                 : data == 'showByQuantityDetails'
+//                 ? Expanded(
+//               child: OrdersDetailsProvider.isOrdersDetailsLoading
+//                   ? const Center(
+//                   child: CircularProgressIndicator())
+//                   : SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         DataTable(
+//                           headingRowHeight: 20.0,
+//                           dataRowHeight: 20.0,
+//                           headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+//                           showCheckboxColumn: true,
+//                           border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+//                           columns: [
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Product Id',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Category Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Amount',style:AllTextStyle.tableHeadTextStyle)))),
+//                           ],
+//                           rows: [
+//                             ...List.generate(
+//                               allOrdersDetailsData.length,
+//                                   (int index) => DataRow(
+//                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
+//                                 cells: <DataCell>[
+//                                   DataCell(Center(child: Text("${index+1}"))),
+//                                   DataCell(Center(child: Text(allOrdersDetailsData[index].productCode))),
+//                                   DataCell(Center(child: Text(allOrdersDetailsData[index].productName))),
+//                                   DataCell(Center(child: Text(allOrdersDetailsData[index].productCategoryName))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersDetailsData[index].saleDetailsTotalQuantity).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text('${allOrdersDetailsData[index].saleDetailsTotalAmount}'))),
+//                                 ],
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             )
+                
+//                 : data == 'showByUserWithoutDetails'
+//                 ? Expanded(
+//               child: OrdersProvider.isOrdersLoading
+//                   ? const Center(child: CircularProgressIndicator())
+//                   :allOrdersData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         DataTable(
+//                           headingRowHeight: 20.0,
+//                           dataRowHeight: 20.0,
+//                           headingRowColor: MaterialStateColor.resolveWith((states) => Colors.indigo.shade900),
+//                           showCheckboxColumn: true,
+//                           border: TableBorder.all(color: Colors.blue.shade200, width: 1.w),
+//                           columns: [
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Sub Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Vat',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Discount',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Transport Cost',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Paid',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Due',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Note',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Status',style:AllTextStyle.tableHeadTextStyle)))),
+//                             DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
+//                           ],
+//                           rows: [
+//                             ...List.generate(
+//                               allOrdersData.length,
+//                                   (int index) => DataRow(
+//                                 color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColor):MaterialStateProperty.resolveWith(getColors),
+//                                 cells: <DataCell>[
+//                                   DataCell(Center(child: Text("${index+1}"))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterInvoiceNo??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterSaleDate??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].customerNameMaster??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].employeeName??""))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].addedBy??""))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterSubTotalAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTaxAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalDiscountAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterFreight).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterTotalSaleAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterPaidAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(double.parse(allOrdersData[index].saleMasterDueAmount).toStringAsFixed(decimal!)))),
+//                                   DataCell(Center(child: Text(allOrdersData[index].saleMasterDescription??""))),
+//                                   DataCell(Center(child: Container(
+//                                       decoration: BoxDecoration(
+//                                           color:allOrdersData[index].status=="a"? Colors.teal:Colors.yellow.shade900,
+//                                           borderRadius: BorderRadius.circular(100.r)
+//                                       ),
+//                                       child: Padding(
+//                                         padding: EdgeInsets.symmetric(horizontal: 10.w),
+//                                         child: Text(allOrdersData[index].status=="a"?"Approved":"Pending",style:TextStyle(color: Colors.white,fontSize: 11.sp,fontWeight: FontWeight.w500)),
+//                                       )))),
+//                                   DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context,
+//                                               MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersData[index].saleMasterSlNo,
+//                                             )));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrders(context,_selectUserId, "", "", backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 ],
+//                               ),
+//                             ),
+//                             // Footer row
+//                             DataRow(
+//                               cells: <DataCell>[
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                                 const DataCell(Center(child: Text('Total',style:TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(subTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(vatTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(discountTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(transferCost!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(totalAmount!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(paidTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 DataCell(Center(child: Text(dueTotal!.toStringAsFixed(decimal!),style:const TextStyle(fontWeight: FontWeight.bold)))),
+//                                 const DataCell(SizedBox()),const DataCell(SizedBox()),const DataCell(SizedBox()),
+//                               ],
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//               ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle))),
+//             )
+//                 : data == 'showByUserWithDetails'
+//                 ? Expanded(
+//               child: OrdersRecordProvider.isOrdersRecordLoading
+//                   ? const Center(child: CircularProgressIndicator())
+//                   :allOrdersRecordData.isNotEmpty?
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: double.infinity,
+//                 child: SingleChildScrollView(
+//                   scrollDirection: Axis.vertical,
+//                   child: SingleChildScrollView(
+//                     scrollDirection: Axis.horizontal,
+//                     child: DataTable(
+//                       headingRowHeight: 20.0,
+//                       dataRowMaxHeight: double.infinity,
+//                       headingRowColor: MaterialStateColor.resolveWith((states) => Colors.purple.shade800),
+//                       showCheckboxColumn: true,
+//                       border: TableBorder.all(color: Colors.blue.shade200, width: 1),
+//                       columns: [
+//                         DataColumn(label: Expanded(child: Center(child: Text('Sl.',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Invoice No',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Date',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Customer Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Employee Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Saved By',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Product Name',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Price',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Quantity',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Total',style:AllTextStyle.tableHeadTextStyle)))),
+//                         DataColumn(label: Expanded(child: Center(child: Text('Action',style:AllTextStyle.tableHeadTextStyle)))),
+//                       ],
+//                       rows:
+//                       List.generate(
+//                         allOrdersRecordData.length,
+//                             (int index) =>
+//                             DataRow(
+//                               color:index % 2 == 0 ? MaterialStateProperty.resolveWith(getColorWithDetails):MaterialStateProperty.resolveWith(getColors),
+//                               cells: <DataCell>[
+//                                 DataCell(Center(child: Text("${index+1}"))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterInvoiceNo??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].saleMasterSaleDate??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(child: Text(allOrdersRecordData[index].customerNameMaster??"",overflow: TextOverflow.ellipsis)),
+//                                   ),
+//                                 ),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].employeeName??""))),
+//                                 DataCell(Center(child: Text(allOrdersRecordData[index].addedBy??""))),
+//                                 DataCell(
+//                                   SizedBox(
+//                                     width:MediaQuery.of(context).size.width/2.5,
+//                                     child: Center(
+//                                       child:Column(
+//                                           children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                             return Center(child: Text(allOrdersRecordData[index].saleDetails![j].productName,overflow: TextOverflow.ellipsis),
+//                                             );
+//                                           })),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text(double.parse(allOrdersRecordData[index].saleDetails![j].saleDetailsRate).toStringAsFixed(decimal!)),
+//                                           );
+//                                         })),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Column(
+//                                         children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                           return Center(child: Text("${allOrdersRecordData[index].saleDetails![j].orderQuantity}"),
+//                                           );})),
+//                                   ),
+//                                 ),
+//                                 DataCell(
+//                                 Center(
+//                                 child: Column(
+//                                   children: List.generate(allOrdersRecordData[index].saleDetails!.length, (j) {
+//                                     double totalAmount = double.tryParse(allOrdersRecordData[index].saleDetails![j].saleDetailsTotalAmount.toString()) ?? 0.0;
+//                                     return Center(
+//                                       child: Text(totalAmount.toStringAsFixed(decimal!)),
+//                                     );
+//                                   }),
+//                                  ),
+//                                 ),
+//                                 ),
+//                                 DataCell(
+//                                   Center(
+//                                     child: Row(
+//                                       mainAxisSize: MainAxisSize.min,
+//                                       children: [
+//                                         GestureDetector(
+//                                           onTap: () {
+//                                             Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersInvoiceScreen(salesId: allOrdersRecordData[index].saleMasterSlNo)));
+//                                           },
+//                                           child: Icon(Icons.collections_bookmark,size: 15.r),
+//                                         ),
+//                                         SizedBox(width: 10.w),
+//                                         GestureDetector(
+//                                         onTap: () {
+//                                           final parentContext = context;
+//                                           showDialog(
+//                                             context: context,
+//                                             builder: (dialogContext) {
+//                                               return AlertDialog(
+//                                                 title: const Text("Delete Order"),
+//                                                 content: const Text("Are you sure?"),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () => Navigator.pop(dialogContext),
+//                                                     child: const Text("Cancel"),
+//                                                   ),
+//                                                   TextButton(
+//                                                     onPressed: () async {
+//                                                       Navigator.pop(dialogContext);
+//                                                       await deleteOrder(
+//                                                         parentContext,
+//                                                         int.parse(allOrdersRecordData[index].saleMasterSlNo.toString()),
+//                                                       );
+
+//                                                       await Provider.of<OrdersRecordProvider>(
+//                                                         parentContext,
+//                                                         listen: false,
+//                                                       ).getOrdersRecord(context,_selectUserId, "", "", backEndFirstDate, backEndSecondtDate);
+//                                                       setState(() {});
+//                                                     },
+//                                                     child: const Text(
+//                                                       "Delete",
+//                                                       style: TextStyle(color: Colors.red),
+//                                                     ),
+//                                                   ),
+//                                                 ],
+//                                               );
+//                                             },
+//                                           );
+//                                         },
+//                                         child: Icon(
+//                                           Icons.delete,
+//                                           color: Colors.red,
+//                                           size: 18.r,
+//                                         ),
+//                                       ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ): Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
+//             ) : Align(alignment: Alignment.center,child: Center(child: Text("No Data Found",style:AllTextStyle.nofoundTextStyle),)),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

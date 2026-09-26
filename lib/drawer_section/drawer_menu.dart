@@ -110,17 +110,6 @@ class _DrawerDemoPageState extends State<DrawerDemoPage> {
     saveAttendance = '${sharedPreferences?.getString("saveAttendance")}';
     ecpWiseSalesReport = '${sharedPreferences?.getString("ecpWiseSalesReport")}';
     empWiseCusPayDue = '${sharedPreferences?.getString("empWiseCusPayDue")}';
-
-    print("userType===$userType");
-    print("salesEntry===$salesEntry");
-    print("salesRecord===$salesRecord");
-    print("salesInvoice===$salesInvoice");
-    print("orderEntry===$orderEntry");
-    print("customerList===$customerList");
-    print("productList===$productList");
-    print("categoryList===$categoryList");
-    print("visitEntry===$visitEntry");
-    print("visitList===$visitList");
   }
   
   bool isClick = false;

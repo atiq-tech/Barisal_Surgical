@@ -150,36 +150,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
 
   late final Box box;
   bool isSellBtnClk = false;
-//   void _clearInputFields() {
-//     productController.text = '';
-//     _lotNoController.text = '';
-//     _salesRateController.text = '';
-//     _quantityController.text = '';
-//     isAdded = true;
-//     Total = 0;
-//     newQty = 0;
-//     newTotal = 0;
-//     availableStock = 0;
-
-//     _bankPaidController.text="";
-//     _paidController.text = "";
-//     _discountPercentController.text = "";
-//     _DiscountController.text = "";
-//     _vatPercentageController.text="";
-//     _VatController.text = "";
-//     _transportController.text = "";
-//     bankAccountController.text = "";
-//     discountPer = 0;
-//     transportCost=0;
-//     discountAmount = 0;
-//     previousDue = "0";
-//     vatPer = 0;
-//     vatAmount = 0;
-//     cashPaid = 0;
-//     bankPaid = 0;
-//     due = 0;
-//     calculateTotal();
-//  }
 
   void removeFromCart(index) {
     salesCartList.removeAt(index);
@@ -207,41 +177,6 @@ class _OrderEntryScreenState extends State<OrderEntryScreen> {
     });
   }
 
-//   void calculateTotal() {
-//   final allGetSalesData = salesCartList;
-//   double cartTotall = allGetSalesData.map((e) => e.total).fold(0.0, (p, element) => p + double.parse(element!));
-//   subtotal = double.parse("$cartTotall");
-//   afterDisTotal = subtotal - discountAmount;
-//   vatTotall = 0;
-//   vatAmount = 0;
-//   if (_vatPercentageController.text.isNotEmpty) {
-//     double vatPer = double.parse(_vatPercentageController.text);
-//     vatAmount = (afterDisTotal * vatPer) / 100;
-//     vatTotall = vatAmount;
-//   } else if (_VatController.text.isNotEmpty) {
-//     vatAmount = double.parse(_VatController.text);
-//     vatTotall = vatAmount;
-//   } else {
-//     vatTotall = allGetSalesData.map((e) => e.vat).fold(0.0, (p, element) => p + double.parse(element!));
-//   }
-//   total = afterDisTotal + vatTotall + transportCost;
-//   if (isAdded) {
-//     cashPaid = double.parse("$total") - double.parse("$bankPaid");
-//     _paidController.text = "$cashPaid";
-//   }
-
-//   Paid = (cashPaid + bankPaid);
-//   due = total - Paid;
-
-//   setState(() {
-//   });
-//    print("SubTotal===$subtotal");
-//     print("Total===$total");
-//     print("afterDisTotal===$afterDisTotal");
-//     print("Paid===$Paid");
-//     print("due===$due");
-//     print("cashPaid===$cashPaid");
-// }
 double getDouble(TextEditingController c) {
   return double.tryParse(c.text) ?? 0.0;
 }
@@ -780,7 +715,7 @@ void calculateTotal() {
                                           _selectedCustomer = suggestion.customerSlNo.toString();
                                           customerSlNo = suggestion.customerSlNo.toString();
                                           customerType = suggestion.customerType.toString();
-                                          employeeNameController.text = suggestion.employeeName.toString();
+                                          employeeNameController.text = customerType == "G" || customerType == "N" ? "" : suggestion.employeeName.toString();
                                           employeeSlNo = suggestion.employeeId.toString();
                                           if (_selectedCustomer == "0") {
                                             isVisible = true;
@@ -920,7 +855,7 @@ void calculateTotal() {
                                 ),
                               ],
                             ),
-                            userType == "a" || userType == "m" ? Row(
+                            Row(
                               children: [
                                 Expanded(flex: 3,child: Text("Comment", style: AllTextStyle.textFieldHeadStyle)),
                                 Expanded(flex: 1,child: Text(":", style: AllTextStyle.textFieldHeadStyle)),
@@ -954,7 +889,7 @@ void calculateTotal() {
                                   ),
                                 ),
                               ],
-                            ):SizedBox(height: 0.h),
+                            ),
                           ]),
                         ),
                       ],
@@ -1829,61 +1764,55 @@ void calculateTotal() {
                                 SizedBox(width: 10.w),
                                 GestureDetector(
                                   onTap: () {
-                                    if (customerController.text == '') {
+                                    // 1. Customer field required
+                                    if (customerController.text.isEmpty) {
                                       Utils.errorSnackBar(context, "Customer Field is required");
+                                      return;
                                     }
-                                    else if (customerType == 'G') {
-                                      if (_nameController.text == '') {
+
+                                    // 2. Extra fields for Guest (G) or New (N)
+                                    //    → Only when usertype is Admin ("a") or Manager ("m")
+                                    if ((userType == 'a' || userType == 'm') &&
+                                        (customerType == 'G' || customerType == 'N')) {
+                                      if (_nameController.text.isEmpty) {
                                         Utils.errorSnackBar(context, "Name Field is required");
-                                      } else if (_mobileNumberController.text == '') {
+                                        return;
+                                      }
+                                      if (_mobileNumberController.text.isEmpty) {
                                         Utils.errorSnackBar(context, "Mobile Field is required");
+                                        return;
                                       }
-                                      else if (_bankPaidController.text.isNotEmpty && (_selectedBankId == null || _selectedBankId == '')) {
-                                        Utils.errorSnackBar(context, "Please Select Bank Account");
-                                      } 
-                                      else if (Paid > total) {
-                                        Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
-                                      }
-                                       else {
-                                        setState(() {
-                                          isSellBtnClk = true;
-                                        });
-                                        if (subtotal == 0) {
-                                          setState(() {
-                                            isSellBtnClk = false;
-                                          });
-                                          Utils.errorSnackBar(context, "Please Add to Cart");
-                                        } else {
-                                          addOrder();
-                                          //_clearInputFields();
-                                        }
-                                      }
-                                    } 
-                                    else {
+                                    }
+
+                                    // 3. Bank selection required when bank amount is entered
                                     if (_bankPaidController.text.isNotEmpty && (_selectedBankId == null || _selectedBankId == '')) {
                                       Utils.errorSnackBar(context, "Please Select Bank Account");
-                                    } 
-                                    else if (Paid > total) {
+                                      return;
+                                    }
+
+                                    // 4. Paid cannot be greater than total
+                                    if (Paid > total) {
                                       Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
+                                      return;
                                     }
-                                    else if (customerType == 'G' && due > 0) {
+
+                                    // 5. Cash customer (G) cannot have due
+                                    if (customerType == 'G' && due > 0) {
                                       Utils.errorSnackBar(context, "Cash Customer can not due sale");
+                                      return;
                                     }
-                                    else {
-                                      setState(() {
-                                        isSellBtnClk = true;
-                                      });
-                                      if (subtotal == 0) {
-                                        setState(() {
-                                          isSellBtnClk = false;
-                                        });
-                                        Utils.errorSnackBar(context, "Please Add to Cart");
-                                      } else {
-                                        addOrder();
-                                        //_clearInputFields();
-                                      }
-                                     }
+
+                                    // 6. Cart must not be empty
+                                    if (subtotal == 0) {
+                                      Utils.errorSnackBar(context, "Please Add to Cart");
+                                      return;
                                     }
+
+                                    // All checks passed → place order
+                                    setState(() {
+                                      isSellBtnClk = true;
+                                    });
+                                    addOrder();
                                   },
                                   child: Card(
                                     elevation: 5.0,
@@ -1894,8 +1823,15 @@ void calculateTotal() {
                                         color: AppColors.appColor,
                                         borderRadius: BorderRadius.circular(5.r),
                                       ),
-                                      child: Center(child: isSellBtnClk ? SizedBox(height:20.h,width:20.w,child: CircularProgressIndicator(color: Colors.white,))
-                                          : Text("Order", style: AllTextStyle.saveButtonTextStyle)),
+                                      child: Center(
+                                        child: isSellBtnClk
+                                            ? SizedBox(
+                                                height: 20.h,
+                                                width: 20.w,
+                                                child: const CircularProgressIndicator(color: Colors.white),
+                                              )
+                                            : Text("Order", style: AllTextStyle.saveButtonTextStyle),
+                                      ),
                                     ),
                                   ),
                                 )
@@ -2058,18 +1994,17 @@ void _expDate() async {
         "previousDue": previousDue.toString(),
         "isShipping": false,
         "note": "Order from app",
-        "accountId": _selectedBankId ?? ""
+        "accountId": _selectedBankId ?? "", 
     };
 
     /// 👤 CUSTOMER DATA
-    var customerData =_selectedCustomer == null || _selectedCustomer == "null" || _selectedCustomer == "" || _selectedCustomer == "0"
-        ?  {
-      "Customer_Name": customerType == 'G'? _nameController.text.trim(): customerController.text.trim(),
+    var customerData = {
+      "Customer_Name": customerType == 'G' || customerType == 'N' ? _nameController.text.trim(): customerController.text.trim(),
       "Customer_Mobile": _mobileNumberController.text.trim(),
       "Customer_Address": _addressController.text.trim(),
       "Customer_Type": "$customerType",
-      "Customer_Email": "",
-    }:null;
+      "Customer_Comment": _commentController.text.trim(),
+    };
 
     print("🧾 SALES DATA:\n$salesData");
     print("👤 CUSTOMER DATA:\n$customerData");

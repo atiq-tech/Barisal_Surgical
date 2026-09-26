@@ -454,7 +454,7 @@ Future<Uint8List?> _fetchImage(String url) async {
         ),
         pw.SizedBox(height: 10),
         pw.Text(
-          "Note: $invoiceNote", 
+          "Note: ${data.sales[0].saleMasterDescription ?? ""}", 
           style: pw.TextStyle(
             fontWeight: pw.FontWeight.bold, 
             fontSize: 10,
@@ -1087,7 +1087,7 @@ pw.Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.sp),
                           ),
                           SizedBox(height: 10.h),
-                          Text("Note: $invoiceNote", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 10.sp)),
+                          Text("Note: ${snapshot.data!.sales[0].saleMasterDescription ?? ""}", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 10.sp)),
                           SizedBox(height: 10.h),
                         ],
                       ),

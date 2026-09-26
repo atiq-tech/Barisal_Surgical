@@ -788,7 +788,7 @@ String myAddress = "Loading...";
                                         _selectedCustomer = suggestion.customerSlNo.toString();
                                         customerSlNo = suggestion.customerSlNo.toString();
                                         customerType = suggestion.customerType.toString();
-                                        employeeNameController.text =suggestion.employeeName.toString();
+                                        employeeNameController.text = customerType == "G" || customerType == "N" ? "" : suggestion.employeeName.toString();
                                         employeeSlNo = suggestion.employeeId.toString();
 
                                         if (_selectedCustomer == "0") {
@@ -2047,41 +2047,56 @@ String myAddress = "Loading...";
                                 const SizedBox(width: 10),
                                 GestureDetector(
                                   onTap: () {
+                                    // 1. Customer field required
                                     if (customerController.text.isEmpty) {
-                                      Utils.errorSnackBar(context, "Customer Field is required");
+                                      Utils.showTopSnackBar(context, "Customer Field is required");
                                       return;
                                     }
-                                    if (customerType == 'G') {
+
+                                    // 2. Name + Mobile check শুধুমাত্র usertype == "a" বা "m" হলে
+                                    //    এবং customerType G বা N হলে
+                                    if ((userType == 'a' || userType == 'm') &&
+                                        (customerType == 'G' || customerType == 'N')) {
                                       if (_nameController.text.isEmpty) {
-                                        Utils.errorSnackBar(context, "Name Field is required");
+                                        Utils.showTopSnackBar(context, "Name Field is required");
                                         return;
                                       }
                                       if (_mobileNumberController.text.isEmpty) {
-                                        Utils.errorSnackBar(context, "Mobile Field is required");
-                                        return;
-                                      }
-                                      if (due > 0) {
-                                        Utils.errorSnackBar(context, "Cash Customer can not due sale");
+                                        Utils.showTopSnackBar(context, "Mobile Field is required");
                                         return;
                                       }
                                     }
-                                    if (_bankPaidController.text.isNotEmpty && (_selectedBankId == null || _selectedBankId == '')) {
-                                      Utils.errorSnackBar(context, "Please Select Bank Account");
+
+                                    // 3. Cash Customer (G) due sale বন্ধ (সব usertype এর জন্য)
+                                    if (customerType == 'G' && due > 0) {
+                                      Utils.showTopSnackBar(context, "Cash Customer can not due sale");
                                       return;
                                     }
+
+                                    // 4. Bank selection required
+                                    if (_bankPaidController.text.isNotEmpty &&
+                                        (_selectedBankId == null || _selectedBankId == '')) {
+                                      Utils.showTopSnackBar(context, "Please Select Bank Account");
+                                      return;
+                                    }
+
+                                    // 5. Paid > Total check
                                     if (Paid > total) {
-                                      Utils.errorSnackBar(context, "Paid Amount cannot be greater than Total Amount");
+                                      Utils.showTopSnackBar(context, "Paid Amount cannot be greater than Total Amount");
                                       return;
                                     }
+
+                                    // 6. Cart empty check
                                     if (subtotal == 0) {
-                                      Utils.errorSnackBar(context, "Please Add to Cart");
+                                      Utils.showTopSnackBar(context, "Please Add to Cart");
                                       return;
                                     }
+
+                                    // সব ঠিক থাকলে Sale
                                     setState(() {
                                       isSellBtnClk = true;
                                     });
                                     addSales();
-                                    //_clearInputFields();
                                   },
                                   child: Card(
                                     elevation: 5.0,
@@ -2097,7 +2112,10 @@ String myAddress = "Loading...";
                                             ? SizedBox(
                                                 height: 20.h,
                                                 width: 20.w,
-                                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                                child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 2,
+                                                ),
                                               )
                                             : Text("Sale", style: AllTextStyle.saveButtonTextStyle),
                                       ),
@@ -2579,15 +2597,14 @@ void _expDate() async {
         "accountId": _selectedBankId ?? ""
       },
 
-      "customer":_selectedCustomer == null || _selectedCustomer == "null" || _selectedCustomer == "" || _selectedCustomer == "0"
-        ? {
-        "Customer_Name": customerType == "G"? _nameController.text.trim(): customerController.text.trim(),
+      "customer": {
+        "Customer_Name": customerType == "G" || customerType == "N" ? _nameController.text.trim() : customerController.text.trim(),
         "Customer_Mobile": _mobileNumberController.text.trim(),
         "Customer_Address": _addressController.text.trim(),
         "Customer_Comment": _commentController.text.trim(),
         "Customer_Type": customerType,
         "status": "a"
-      }:null,
+      },
 
       "invoiceDueChecked": false,
 
@@ -2621,8 +2638,7 @@ void _expDate() async {
     }
   } catch (e) {
     print("Error in addSales: $e");
-    Utils.errorSnackBar(
-        context, "Connection Error: ${e.toString()}");
+    Utils.showTopSnackBar(context, "Connection Error: ${e.toString()}");
   } finally {
     setState(() {
       isSellBtnClk = false;
