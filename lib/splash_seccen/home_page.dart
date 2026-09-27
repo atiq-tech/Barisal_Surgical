@@ -38,6 +38,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? userType = "";
   String? userName = "";
+  String? userImage = "";
   String? employeeCode = "";
   String? salesEntry;
   String? salesRecord;
@@ -63,6 +64,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _initializeData() async {
     sharedPreferences = await SharedPreferences.getInstance();
     userName = "${sharedPreferences?.getString('userName')}";
+    userImage = "${sharedPreferences?.getString('userImage')}";
     employeeCode = "${sharedPreferences?.getString('employeeCode')}";
     userType = "${sharedPreferences?.getString('userType')}";
     salesEntry = '${sharedPreferences?.getString("sales")}';
@@ -172,11 +174,17 @@ class _HomePageState extends State<HomePage> {
             children: [
               Column(
                 children: [
-                   CircleAvatar(
-                    radius: 13.0.r,
-                    backgroundImage: NetworkImage(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNq-fhMeQRIAFfcfgPFaQDO8yTQ_SOW1-6raA_0HgiiKDJTV0TkDiojPT98h40g8T4FAk&usqp=CAU'),
-                  ),
+                  userImage != null && userImage!.isNotEmpty
+                      ? CircleAvatar(
+                          radius: 13.0.r,
+                          backgroundImage: NetworkImage("$imageBaseUrl$userImage"),
+                        )
+                      : CircleAvatar(
+                          radius: 13.0.r,
+                          backgroundImage: NetworkImage(
+                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNq-fhMeQRIAFfcfgPFaQDO8yTQ_SOW1-6raA_0HgiiKDJTV0TkDiojPT98h40g8T4FAk&usqp=CAU',
+                          ),
+                        ),
                   Center(
                     child: Text(
                       "${sharedPreferences?.getString('userName')}",

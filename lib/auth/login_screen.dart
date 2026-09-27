@@ -51,7 +51,7 @@ class _LogInPageState extends State<LogInPage> {
         sharedPreferences?.setString('employeeId', "${item["data"]["employee_id"]}");
         sharedPreferences?.setString('employeeCode', "${item["data"]["employee_code"]}");
         sharedPreferences?.setString('employeeName', "${item["data"]["employee_name"]}");
-        sharedPreferences?.setString('image_name', "${item["data"]["userImage"]}");
+        sharedPreferences?.setString('userImage', "${item["data"]["userImage"]}");
         sharedPreferences?.setString('employeePhone', "${item["data"]["employee_phone"]}");
         sharedPreferences?.setString('customerId', "${item["data"]["customerId"]}");
         sharedPreferences?.setString("branchName", "${item["data"]["branchName"]}");
@@ -68,13 +68,14 @@ class _LogInPageState extends State<LogInPage> {
         print('sessionId===== ${sharedPreferences?.getString('sessionId')}');
         print('userName===== ${sharedPreferences?.getString('userName')}');
         print('employeeCode===== ${sharedPreferences?.getString('employeeCode')}');
+        print('userImage===== ${sharedPreferences?.getString('userImage')}');
 
         GetStorage().write("token", "${item["token"]}");
         GetStorage().write("id", "${item["data"]["id"]}");
         GetStorage().write("name", "${item["data"]["name"]}");
         GetStorage().write("usertype", "${item["data"]["usertype"]}");
         GetStorage().write("customerId", "${item["data"]["customerId"]}");
-        GetStorage().write("image_name", "${item["data"]["userImage"]}");
+        GetStorage().write("userImage", "${item["data"]["userImage"]}");
         GetStorage().write("branch", "${item["data"]["branch"]}");
         GetStorage().write("branch_name", "${item["data"]["branch_name"]}");
 
