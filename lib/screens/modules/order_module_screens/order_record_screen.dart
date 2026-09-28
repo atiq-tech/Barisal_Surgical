@@ -321,7 +321,7 @@ class _OrderRecordScreenState extends State<OrderRecordScreen> {
   List? _cachedGroupedList;
   String _lastDataKey = '';
   int _currentPage = 0;
-  final int _rowsPerPage = 50;
+  final int _rowsPerPage = 300;
 
   String myAddress = "Loading...";
   double? myLat, myLong;

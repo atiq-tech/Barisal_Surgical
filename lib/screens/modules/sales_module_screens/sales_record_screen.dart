@@ -384,7 +384,7 @@ class _SalesRecordScreenState extends State<SalesRecordScreen> {
 
   // ===== Pagination (design same রাখার জন্য) =====
   int _currentPage = 0;
-  final int _rowsPerPage = 50; // চাইলে 30/100 করতে পারেন
+  final int _rowsPerPage = 300; // চাইলে 30/100 করতে পারেন
 
   String myAddress = "Loading...";
   double? myLat, myLong;
