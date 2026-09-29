@@ -137,7 +137,6 @@ getHLTextstyle() {
 }
 SizedBox sizedBoxH = SizedBox(height: 10.0.h);
 SizedBox sizedBoxW = SizedBox(width: 10.0.w);
-
  ///===Warning Dialog===
 showWarningDialog(BuildContext context) {
   showDialog(

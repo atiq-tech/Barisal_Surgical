@@ -15,8 +15,6 @@ import 'package:barishal_surgical/splash_seccen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-//import 'package:barishal_surgical/notification_service/call_back_discapter.dart';
-//import 'package:barishal_surgical/notification_service/notification_service.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/areas_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/branches_provider.dart';
 import 'package:barishal_surgical/providers/administration_module_providers/categories_provider.dart';

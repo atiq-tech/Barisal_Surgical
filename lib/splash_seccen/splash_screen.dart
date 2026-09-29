@@ -58,21 +58,9 @@ class SplashScreenState extends State<AnimatedSplashScreen>
       if (!mounted) return;
       final token = sharedPreferences.getString('token');
       if (token != null) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const BottomNavigationBarView(),
-          ),
-          (route) => false,
-        );
+        Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (_) => const BottomNavigationBarView()),(route) => false);
       } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const LogInPage(),
-          ),
-          (route) => false,
-        );
+        Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (_) => const LogInPage()),(route) => false);
       }
     });
   }

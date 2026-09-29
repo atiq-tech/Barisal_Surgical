@@ -93,13 +93,9 @@ class _TopSnackBarWidgetState extends State<_TopSnackBarWidget>with SingleTicker
                   ),
                 ],
               ),
-              child: Text(
-                widget.message,
+              child: Text(widget.message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w600),
               ),
             ),
           ),
