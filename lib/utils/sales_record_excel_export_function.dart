@@ -74,7 +74,6 @@ Future<void> salesRecordExcelExport({
         TextCellValue(item.status == "a" ? "Approved" : "Pending"),
       ]);
     }
-
     // TOTAL ROW
     sheet.appendRow([
       TextCellValue(''),
@@ -95,7 +94,6 @@ Future<void> salesRecordExcelExport({
     ]);
 
     final bytes = excel.encode();
-
     if (bytes == null) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -108,7 +106,6 @@ Future<void> salesRecordExcelExport({
     // ✅ UPDATED SAVE LOCATION (DOWNLOADS FOLDER)
     // =========================
     Directory directory;
-
     if (Platform.isAndroid) {
       directory = Directory('/storage/emulated/0/Download');
 
@@ -120,7 +117,6 @@ Future<void> salesRecordExcelExport({
     }
 
     final filePath = "${directory.path}/Sales_Report_${DateTime.now().millisecondsSinceEpoch}.xlsx";
-
     final file = File(filePath);
     await file.writeAsBytes(bytes, flush: true);
 

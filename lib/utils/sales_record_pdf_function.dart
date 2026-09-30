@@ -154,7 +154,6 @@ Future<void> salesRecordPdf({
             // =========================
             ...List.generate(allSalesData.length, (index) {
               final item = allSalesData[index];
-
               return [
                 "${index + 1}",
                 item.saleMasterInvoiceNo ?? "",
@@ -199,7 +198,6 @@ Future<void> salesRecordPdf({
     }
 
     final filePath = "${dir.path}/Sales_Report_${DateTime.now().millisecondsSinceEpoch}.pdf";
-
     final file = File(filePath);
     await file.writeAsBytes(await pdf.save());
 

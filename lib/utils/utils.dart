@@ -252,7 +252,6 @@ class _AnimatedTopSnackBarState extends State<_AnimatedTopSnackBar> with SingleT
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -312,10 +311,7 @@ class _AnimatedTopSnackBarState extends State<_AnimatedTopSnackBar> with SingleT
                   Icon(Icons.error_outline, color: Colors.white),
                   SizedBox(width: 12.w),
                   Expanded(
-                    child: Text(
-                      widget.message,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                    ),
+                    child: Text(widget.message,style: TextStyle(color: Colors.white, fontSize: 16.sp)),
                   ),
                 ],
               ),
